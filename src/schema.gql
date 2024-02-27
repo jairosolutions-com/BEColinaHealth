@@ -1,0 +1,358 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+type Appointment {
+  id: Int!
+  uuid: String!
+  dateCreated: DateTime!
+  appointmentDate: DateTime!
+  appointmentTime: String!
+  details: String!
+  appointmentStatus: String!
+  updated_at: String!
+  created_at: String!
+  deleted_at: String!
+}
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
+type Role {
+  id: Int!
+  name: String!
+  description: String!
+  ual: [UserAccessLevel!]
+}
+
+type UserAccessLevel {
+  id: Int!
+  userId: Int!
+  roleId: Int!
+}
+
+type Users {
+  Id: Int!
+  uuid: String!
+  email: String!
+  password: String!
+  fName: String!
+  lName: String!
+  status: String!
+  updated_at: String!
+  created_at: String!
+  deleted_at: String!
+  ual: [UserAccessLevel!]
+}
+
+type Company {
+  id: Int!
+  uuid: String!
+  name: String!
+  contactNo: String!
+  website: String!
+  email: String!
+  state: String!
+  zip: String!
+  updated_at: String!
+  created_at: String!
+  deleted_at: String!
+  patient: [PatientInformation!]
+  users: [Users!]
+}
+
+type EmergencyContact {
+  id: Int!
+  uuid: String!
+  firstName: String!
+  lastName: String!
+  phoneNumber: String!
+  patientRelationship: String!
+  city: String!
+  state: String!
+  zip: String!
+  country: String!
+  updated_at: String!
+  created_at: String!
+  deleted_at: String!
+}
+
+type LabResults {
+  id: Int!
+  uuid: String!
+  date: DateTime!
+  hemoglobinA1c: String!
+  fastingBloodGlucose: String!
+  totalCholesterol: String!
+  ldlCholesterol: String!
+  hdlCholesterol: String!
+  triglycerides: String!
+  updated_at: String!
+  created_at: String!
+  deleted_at: String!
+}
+
+type MedicalHistory {
+  id: Int!
+  uuid: String!
+  allergies: String!
+  medicalConditions: String!
+  surgeries: String!
+  familyHistory: String!
+  updated_at: String!
+  created_at: String!
+  deleted_at: String!
+}
+
+type Medication {
+  id: Int!
+  uuid: String!
+  medicationDate: DateTime!
+  comments: String!
+  medicationStatus: String!
+  updated_at: String!
+  created_at: String!
+  deleted_at: String!
+}
+
+type Notes {
+  id: Int!
+  uuid: String!
+  date: DateTime!
+  notes: String!
+  updated_at: String!
+  created_at: String!
+  deleted_at: String!
+}
+
+type VitalSigns {
+  id: Int!
+  uuid: String!
+  date: DateTime!
+  bloodPressure: String!
+  heartRate: String!
+  temperature: String!
+  respiratoryRate: String!
+  updated_at: String!
+  created_at: String!
+  deleted_at: String!
+}
+
+type PatientInformation {
+  id: Int!
+  uuid: String!
+  firstName: String!
+  lastName: String!
+  age: Int!
+  dateOfBirth: DateTime!
+  gender: String!
+  city: String!
+  state: String!
+  zip: String!
+  country: String!
+  phoneNo: String!
+  allergies: String!
+  codeStatus: String!
+  updated_at: String!
+  created_at: String!
+  deleted_at: String!
+  medications: [Medication!]
+  vital_signs: [VitalSigns!]
+  medical_history: [MedicalHistory!]
+  lab_results: [LabResults!]
+  notes: [Notes!]
+  appointment: [Appointment!]
+  emergency_contact: [EmergencyContact!]
+}
+
+type Query {
+  patientInformation(id: Int!): PatientInformation!
+  medication(id: Int!): Medication!
+  vitalSigns: [VitalSigns!]!
+  vitalSign(id: Int!): VitalSigns!
+  medicalHistory(id: Int!): MedicalHistory!
+  labResults: [LabResults!]!
+  labResult(id: Int!): LabResults!
+  notes: [Notes!]!
+  note(id: Int!): Notes!
+  appointment(id: Int!): Appointment!
+  emergencyContact(id: Int!): EmergencyContact!
+  users: [Users!]!
+  user(id: Int!): Users!
+  company(id: Int!): Company!
+  userAccessLevel(id: Int!): UserAccessLevel!
+  role(id: Int!): Role!
+}
+
+type Mutation {
+  createPatientInformation(createPatientInformationInput: CreatePatientInformationInput!): PatientInformation!
+  updatePatientInformation(updatePatientInformationInput: UpdatePatientInformationInput!): PatientInformation!
+  removePatientInformation(id: Int!): PatientInformation!
+  createMedication(createMedicationInput: CreateMedicationInput!): Medication!
+  updateMedication(updateMedicationInput: UpdateMedicationInput!): Medication!
+  removeMedication(id: Int!): Medication!
+  createVitalSign(createVitalSignInput: CreateVitalSignInput!): VitalSigns!
+  updateVitalSign(updateVitalSignInput: UpdateVitalSignInput!): VitalSigns!
+  removeVitalSign(id: Int!): VitalSigns!
+  createMedicalHistory(createMedicalHistoryInput: CreateMedicalHistoryInput!): MedicalHistory!
+  updateMedicalHistory(updateMedicalHistoryInput: UpdateMedicalHistoryInput!): MedicalHistory!
+  removeMedicalHistory(id: Int!): MedicalHistory!
+  createLabResult(createLabResultInput: CreateLabResultInput!): LabResults!
+  updateLabResult(updateLabResultInput: UpdateLabResultInput!): LabResults!
+  removeLabResult(id: Int!): LabResults!
+  createNote(createNoteInput: CreateNoteInput!): Notes!
+  updateNote(updateNoteInput: UpdateNoteInput!): Notes!
+  removeNote(id: Int!): Notes!
+  createAppointment(createAppointmentInput: CreateAppointmentInput!): Appointment!
+  updateAppointment(updateAppointmentInput: UpdateAppointmentInput!): Appointment!
+  removeAppointment(id: Int!): Appointment!
+  createEmergencyContact(createEmergencyContactInput: CreateEmergencyContactInput!): EmergencyContact!
+  updateEmergencyContact(updateEmergencyContactInput: UpdateEmergencyContactInput!): EmergencyContact!
+  removeEmergencyContact(id: Int!): EmergencyContact!
+  createUser(createUserInput: CreateUserInput!): Users!
+  updateUser(updateUserInput: UpdateUserInput!): Users!
+  removeUser(id: Int!): Users!
+  createCompany(createCompanyInput: CreateCompanyInput!): Company!
+  updateCompany(updateCompanyInput: UpdateCompanyInput!): Company!
+  removeCompany(id: Int!): Company!
+  createUserAccessLevel(createUserAccessLevelInput: CreateUserAccessLevelInput!): UserAccessLevel!
+  updateUserAccessLevel(updateUserAccessLevelInput: UpdateUserAccessLevelInput!): UserAccessLevel!
+  removeUserAccessLevel(id: Int!): UserAccessLevel!
+  createRole(createRoleInput: CreateRoleInput!): Role!
+  updateRole(updateRoleInput: UpdateRoleInput!): Role!
+  removeRole(id: Int!): Role!
+}
+
+input CreatePatientInformationInput {
+  """Example field (placeholder)"""
+  exampleField: Int!
+}
+
+input UpdatePatientInformationInput {
+  """Example field (placeholder)"""
+  exampleField: Int
+  id: Int!
+}
+
+input CreateMedicationInput {
+  """Example field (placeholder)"""
+  exampleField: Int!
+}
+
+input UpdateMedicationInput {
+  """Example field (placeholder)"""
+  exampleField: Int
+  id: Int!
+}
+
+input CreateVitalSignInput {
+  """Example field (placeholder)"""
+  exampleField: Int!
+}
+
+input UpdateVitalSignInput {
+  """Example field (placeholder)"""
+  exampleField: Int
+  id: Int!
+}
+
+input CreateMedicalHistoryInput {
+  """Example field (placeholder)"""
+  exampleField: Int!
+}
+
+input UpdateMedicalHistoryInput {
+  """Example field (placeholder)"""
+  exampleField: Int
+  id: Int!
+}
+
+input CreateLabResultInput {
+  """Example field (placeholder)"""
+  exampleField: Int!
+}
+
+input UpdateLabResultInput {
+  """Example field (placeholder)"""
+  exampleField: Int
+  id: Int!
+}
+
+input CreateNoteInput {
+  """Example field (placeholder)"""
+  exampleField: Int!
+}
+
+input UpdateNoteInput {
+  """Example field (placeholder)"""
+  exampleField: Int
+  id: Int!
+}
+
+input CreateAppointmentInput {
+  """Example field (placeholder)"""
+  exampleField: Int!
+}
+
+input UpdateAppointmentInput {
+  """Example field (placeholder)"""
+  exampleField: Int
+  id: Int!
+}
+
+input CreateEmergencyContactInput {
+  """Example field (placeholder)"""
+  exampleField: Int!
+}
+
+input UpdateEmergencyContactInput {
+  """Example field (placeholder)"""
+  exampleField: Int
+  id: Int!
+}
+
+input CreateUserInput {
+  """Example field (placeholder)"""
+  exampleField: Int!
+}
+
+input UpdateUserInput {
+  """Example field (placeholder)"""
+  exampleField: Int
+  id: Int!
+}
+
+input CreateCompanyInput {
+  """Example field (placeholder)"""
+  exampleField: Int!
+}
+
+input UpdateCompanyInput {
+  """Example field (placeholder)"""
+  exampleField: Int
+  id: Int!
+}
+
+input CreateUserAccessLevelInput {
+  """Example field (placeholder)"""
+  exampleField: Int!
+}
+
+input UpdateUserAccessLevelInput {
+  """Example field (placeholder)"""
+  exampleField: Int
+  id: Int!
+}
+
+input CreateRoleInput {
+  """Example field (placeholder)"""
+  exampleField: Int!
+}
+
+input UpdateRoleInput {
+  """Example field (placeholder)"""
+  exampleField: Int
+  id: Int!
+}
