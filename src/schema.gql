@@ -226,14 +226,43 @@ type Mutation {
 }
 
 input CreatePatientInformationInput {
-  """Example field (placeholder)"""
-  exampleField: Int!
+  id: Int!
+  uuid: String!
+  firstName: String!
+  lastName: String!
+  age: Int!
+  dateOfBirth: DateTime!
+  gender: String!
+  city: String!
+  state: String!
+  zip: String!
+  country: String!
+  phoneNo: String!
+  allergies: String!
+  codeStatus: String!
+  updated_at: String!
+  created_at: String!
+  deleted_at: String!
 }
 
 input UpdatePatientInformationInput {
-  """Example field (placeholder)"""
-  exampleField: Int
   id: Int!
+  uuid: String!
+  firstName: String!
+  lastName: String!
+  age: Int!
+  dateOfBirth: DateTime!
+  gender: String!
+  city: String!
+  state: String!
+  zip: String!
+  country: String!
+  phoneNo: String!
+  allergies: String!
+  codeStatus: String!
+  updated_at: String!
+  created_at: String!
+  deleted_at: String!
 }
 
 input CreateMedicationInput {

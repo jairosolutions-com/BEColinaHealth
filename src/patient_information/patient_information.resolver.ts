@@ -10,7 +10,7 @@ export class PatientInformationResolver {
 
   @Mutation(() => PatientInformation)
   createPatientInformation(@Args('createPatientInformationInput') createPatientInformationInput: CreatePatientInformationInput) {
-    return this.patientInformationService.create(createPatientInformationInput);
+    return this.patientInformationService.createPatientInformation(createPatientInformationInput);
   }
 
   @Query(() => [PatientInformation], { name: 'patientInformation' })
