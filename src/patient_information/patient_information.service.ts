@@ -22,19 +22,52 @@ export class PatientInformationService {
 
     return this.patientInformationRepository.save(newPatientInformation);
   }
-  findAll() {
-    return `This action returns all patientInformation`;
+  async getAllPatients(): Promise<PatientInformation[]> {
+    return this.patientInformationRepository.find();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} patientInformation`;
+  async getPatientInformationById(
+    id: number,
+  ): Promise<PatientInformation> {
+    return this.patientInformationRepository.findOneOrFail({
+      where: { id },
+    });
   }
 
-  update(id: number, updatePatientInformationInput: UpdatePatientInformationInput) {
-    return `This action updates a #${id} patientInformation`;
+
+  async getAllPatientsWithDetails(): Promise<PatientInformation[]> {
+    return this.patientInformationRepository.find({
+      relations: [
+        'medications',
+        'vital_signs',
+        'medical_history',
+        'lab_results',
+        'notes',
+        'appointment',
+        'emergency_contact',
+
+      ],
+    });
+  }
+  async updatePatientInformation(
+    updatePatientInformationInput: UpdatePatientInformationInput,
+  ): Promise<PatientInformation> {
+    const { id, ...updateData } = updatePatientInformationInput;
+
+    // Find the patient record by ID
+    const patient = await this.patientInformationRepository.findOneOrFail({
+      where: { id },
+    });
+
+    // Update the patient record with the new data
+    Object.assign(patient, updateData);
+
+    // Save the updated patient record
+    return this.patientInformationRepository.save(patient);
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} patientInformation`;
+
+  removePatientInformation(id: number) {
+    return this.patientInformationRepository.delete(id);
   }
 }

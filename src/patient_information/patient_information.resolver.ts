@@ -6,7 +6,7 @@ import { UpdatePatientInformationInput } from './dto/update-patient_information.
 
 @Resolver(() => PatientInformation)
 export class PatientInformationResolver {
-  constructor(private readonly patientInformationService: PatientInformationService) {}
+  constructor(private readonly patientInformationService: PatientInformationService) { }
 
   @Mutation(() => PatientInformation)
   createPatientInformation(@Args('createPatientInformationInput') createPatientInformationInput: CreatePatientInformationInput) {
@@ -14,22 +14,21 @@ export class PatientInformationResolver {
   }
 
   @Query(() => [PatientInformation], { name: 'patientInformation' })
-  findAll() {
-    return this.patientInformationService.findAll();
+  getAllPatients() {
+    return this.patientInformationService.getAllPatients();
   }
 
   @Query(() => PatientInformation, { name: 'patientInformation' })
-  findOne(@Args('id', { type: () => Int }) id: number) {
-    return this.patientInformationService.findOne(id);
+  getPatientInformationById(@Args('id', { type: () => Int }) id: number) {
+    return this.patientInformationService.getPatientInformationById(id);
   }
 
   @Mutation(() => PatientInformation)
   updatePatientInformation(@Args('updatePatientInformationInput') updatePatientInformationInput: UpdatePatientInformationInput) {
-    return this.patientInformationService.update(updatePatientInformationInput.id, updatePatientInformationInput);
   }
 
   @Mutation(() => PatientInformation)
   removePatientInformation(@Args('id', { type: () => Int }) id: number) {
-    return this.patientInformationService.remove(id);
+    return this.patientInformationService.removePatientInformation(id);
   }
 }
