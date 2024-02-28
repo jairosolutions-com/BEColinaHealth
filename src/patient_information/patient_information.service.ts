@@ -35,10 +35,8 @@ export class PatientInformationService {
     // Generate a UUID for the patient information
     const uuidPrefix = 'PTN-'; // Customize prefix as needed
     const uuid = this.idService.generateRandomUUID(uuidPrefix);
-    const creationDate = new Date().toISOString();
     // Assign the generated UUID and creation date to the new patient information
     newPatientInformation.uuid = uuid;
-    newPatientInformation.created_at = creationDate;
 
     // Copy the properties from the input object to the new patient information
     Object.assign(newPatientInformation, input);
