@@ -1,8 +1,8 @@
 import { Resolver, Query, Mutation, Args, Int } from '@nestjs/graphql';
-import { VitalSignsService } from './vital_signs.service';
-import { VitalSigns } from './entities/vital_sign.entity';
 import { CreateVitalSignInput } from './dto/create-vital_sign.input';
 import { UpdateVitalSignInput } from './dto/update-vital_sign.input';
+import { VitalSigns } from './entities/vital_sign.entity';
+import { VitalSignsService } from './vital_signs.service';
 
 @Resolver(() => VitalSigns)
 export class VitalSignsResolver {
