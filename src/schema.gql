@@ -343,13 +343,27 @@ input UpdateEmergencyContactInput {
 }
 
 input CreateUserInput {
-  """Example field (placeholder)"""
-  exampleField: Int!
+  uuid: String!
+  email: String!
+  password: String!
+  fName: String!
+  lName: String!
+  status: String!
+  updated_at: String
+  created_at: String
+  deleted_at: String
 }
 
 input UpdateUserInput {
-  """Example field (placeholder)"""
-  exampleField: Int
+  uuid: String
+  email: String
+  password: String
+  fName: String
+  lName: String
+  status: String
+  updated_at: String
+  created_at: String
+  deleted_at: String
   id: Int!
 }
 
