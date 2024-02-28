@@ -168,7 +168,7 @@ type PatientInformation {
 }
 
 type Query {
-  patientInformation(id: Int!): PatientInformation!
+  patientInformation: [PatientInformation!]!
   medication(id: Int!): Medication!
   vitalSigns: [VitalSigns!]!
   vitalSign(id: Int!): VitalSigns!
@@ -343,27 +343,13 @@ input UpdateEmergencyContactInput {
 }
 
 input CreateUserInput {
-  uuid: String!
-  email: String!
-  password: String!
-  fName: String!
-  lName: String!
-  status: String!
-  updated_at: String
-  created_at: String
-  deleted_at: String
+  """Example field (placeholder)"""
+  exampleField: Int!
 }
 
 input UpdateUserInput {
-  uuid: String
-  email: String
-  password: String
-  fName: String
-  lName: String
-  status: String
-  updated_at: String
-  created_at: String
-  deleted_at: String
+  """Example field (placeholder)"""
+  exampleField: Int
   id: Int!
 }
 

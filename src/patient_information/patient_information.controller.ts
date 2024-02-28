@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Post,Body } from '@nestjs/common';
+import { Controller, Get, Param, Post, Body, Query } from '@nestjs/common';
 import { PatientInformationService } from './patient_information.service';
 import { CreatePatientInformationInput } from './dto/create-patient_information.input';
 
@@ -6,18 +6,32 @@ import { CreatePatientInformationInput } from './dto/create-patient_information.
 export class PatientInformationController {
     constructor(private readonly patientInformationService: PatientInformationService) { }
     @Get()
-    findAllPatients() {
-        return this.patientInformationService.getAllPatients();
+    findAllPatientsAllInfo() {
+        return this.patientInformationService.getAllPatientsFullInfo();
     }
-    // patient-information/{id}
-    @Get(':id')
-    findPatientById(@Param('id') id: string) {
-        return this.patientInformationService.getPatientInformationById(+id);
-    };
+    //get patient list page basic info (id, name, age, gender)
+    //values per page is set as perPage, page is page number 
+
+    //when filtering if show 1or 2 items per page check the service for getList
+
+    @Get('list')
+    findAllPatientsBasicInfo(
+        @Query('page') page: number = 1,
+    ) {
+        return this.patientInformationService.getAllPatientsBasicInfo(page);
+    }
+    //search for term and filter it then use paging
+    @Get('search')
+    getPatientInformationByName(
+        @Query('term') term: string,
+        @Query('page') page: number = 1,
+    ) {
+        return this.patientInformationService.searchAllPatientInfoByTerm(term, page);
+    }
 
     // POST /nachos
     @Post()
-    createNacho(@Body() createPatientInformationInput: CreatePatientInformationInput) {
+    createPatient(@Body() createPatientInformationInput: CreatePatientInformationInput) {
         return this.patientInformationService.createPatientInformation(createPatientInformationInput);
     }
 }

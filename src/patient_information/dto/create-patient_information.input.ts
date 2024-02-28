@@ -49,7 +49,7 @@ export class CreatePatientInformationInput {
 
   @Field()
   created_at: string;
-
+  
   @Field()
   deleted_at: string;
 

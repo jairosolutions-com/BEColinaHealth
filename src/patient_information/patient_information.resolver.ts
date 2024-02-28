@@ -22,13 +22,13 @@ export class PatientInformationResolver {
 
   @Query(() => [PatientInformation], { name: 'patientInformation' })
   getAllPatients() {
-    return this.patientInformationService.getAllPatients();
+    return this.patientInformationService.getAllPatientsFullInfo();
   }
 
-  @Query(() => PatientInformation, { name: 'patientInformation' })
-  getPatientInformationById(@Args('id', { type: () => Int }) id: number) {
-    return this.patientInformationService.getPatientInformationById(id);
-  }
+  // @Query(() => PatientInformation, { name: 'patientInformation' })
+  // searchAllPatientInfoByTerm(@Args('id', { type: () => Int }) id: number) {
+  //   return this.patientInformationService.searchAllPatientInfoByTerm(i(term, page);
+  // }
 
   @Mutation(() => PatientInformation)
   updatePatientInformation(@Args('updatePatientInformationInput') updatePatientInformationInput: UpdatePatientInformationInput) {
