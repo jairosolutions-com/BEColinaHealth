@@ -3,17 +3,19 @@ import { Company } from 'src/company/entities/company.entity';
 import { UserAccessLevel } from 'src/user_access_level/entities/user_access_level.entity';
 import {
   Column,
+  DeleteDateColumn,
   Entity,
   JoinColumn,
   ManyToOne,
   OneToMany,
   PrimaryColumn,
+  PrimaryGeneratedColumn,
 } from 'typeorm';
 
 @Entity()
 @ObjectType()
 export class Users {
-  @PrimaryColumn()
+  @PrimaryGeneratedColumn()
   @Field((type) => Int)
   Id: number;
 
@@ -49,7 +51,7 @@ export class Users {
   @Field()
   created_at: string;
 
-  @Column({ nullable: true })
+  @DeleteDateColumn({ name: 'deleted_at', nullable: true })
   @Field()
   deleted_at: string;
 

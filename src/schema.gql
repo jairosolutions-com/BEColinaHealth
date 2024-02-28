@@ -179,8 +179,6 @@ type Query {
   note(id: Int!): Notes!
   appointment(id: Int!): Appointment!
   emergencyContact(id: Int!): EmergencyContact!
-  users: [Users!]!
-  user(id: Int!): Users!
   company(id: Int!): Company!
   userAccessLevel(id: Int!): UserAccessLevel!
   role(id: Int!): Role!
@@ -211,9 +209,6 @@ type Mutation {
   createEmergencyContact(createEmergencyContactInput: CreateEmergencyContactInput!): EmergencyContact!
   updateEmergencyContact(updateEmergencyContactInput: UpdateEmergencyContactInput!): EmergencyContact!
   removeEmergencyContact(id: Int!): EmergencyContact!
-  createUser(createUserInput: CreateUserInput!): Users!
-  updateUser(updateUserInput: UpdateUserInput!): Users!
-  removeUser(id: Int!): Users!
   createCompany(createCompanyInput: CreateCompanyInput!): Company!
   updateCompany(updateCompanyInput: UpdateCompanyInput!): Company!
   removeCompany(id: Int!): Company!
@@ -226,14 +221,43 @@ type Mutation {
 }
 
 input CreatePatientInformationInput {
-  """Example field (placeholder)"""
-  exampleField: Int!
+  id: Int!
+  uuid: String!
+  firstName: String!
+  lastName: String!
+  age: Int!
+  dateOfBirth: DateTime!
+  gender: String!
+  city: String!
+  state: String!
+  zip: String!
+  country: String!
+  phoneNo: String!
+  allergies: String!
+  codeStatus: String!
+  updated_at: String!
+  created_at: String!
+  deleted_at: String!
 }
 
 input UpdatePatientInformationInput {
-  """Example field (placeholder)"""
-  exampleField: Int
   id: Int!
+  uuid: String!
+  firstName: String!
+  lastName: String!
+  age: Int!
+  dateOfBirth: DateTime!
+  gender: String!
+  city: String!
+  state: String!
+  zip: String!
+  country: String!
+  phoneNo: String!
+  allergies: String!
+  codeStatus: String!
+  updated_at: String!
+  created_at: String!
+  deleted_at: String!
 }
 
 input CreateMedicationInput {
@@ -308,17 +332,6 @@ input CreateEmergencyContactInput {
 }
 
 input UpdateEmergencyContactInput {
-  """Example field (placeholder)"""
-  exampleField: Int
-  id: Int!
-}
-
-input CreateUserInput {
-  """Example field (placeholder)"""
-  exampleField: Int!
-}
-
-input UpdateUserInput {
   """Example field (placeholder)"""
   exampleField: Int
   id: Int!

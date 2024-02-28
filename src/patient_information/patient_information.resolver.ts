@@ -6,11 +6,18 @@ import { UpdatePatientInformationInput } from './dto/update-patient_information.
 
 @Resolver(() => PatientInformation)
 export class PatientInformationResolver {
-  constructor(private readonly patientInformationService: PatientInformationService) {}
+  constructor(
+    private readonly patientInformationService: PatientInformationService,
+  ) {}
 
   @Mutation(() => PatientInformation)
-  createPatientInformation(@Args('createPatientInformationInput') createPatientInformationInput: CreatePatientInformationInput) {
-    return this.patientInformationService.create(createPatientInformationInput);
+  createPatientInformation(
+    @Args('createPatientInformationInput')
+    createPatientInformationInput: CreatePatientInformationInput,
+  ) {
+    return this.patientInformationService.createPatientInformation(
+      createPatientInformationInput,
+    );
   }
 
   @Query(() => [PatientInformation], { name: 'patientInformation' })
@@ -24,8 +31,14 @@ export class PatientInformationResolver {
   }
 
   @Mutation(() => PatientInformation)
-  updatePatientInformation(@Args('updatePatientInformationInput') updatePatientInformationInput: UpdatePatientInformationInput) {
-    return this.patientInformationService.update(updatePatientInformationInput.id, updatePatientInformationInput);
+  updatePatientInformation(
+    @Args('updatePatientInformationInput')
+    updatePatientInformationInput: UpdatePatientInformationInput,
+  ) {
+    return this.patientInformationService.update(
+      updatePatientInformationInput.id,
+      updatePatientInformationInput,
+    );
   }
 
   @Mutation(() => PatientInformation)

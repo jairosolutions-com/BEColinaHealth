@@ -18,9 +18,12 @@ import { UsersModule } from './users/users.module';
 import { CompanyModule } from './company/company.module';
 import { UserAccessLevelModule } from './user_access_level/user_access_level.module';
 import { RoleModule } from './role/role.module';
+import { PatientInformation } from './patient_information/entities/patient_information.entity';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
+    TypeOrmModule.forFeature([PatientInformation]),
     ConfigModule.forRoot({ envFilePath: '.env.local' }),
     TypeOrmModule.forRoot({
       type: 'postgres',
@@ -49,6 +52,7 @@ import { RoleModule } from './role/role.module';
     CompanyModule,
     UserAccessLevelModule,
     RoleModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],
