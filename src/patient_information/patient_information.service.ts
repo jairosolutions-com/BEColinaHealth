@@ -20,7 +20,9 @@ export class PatientInformationService {
     // Check if a patient with similar information already exists
     const existingLowercaseboth = await this.patientInformationRepository.findOne({
       where: {
-        firstName: ILike(`%${input.firstName}%`), // Check based on the 
+        firstName: ILike(`%${input.firstName}%`), 
+        lastName: ILike(`%${input.lastName}%`),
+        dateOfBirth: input.dateOfBirth // Check for exact match
       },
 
     });
