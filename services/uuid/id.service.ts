@@ -1,11 +1,11 @@
 import { Injectable } from '@nestjs/common';
-import { v4 as uuidv4 } from 'uuid';
+import { v4 as uuid4 } from 'uuid';
 
 @Injectable()
 export class IdService {
-  generateRandomUUID(prefix: string): string {
+  generateRandomUUID(prefix : string): string {
     // Generate a Version 4 (random) UUID
-    const randomUUID = uuidv4();
+    const randomUUID = uuid4();
 
     // Add the prefix to the UUID
     const prefixedUUID = prefix + randomUUID.substring(0, 8);

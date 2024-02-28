@@ -168,7 +168,7 @@ type PatientInformation {
 }
 
 type Query {
-  patientInformation(id: Int!): PatientInformation!
+  patientInformation: [PatientInformation!]!
   medication(id: Int!): Medication!
   vitalSigns: [VitalSigns!]!
   vitalSign(id: Int!): VitalSigns!

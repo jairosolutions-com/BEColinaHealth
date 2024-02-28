@@ -21,28 +21,21 @@ export class PatientInformationResolver {
   }
 
   @Query(() => [PatientInformation], { name: 'patientInformation' })
-  findAll() {
-    return this.patientInformationService.findAll();
+  getAllPatients() {
+    return this.patientInformationService.getAllPatientsFullInfo();
   }
 
-  @Query(() => PatientInformation, { name: 'patientInformation' })
-  findOne(@Args('id', { type: () => Int }) id: number) {
-    return this.patientInformationService.findOne(id);
-  }
+  // @Query(() => PatientInformation, { name: 'patientInformation' })
+  // searchAllPatientInfoByTerm(@Args('id', { type: () => Int }) id: number) {
+  //   return this.patientInformationService.searchAllPatientInfoByTerm(i(term, page);
+  // }
 
   @Mutation(() => PatientInformation)
-  updatePatientInformation(
-    @Args('updatePatientInformationInput')
-    updatePatientInformationInput: UpdatePatientInformationInput,
-  ) {
-    return this.patientInformationService.update(
-      updatePatientInformationInput.id,
-      updatePatientInformationInput,
-    );
+  updatePatientInformation(@Args('updatePatientInformationInput') updatePatientInformationInput: UpdatePatientInformationInput) {
   }
 
   @Mutation(() => PatientInformation)
   removePatientInformation(@Args('id', { type: () => Int }) id: number) {
-    return this.patientInformationService.remove(id);
+    return this.patientInformationService.removePatientInformation(id);
   }
 }

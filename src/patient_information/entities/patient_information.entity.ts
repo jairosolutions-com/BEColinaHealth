@@ -15,6 +15,7 @@ import {
   ManyToOne,
   OneToMany,
   PrimaryColumn,
+  DeleteDateColumn,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 
@@ -85,7 +86,7 @@ export class PatientInformation {
   @Field()
   created_at: string;
 
-  @Column({ nullable: true })
+  @DeleteDateColumn({name:'deleted_at', nullable : true})
   @Field()
   deleted_at: string;
 
