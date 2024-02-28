@@ -1,31 +1,14 @@
-import { InputType, Int, Field } from '@nestjs/graphql';
+import { IsEmail } from 'class-validator';
 
-@InputType()
 export class CreateUserInput {
-  @Field()
   uuid: string;
-
-  @Field()
+  @IsEmail({}, { message: 'Invalid email format' })
   email: string;
-
-  @Field()
   password: string;
-
-  @Field()
   fName: string;
-
-  @Field()
   lName: string;
-
-  @Field()
   status: string;
-
-  @Field({ nullable: true })
-  updated_at: string;
-
-  @Field({ nullable: true })
-  created_at: string;
-
-  @Field({ nullable: true })
-  deleted_at: string;
+  updated_at?: string;
+  created_at?: string;
+  deleted_at?: string;
 }

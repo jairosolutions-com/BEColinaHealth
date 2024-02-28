@@ -1,34 +1,67 @@
-import { Controller, Post, Body } from '@nestjs/common';
-import * as bcrypt from 'bcrypt';
+import {
+  Controller,
+  Post,
+  Body,
+  Get,
+  Param,
+  HttpStatus,
+  HttpException,
+  UsePipes,
+  ValidationPipe,
+} from '@nestjs/common';
 import { CreateUserInput } from './dto/create-user.input';
-import { IdService } from 'services/uuid/id.service';
-import { Users } from './entities/user.entity';
+import { UsersService } from './users.service';
 
 @Controller('users')
 export class UsersController {
-  constructor(private readonly idService: IdService) {}
+  constructor(private readonly usersService: UsersService) {}
 
-  @Post()
-  async createUser(@Body() createUserInput: CreateUserInput): Promise<Users> {
-    const newUser = new Users();
-    newUser.uuid = 'UID' + this.idService.generateRandomUUID(); // Generate userId using IdService
-    newUser.email = createUserInput.email;
-
-    // Ensure that the password is not null or undefined
-    if (createUserInput.password) {
-      newUser.password = await this.hashPassword(createUserInput.password);
-    } else {
-      // Handle the case where the password is not provided
-      throw new Error('Password is required');
-    }
-
-    // Save newUser to the database using TypeORM or any other ORM
-
-    return newUser;
+  @Get(':id')
+  async getUserById(@Param('id') id: string): Promise<any> {
+    return this.usersService.getUserById(id);
   }
 
-  private async hashPassword(password: string): Promise<string> {
-    const saltRounds = 10; // You can adjust this according to your needs
-    return bcrypt.hash(password, saltRounds);
+  @Get()
+  async getAllUsers(): Promise<any> {
+    return this.usersService.getAllUsers();
+  }
+
+  @Post()
+  @UsePipes(new ValidationPipe({ transform: true })) // Apply ValidationPipe
+  async createUser(@Body() createUserInput: CreateUserInput): Promise<any> {
+    // Validate email and password
+    if (!createUserInput.email || !createUserInput.password) {
+      throw new HttpException(
+        'Email and password are required',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    // Check if password meets minimum length requirement
+    const MIN_PASSWORD_LENGTH = 8;
+    if (createUserInput.password.length < MIN_PASSWORD_LENGTH) {
+      throw new HttpException(
+        `Password must be at least ${MIN_PASSWORD_LENGTH} characters long`,
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    try {
+      return await this.usersService.createUser(createUserInput);
+    } catch (error) {
+      if (
+        error instanceof HttpException &&
+        error.getStatus() === HttpStatus.CONFLICT
+      ) {
+        // Email already exists
+        throw error;
+      } else {
+        // Other errors
+        throw new HttpException(
+          'Failed to create user',
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
+    }
   }
 }

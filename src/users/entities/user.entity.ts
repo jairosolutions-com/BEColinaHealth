@@ -8,12 +8,13 @@ import {
   ManyToOne,
   OneToMany,
   PrimaryColumn,
+  PrimaryGeneratedColumn,
 } from 'typeorm';
 
 @Entity()
 @ObjectType()
 export class Users {
-  @PrimaryColumn()
+  @PrimaryGeneratedColumn()
   @Field((type) => Int)
   Id: number;
 
