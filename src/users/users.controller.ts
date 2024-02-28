@@ -10,10 +10,12 @@ import {
   ValidationPipe,
   Query,
   NotFoundException,
+  Patch,
 } from '@nestjs/common';
 import { CreateUserInput } from './dto/create-user.input';
 import { UsersService } from './users.service';
 import { Users } from './entities/user.entity';
+import { UpdateUserInput } from './dto/update-user.input';
 
 @Controller('users')
 export class UsersController {
@@ -177,5 +179,26 @@ export class UsersController {
         );
       }
     }
+  }
+
+  @Patch('update/:Id')
+  async updateUser(
+    @Param('Id') Id: number,
+    @Body() updateUserInput: UpdateUserInput,
+  ): Promise<Users> {
+    const updatedUser = await this.usersService.updateUser(Id, updateUserInput);
+    if (!updatedUser) {
+      throw new NotFoundException(`User with ID ${Id} not found`);
+    }
+    return updatedUser;
+  }
+
+  @Patch('delete/:Id')
+  async softDeleteUser(@Param('Id') Id: number): Promise<Users> {
+    const updatedUser = await this.usersService.softDeleteUser(Id);
+    if (!updatedUser) {
+      throw new NotFoundException(`User with ID ${Id} not found`);
+    }
+    return updatedUser;
   }
 }

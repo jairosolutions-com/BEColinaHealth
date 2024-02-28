@@ -1,10 +1,17 @@
-import { Injectable, HttpException, HttpStatus, Query } from '@nestjs/common';
+import {
+  Injectable,
+  HttpException,
+  HttpStatus,
+  Query,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Any, FindManyOptions, ILike, Like, Repository } from 'typeorm';
+import { Any, FindManyOptions, ILike, IsNull, Like, Repository } from 'typeorm';
 import { CreateUserInput } from './dto/create-user.input';
 import { Users } from './entities/user.entity';
 import { IdService } from 'services/uuid/id.service'; // Import IdService
 import * as bcrypt from 'bcrypt';
+import { UpdateUserInput } from './dto/update-user.input';
 
 @Injectable()
 export class UsersService {
@@ -140,5 +147,54 @@ export class UsersService {
     newUser.password = await this.hashPassword(createUserInput.password);
 
     return this.usersRepository.save(newUser);
+  }
+
+  // UPDATE
+
+  async updateUser(
+    Id: number,
+    updateUserInput: UpdateUserInput,
+  ): Promise<Users> {
+    const user = await this.usersRepository.findOne({ where: { Id } });
+    const currentDate = new Date().toISOString();
+    if (!user) {
+      throw new Error(`User with ID ${Id} not found`);
+    }
+
+    // Update user properties if provided in updateUserInput
+    if (updateUserInput.email !== undefined) {
+      user.email = updateUserInput.email;
+    }
+    if (updateUserInput.password !== undefined) {
+      user.password = updateUserInput.password;
+    }
+    if (updateUserInput.fName !== undefined) {
+      user.fName = updateUserInput.fName;
+    }
+    if (updateUserInput.lName !== undefined) {
+      user.lName = updateUserInput.lName;
+    }
+    if (updateUserInput.status !== undefined) {
+      user.status = updateUserInput.status;
+    }
+
+    user.updated_at = currentDate;
+
+    // Save and return the updated user
+    return this.usersRepository.save(user);
+  }
+
+  async softDeleteUser(Id: number): Promise<Users> {
+    // Check if the user exists
+    const user = await this.usersRepository.findOne({ where: { Id: Id } });
+    if (!user) {
+      throw new NotFoundException(`User with ID ${Id} not found`);
+    }
+
+    // Soft-delete the user by setting the deleted_at field
+    user.deleted_at = new Date().toISOString();
+
+    // Save and return the updated user
+    return this.usersRepository.save(user);
   }
 }

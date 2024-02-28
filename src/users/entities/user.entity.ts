@@ -3,6 +3,7 @@ import { Company } from 'src/company/entities/company.entity';
 import { UserAccessLevel } from 'src/user_access_level/entities/user_access_level.entity';
 import {
   Column,
+  DeleteDateColumn,
   Entity,
   JoinColumn,
   ManyToOne,
@@ -50,7 +51,7 @@ export class Users {
   @Field()
   created_at: string;
 
-  @Column({ nullable: true })
+  @DeleteDateColumn({ name: 'deleted_at', nullable: true })
   @Field()
   deleted_at: string;
 
