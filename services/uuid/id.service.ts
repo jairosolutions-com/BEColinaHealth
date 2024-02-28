@@ -7,9 +7,9 @@ export class IdService {
     // Generate a Version 4 (random) UUID
     const randomUUID = uuid4();
 
-    // Extract the first 9 characters of the UUID
-    const truncatedUUID = prefix + randomUUID.substring(0, 8);
+    // Add the prefix to the UUID
+    const prefixedUUID = prefix + randomUUID.substring(0, 8);
 
-    return truncatedUUID;
+    return prefixedUUID;
   }
 }
