@@ -6,10 +6,17 @@ import { UsersService } from 'src/users/users.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Users } from 'src/users/entities/user.entity';
 import { IdService } from 'services/uuid/id.service';
+import { JwtModule } from '@nestjs/jwt';
 {
 }
 @Module({
-  imports: [TypeOrmModule.forFeature([Users])],
+  imports: [
+    JwtModule.register({
+      secret: 'jairosoftPOGI', // Replace with your own secret key
+      signOptions: { expiresIn: '1h' }, // Optional: Set expiration time for tokens
+    }),
+    TypeOrmModule.forFeature([Users]),
+  ],
   providers: [AuthService, UsersService, IdService],
   controllers: [AuthController],
 })

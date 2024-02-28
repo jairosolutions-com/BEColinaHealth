@@ -8,22 +8,136 @@ import {
   HttpException,
   UsePipes,
   ValidationPipe,
+  Query,
+  NotFoundException,
 } from '@nestjs/common';
 import { CreateUserInput } from './dto/create-user.input';
 import { UsersService } from './users.service';
+import { Users } from './entities/user.entity';
 
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
+  @Get('search')
+  async searchUsers(
+    @Query('keyword') keyword: string,
+    @Query('page') page: number = 1,
+    @Query('limit') limit: number = 10,
+  ): Promise<{ users: Users[]; total: number }> {
+    return this.usersService.searchUsers(keyword, page, limit);
+  }
+  @Get('searchByEmail')
+  async searchUsersByEmail(
+    @Query('email') email: string,
+    @Query('page') page: number = 1,
+    @Query('limit') limit: number = 10,
+  ): Promise<any> {
+    try {
+      // Calculate the offset based on the page and limit
+      const offset = (page - 1) * limit;
+
+      // Perform the search with pagination
+      const users = await this.usersService.searchUsersByEmail(
+        email,
+        offset,
+        limit,
+      );
+
+      if (users.length === 0) {
+        // Return an empty array if no users are found
+        return { users: [] };
+      }
+
+      // Return the paginated users
+      return { users };
+    } catch (error) {
+      throw new HttpException(
+        'Failed to search users by email',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  @Get('searchByLastName')
+  async searchUsersByLastName(
+    @Query('lName') lName: string,
+    @Query('page') page: number = 1,
+    @Query('limit') limit: number = 10,
+  ): Promise<any> {
+    try {
+      // Calculate the offset based on the page and limit
+      const offset = (page - 1) * limit;
+
+      // Perform the search with pagination
+      const users = await this.usersService.searchUsersByLastName(
+        lName,
+        offset,
+        limit,
+      );
+
+      if (users.length === 0) {
+        // Return an empty array if no users are found
+        return { users: [] };
+      }
+
+      // Return the paginated users
+      return { users };
+    } catch (error) {
+      throw new HttpException(
+        'Failed to search users by last name',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  @Get('searchByFirstName')
+  async searchUsersByFirstName(
+    @Query('fName') fName: string,
+    @Query('page') page: number = 1,
+    @Query('limit') limit: number = 10,
+  ): Promise<any> {
+    try {
+      // Calculate the offset based on the page and limit
+      const offset = (page - 1) * limit;
+
+      // Perform the search with pagination
+      const users = await this.usersService.searchUsersByFirstName(
+        fName,
+        offset,
+        limit,
+      );
+
+      if (users.length === 0) {
+        // Return an empty array if no users are found
+        return { users: [] };
+      }
+
+      // Return the paginated users
+      return { users };
+    } catch (error) {
+      throw new HttpException(
+        'Failed to search users by first name',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
   @Get(':id')
-  async getUserById(@Param('id') id: string): Promise<any> {
-    return this.usersService.getUserById(id);
+  async getUserById(@Param('id') id: number): Promise<any> {
+    const user = await this.usersService.getUserById(id);
+    if (!user) {
+      throw new NotFoundException(`User with ID ${id} not found`);
+    }
+    return user;
   }
 
   @Get()
-  async getAllUsers(): Promise<any> {
-    return this.usersService.getAllUsers();
+  async getAllUsersPagination(
+    @Query('page') page: number = 1,
+    @Query('limit') limit: number = 10,
+  ): Promise<{ users: Users[]; total: number }> {
+    return this.usersService.getAllUsers(page, limit);
   }
 
   @Post()
