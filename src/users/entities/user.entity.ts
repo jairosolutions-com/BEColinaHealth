@@ -3,6 +3,7 @@ import { Company } from 'src/company/entities/company.entity';
 import { UserAccessLevel } from 'src/user_access_level/entities/user_access_level.entity';
 import {
   Column,
+  CreateDateColumn,
   DeleteDateColumn,
   Entity,
   JoinColumn,
@@ -10,6 +11,7 @@ import {
   OneToMany,
   PrimaryColumn,
   PrimaryGeneratedColumn,
+  UpdateDateColumn,
 } from 'typeorm';
 
 @Entity()
@@ -43,11 +45,11 @@ export class Users {
   @Field()
   status: string;
 
-  @Column({ nullable: true })
+  @UpdateDateColumn({ name: 'updated_at', nullable: true })
   @Field()
   updated_at: string;
 
-  @Column({ nullable: true })
+  @CreateDateColumn({ name: 'created_at', nullable: true })
   @Field()
   created_at: string;
 
@@ -62,7 +64,6 @@ export class Users {
   })
   company: Company;
 
-  @ManyToOne(() => UserAccessLevel, (ual) => ual.users)
-  @Field(() => [UserAccessLevel], { nullable: true })
+  @OneToMany(() => UserAccessLevel, (ual) => ual.users) // Use @OneToMany here
   ual: UserAccessLevel[];
 }

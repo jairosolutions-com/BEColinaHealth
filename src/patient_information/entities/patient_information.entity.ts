@@ -88,7 +88,7 @@ export class PatientInformation {
   @Field()
   created_at: string;
 
-  @DeleteDateColumn({name:'deleted_at', nullable : true})
+  @DeleteDateColumn({ name: 'deleted_at', nullable: true })
   @Field()
   deleted_at: string;
 

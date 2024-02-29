@@ -130,15 +130,11 @@ export class UsersService {
     }
 
     const newUser = new Users();
-    const currentDate = new Date().toISOString();
     newUser.uuid = this.idService.generateRandomUUID('UID-');
     newUser.email = createUserInput.email;
     newUser.fName = createUserInput.fName;
     newUser.lName = createUserInput.lName;
     newUser.status = createUserInput.status;
-    newUser.updated_at = createUserInput.updated_at;
-    newUser.created_at = currentDate;
-    newUser.deleted_at = createUserInput.deleted_at;
 
     if (!createUserInput.password) {
       throw new HttpException('Password is required', HttpStatus.BAD_REQUEST);
@@ -156,7 +152,6 @@ export class UsersService {
     updateUserInput: UpdateUserInput,
   ): Promise<Users> {
     const user = await this.usersRepository.findOne({ where: { Id } });
-    const currentDate = new Date().toISOString();
     if (!user) {
       throw new Error(`User with ID ${Id} not found`);
     }
@@ -178,8 +173,6 @@ export class UsersService {
       user.status = updateUserInput.status;
     }
 
-    user.updated_at = currentDate;
-
     // Save and return the updated user
     return this.usersRepository.save(user);
   }
@@ -190,9 +183,6 @@ export class UsersService {
     if (!user) {
       throw new NotFoundException(`User with ID ${Id} not found`);
     }
-
-    // Soft-delete the user by setting the deleted_at field
-    user.deleted_at = new Date().toISOString();
 
     // Save and return the updated user
     return this.usersRepository.save(user);

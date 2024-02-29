@@ -9,9 +9,10 @@ async function bootstrap() {
     origin: 'http://localhost:3001', // Allow requests from this origin
     credentials: true, // Optional: If you need to send cookies with the request
   };
+  app.enableCors(corsOptions);
 
   // Enable CORS with the specified options
-  app.enableCors(corsOptions);
+
   await app.listen(3000);
 }
 bootstrap();

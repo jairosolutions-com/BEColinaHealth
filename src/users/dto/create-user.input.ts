@@ -8,7 +8,4 @@ export class CreateUserInput {
   fName: string;
   lName: string;
   status: string;
-  updated_at?: string;
-  created_at?: string;
-  deleted_at?: string;
 }
