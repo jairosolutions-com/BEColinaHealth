@@ -44,7 +44,7 @@ export class PatientInformation {
   @Field((type) => Int)
   age: number;
 
-  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+  @Column({ type: 'date', nullable: true})
   @Field()
   dateOfBirth: Date;
 
@@ -76,15 +76,19 @@ export class PatientInformation {
   @Field()
   allergies: string;
 
+  @Column({ type: 'date', nullable:true})
+  @Field()
+  admissionDate: Date;
+
   @Column()
   @Field()
   codeStatus: string;
 
-  @UpdateDateColumn({name:'updated_at', nullable : true})
+  @UpdateDateColumn({ name: 'updated_at', nullable: true })
   @Field()
   updated_at: string;
 
-  @CreateDateColumn({name:'created_at', nullable : true})
+  @CreateDateColumn({ name: 'created_at', nullable: true })
   @Field()
   created_at: string;
 
