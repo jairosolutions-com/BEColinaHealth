@@ -8,6 +8,7 @@ import { HttpException, HttpStatus, NotFoundException, ConflictException } from 
 
 import { InjectRepository } from '@nestjs/typeorm';
 
+
 @Injectable()
 export class PatientInformationService {
   constructor(
@@ -60,16 +61,18 @@ export class PatientInformationService {
     });
     return patientList;
   }
-  async getPatientMedicalHistoryById(id: number): Promise<PatientInformation[]> {
-    const patientList = await this.patientInformationRepository.find({
-      where: { id },
-      relations: [
-        'medical_history',
-      ],
+  // async getPatientMedicalHistoryById(id: number): Promise<PatientInformation[]> {
+  //   const patientList = await this.patientInformationRepository.find({
+  //     where: { id },
+  //     relations: [
+  //       'medical_history',
+  //     ],
 
-    });
-    return patientList;
-  }
+  //   });
+  //   return patientList;
+  // }
+
+
 
   //GET PAGED PATIENT LIST basic info for patient list with return to pages
 
@@ -194,5 +197,9 @@ export class PatientInformationService {
     return { message: `Patient with ID ${id} has been soft-deleted.`, deletedPatient };
 
   }
+
+  // async restore(id: number): Promise<void> {
+  //   await this.prescriptionRepository.restore(id);
+  // }
 
 }

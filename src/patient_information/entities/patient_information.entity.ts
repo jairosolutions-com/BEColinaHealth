@@ -106,8 +106,8 @@ export class PatientInformation {
   
   //Patient information to table PRESCRIPTION
 
-  @OneToMany(() => Prescription, prescription => prescription.patient)
-  prescriptions: Prescription[];
+  @OneToMany(() => Prescription, (prescription) => prescription.patientInformation)
+  prescription: Prescription[];
 
   //Patient information to table VitalSigns
   @OneToMany(() => VitalSigns, (vital_signs) => vital_signs.patient)

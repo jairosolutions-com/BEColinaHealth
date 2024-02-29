@@ -8,28 +8,28 @@ import { UpdatePrescriptionInput } from './dto/update-prescription.input';
 export class PrescriptionResolver {
   constructor(private readonly prescriptionService: PrescriptionService) {}
 
-  @Mutation(() => Prescription)
-  createPrescription(@Args('createPrescriptionInput') createPrescriptionInput: CreatePrescriptionInput) {
-    return this.prescriptionService.create(createPrescriptionInput);
-  }
+  // @Mutation(() => Prescription)
+  // createPrescription(@Args('createPrescriptionInput') createPrescriptionInput: CreatePrescriptionInput) {
+  //   return this.prescriptionService.createPrescription(createPrescriptionInput);
+  // }
 
-  @Query(() => [Prescription], { name: 'prescription' })
-  findAll() {
-    return this.prescriptionService.findAll();
-  }
+  // // @Query(() => [Prescription], { name: 'prescription' })
+  // // findAll() {
+  // //   return this.prescriptionService.findAll();
+  // // }
 
-  @Query(() => Prescription, { name: 'prescription' })
-  findOne(@Args('id', { type: () => Int }) id: number) {
-    return this.prescriptionService.findOne(id);
-  }
+  // // @Query(() => Prescription, { name: 'prescription' })
+  // // findOne(@Args('id', { type: () => Int }) id: number) {
+  // //   return this.prescriptionService.findOne(id);
+  // // }
 
-  @Mutation(() => Prescription)
-  updatePrescription(@Args('updatePrescriptionInput') updatePrescriptionInput: UpdatePrescriptionInput) {
-    return this.prescriptionService.update(updatePrescriptionInput.id, updatePrescriptionInput);
-  }
+  // @Mutation(() => Prescription)
+  // updatePrescription(@Args('updatePrescriptionInput') updatePrescriptionInput: UpdatePrescriptionInput) {
+  //   return this.prescriptionService.update(updatePrescriptionInput.id, updatePrescriptionInput);
+  // }
 
-  @Mutation(() => Prescription)
-  removePrescription(@Args('id', { type: () => Int }) id: number) {
-    return this.prescriptionService.remove(id);
-  }
+  // @Mutation(() => Prescription)
+  // removePrescription(@Args('id', { type: () => Int }) id: number) {
+  //   return this.prescriptionService.remove(id);
+  // }
 }

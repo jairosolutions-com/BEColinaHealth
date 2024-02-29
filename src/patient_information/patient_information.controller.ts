@@ -6,10 +6,10 @@ import { UpdatePatientInformationInput } from './dto/update-patient_information.
 @Controller('patient-information')
 export class PatientInformationController {
     constructor(private readonly patientInformationService: PatientInformationService) { }
-    // @Get()
-    // findAllPatientsAllInfo() {
-    //     return this.patientInformationService.getAllPatientsFullInfo();
-    // }
+    @Get()
+    findAllPatientsAllInfo() {
+        return this.patientInformationService.getAllPatientsFullInfo();
+    }
 
 
     //values per page is set as perPage, page is page number 
@@ -35,11 +35,6 @@ export class PatientInformationController {
     getPatientOverviewById(@Param('id') id: number) {
         return this.patientInformationService.getPatientOverviewById(id);
     }
-    @Get('overview/medical/:id')
-    getPatientMedicalHistoryById(@Param('id') id: number) {
-        return this.patientInformationService.getPatientOverviewById(id);
-    }
-
     // POST /patient-information
     @Post()
     createPatient(@Body() createPatientInformationInput: CreatePatientInformationInput) {
