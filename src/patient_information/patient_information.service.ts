@@ -52,6 +52,15 @@ export class PatientInformationService {
     return this.patientInformationRepository.find();
   }
 
+  //GET ONE  PATIENT INFORMATION VIA ID
+  async getPatientOverviewById(id: number): Promise<PatientInformation[]> {
+    const patientList = await this.patientInformationRepository.find({
+      where: { id }
+
+    });
+    return patientList;
+  }
+
   //GET PAGED PATIENT LIST basic info for patient list with return to pages
 
   async getAllPatientsBasicInfo(page: number = 1, sortBy: string = 'lastName', sortOrder: 'ASC' | 'DESC' = 'ASC', perPage: number = 5):
