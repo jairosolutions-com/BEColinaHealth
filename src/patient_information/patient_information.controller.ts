@@ -11,6 +11,7 @@ export class PatientInformationController {
         return this.patientInformationService.getAllPatientsFullInfo();
     }
 
+    
     //values per page is set as perPage, page is page number 
     //when limiting number of items per page, check the service for getList
     //get patient list page basic info (id, name, age, gender)
