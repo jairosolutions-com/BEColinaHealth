@@ -20,6 +20,7 @@ import { UserAccessLevelModule } from './user_access_level/user_access_level.mod
 import { RoleModule } from './role/role.module';
 import { PatientInformation } from './patient_information/entities/patient_information.entity';
 import { AuthModule } from './auth/auth.module';
+import { PrescriptionModule } from './prescription/prescription.module';
 
 @Module({
   imports: [
@@ -53,6 +54,7 @@ import { AuthModule } from './auth/auth.module';
     UserAccessLevelModule,
     RoleModule,
     AuthModule,
+    PrescriptionModule,
   ],
   controllers: [AppController],
   providers: [AppService],
