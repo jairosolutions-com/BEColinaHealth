@@ -7,6 +7,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Users } from 'src/users/entities/user.entity';
 import { IdService } from 'services/uuid/id.service';
 import { JwtModule } from '@nestjs/jwt';
+import { Role } from 'src/role/entities/role.entity';
+import { UserAccessLevel } from 'src/user_access_level/entities/user_access_level.entity';
 {
 }
 @Module({
@@ -15,7 +17,7 @@ import { JwtModule } from '@nestjs/jwt';
       secret: 'jairosoftPOGI', // Replace with your own secret key
       signOptions: { expiresIn: '1h' }, // Optional: Set expiration time for tokens
     }),
-    TypeOrmModule.forFeature([Users]),
+    TypeOrmModule.forFeature([Users, Role, UserAccessLevel]),
   ],
   providers: [AuthService, UsersService, IdService],
   controllers: [AuthController],

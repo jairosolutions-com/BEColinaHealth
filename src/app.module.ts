@@ -1,16 +1,13 @@
 import { Module } from '@nestjs/common';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { PatientInformationModule } from './patient_information/patient_information.module';
-import { GraphQLModule } from '@nestjs/graphql';
-import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
-import { join } from 'path';
-import { TypeOrmModule } from '@nestjs/typeorm';
 import { MedicationModule } from './medication/medication.module';
 import { VitalSignsModule } from './vital_signs/vital_signs.module';
 import { MedicalHistoryModule } from './medical_history/medical_history.module';
 import { LabResultsModule } from './lab_results/lab_results.module';
-import { ConfigModule } from '@nestjs/config';
 import { NotesModule } from './notes/notes.module';
 import { AppointmentModule } from './appointment/appointment.module';
 import { EmergencyContactModule } from './emergency_contact/emergency_contact.module';
@@ -18,29 +15,31 @@ import { UsersModule } from './users/users.module';
 import { CompanyModule } from './company/company.module';
 import { UserAccessLevelModule } from './user_access_level/user_access_level.module';
 import { RoleModule } from './role/role.module';
-import { PatientInformation } from './patient_information/entities/patient_information.entity';
 import { AuthModule } from './auth/auth.module';
 import { PrescriptionModule } from './prescription/prescription.module';
+import { PatientInformation } from './patient_information/entities/patient_information.entity';
+import { join } from 'path';
+import { APP_GUARD } from '@nestjs/core';
+import { ApiKeyGuard } from './auth/api-key/api-key.guard';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([PatientInformation]),
     ConfigModule.forRoot({ envFilePath: '.env.local' }),
     TypeOrmModule.forRoot({
       type: 'postgres',
       host: process.env.DB_HOST,
       port: parseInt(process.env.DB_PORT, 10),
       username: process.env.DB_USERNAME,
-      password: String(process.env.DB_PASSWORD),
-      database: String(process.env.DB_DATABASE),
+      password: process.env.DB_PASSWORD,
+      database: process.env.DB_DATABASE,
       synchronize: process.env.DB_SYNCHRONIZE === 'true',
       logging: process.env.DB_LOGGING === 'true',
       entities: [join(__dirname, '**', '*.entity.{ts,js}')],
+      autoLoadEntities: true, // Automatically load entities without the need for the entities array
     }),
-    GraphQLModule.forRoot<ApolloDriverConfig>({
-      driver: ApolloDriver,
-      autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
-    }),
+    UsersModule,
+    RoleModule,
+    UserAccessLevelModule,
     PatientInformationModule,
     MedicationModule,
     VitalSignsModule,
@@ -49,14 +48,17 @@ import { PrescriptionModule } from './prescription/prescription.module';
     NotesModule,
     AppointmentModule,
     EmergencyContactModule,
-    UsersModule,
     CompanyModule,
-    UserAccessLevelModule,
-    RoleModule,
     AuthModule,
     PrescriptionModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    {
+      provide: APP_GUARD,
+      useClass: ApiKeyGuard,
+    },
+  ],
 })
 export class AppModule {}
