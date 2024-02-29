@@ -20,7 +20,9 @@ export class PatientInformationService {
     // Check if a patient with similar information already exists
     const existingLowercaseboth = await this.patientInformationRepository.findOne({
       where: {
-        firstName: ILike(`%${input.firstName}%`), // Check based on the 
+        firstName: ILike(`%${input.firstName}%`),
+        lastName: ILike(`%${input.lastName}%`),
+        dateOfBirth: input.dateOfBirth // Check for exact match
       },
 
     });
@@ -35,10 +37,8 @@ export class PatientInformationService {
     // Generate a UUID for the patient information
     const uuidPrefix = 'PTN-'; // Customize prefix as needed
     const uuid = this.idService.generateRandomUUID(uuidPrefix);
-    const creationDate = new Date().toISOString();
     // Assign the generated UUID and creation date to the new patient information
     newPatientInformation.uuid = uuid;
-    newPatientInformation.created_at = creationDate;
 
     // Copy the properties from the input object to the new patient information
     Object.assign(newPatientInformation, input);
@@ -51,15 +51,16 @@ export class PatientInformationService {
   async getAllPatientsFullInfo(): Promise<PatientInformation[]> {
     return this.patientInformationRepository.find();
   }
+
   //GET PAGED PATIENT LIST basic info for patient list with return to pages
 
-  async getAllPatientsBasicInfo(page: number = 1, perPage: number = 5):
+  async getAllPatientsBasicInfo(page: number = 1, sortBy: string = 'lastName', sortOrder: 'ASC' | 'DESC' = 'ASC', perPage: number = 5):
     //what is the expected data
     Promise<{ data: PatientInformation[], totalPages: number, currentPage: number, totalCount }> {
     const skip = (page - 1) * perPage;
     //count the total rows searched
     const totalPatients = await this.patientInformationRepository.count({
-      select: ["uuid", "firstName", "lastName", "age", "gender"],
+      select: ["id", "uuid", "firstName", "lastName", "age", "gender"],
       skip: skip,
       take: perPage,
     });
@@ -68,15 +69,17 @@ export class PatientInformationService {
 
     //find the data
     const patientList = await this.patientInformationRepository.find({
-      select: ["uuid", "firstName", "lastName", "age", "gender"],
+      select: ["id", "uuid", "firstName", "lastName", "age", "gender"],
       skip: skip,
       take: perPage,
+      order: { [sortBy]: sortOrder } // Apply sorting based on sortBy and sortOrder
+
     });
     return {
       data: patientList,
       totalPages: totalPages,
       currentPage: page,
-      totalCount : totalPatients
+      totalCount: totalPatients
     };
   }
 
@@ -109,11 +112,13 @@ export class PatientInformationService {
       take: perPage,
 
     });
+
+
     return {
       data: patientList,
       totalPages: totalPages,
       currentPage: page,
-      totalCount : totalPatients
+      totalCount: totalPatients
     };
   }
 
@@ -133,15 +138,18 @@ export class PatientInformationService {
       ],
     });
   }
-  async updatePatientInformation(
+  async updatePatientInformation(id: number,
     updatePatientInformationInput: UpdatePatientInformationInput,
   ): Promise<PatientInformation> {
-    const { id, ...updateData } = updatePatientInformationInput;
+    const { ...updateData } = updatePatientInformationInput;
 
     // Find the patient record by ID
-    const patient = await this.patientInformationRepository.findOneOrFail({
-      where: { id },
-    });
+    const patient = await this.patientInformationRepository.findOne({ where: { id } });
+
+    if (!patient) {
+      throw new NotFoundException(`Patient ID-${id} not found.`);
+    }
+
 
     // Update the patient record with the new data
     Object.assign(patient, updateData);
@@ -150,8 +158,22 @@ export class PatientInformationService {
     return this.patientInformationRepository.save(patient);
   }
 
+  async softDeletePatient(id: number): Promise<{ message: string, deletedPatient: PatientInformation }> {
+    // Find the patient record by ID
+    const patient = await this.patientInformationRepository.findOne({ where: { id } });
 
-  removePatientInformation(id: number) {
-    return this.patientInformationRepository.delete(id);
+    if (!patient) {
+      throw new NotFoundException(`Patient ID-${id} does not exist.`);
+    }
+
+    // Set the deleted_at property to mark as soft deleted
+    patient.deleted_at = new Date().toISOString();
+
+    // Save and return the updated patient record
+    const deletedPatient = await this.patientInformationRepository.save(patient);
+
+    return { message: `Patient with ID ${id} has been soft-deleted.`, deletedPatient };
+
   }
+
 }

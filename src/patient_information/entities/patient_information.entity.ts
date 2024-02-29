@@ -17,6 +17,8 @@ import {
   PrimaryColumn,
   DeleteDateColumn,
   PrimaryGeneratedColumn,
+  UpdateDateColumn,
+  CreateDateColumn,
 } from 'typeorm';
 
 @Entity()
@@ -78,11 +80,11 @@ export class PatientInformation {
   @Field()
   codeStatus: string;
 
-  @Column({ nullable: true })
+  @UpdateDateColumn({name:'updated_at', nullable : true})
   @Field()
   updated_at: string;
 
-  @Column({ nullable: true })
+  @CreateDateColumn({name:'created_at', nullable : true})
   @Field()
   created_at: string;
 
