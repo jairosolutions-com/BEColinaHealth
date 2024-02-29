@@ -34,8 +34,8 @@ export class PatientInformationResolver {
   updatePatientInformation(@Args('updatePatientInformationInput') updatePatientInformationInput: UpdatePatientInformationInput) {
   }
 
-  @Mutation(() => PatientInformation)
-  removePatientInformation(@Args('id', { type: () => Int }) id: number) {
-    return this.patientInformationService.removePatientInformation(id);
-  }
+  // @Mutation(() => PatientInformation)
+  // removePatientInformation(@Args('id', { type: () => Int }) id: number) {
+  //   return this.patientInformationService.softDeletePatient(id);
+  // }
 }

@@ -187,7 +187,6 @@ type Query {
 type Mutation {
   createPatientInformation(createPatientInformationInput: CreatePatientInformationInput!): PatientInformation!
   updatePatientInformation(updatePatientInformationInput: UpdatePatientInformationInput!): PatientInformation!
-  removePatientInformation(id: Int!): PatientInformation!
   createMedication(createMedicationInput: CreateMedicationInput!): Medication!
   updateMedication(updateMedicationInput: UpdateMedicationInput!): Medication!
   removeMedication(id: Int!): Medication!
