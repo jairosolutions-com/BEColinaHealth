@@ -60,6 +60,16 @@ export class PatientInformationService {
     });
     return patientList;
   }
+  async getPatientMedicalHistoryById(id: number): Promise<PatientInformation[]> {
+    const patientList = await this.patientInformationRepository.find({
+      where: { id },
+      relations: [
+        'medical_history',
+      ],
+
+    });
+    return patientList;
+  }
 
   //GET PAGED PATIENT LIST basic info for patient list with return to pages
 
