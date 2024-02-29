@@ -16,6 +16,4 @@ export class UpdateUserInput {
 
   @IsOptional()
   status?: string;
-
-  updated_at: string;
 }

@@ -29,8 +29,6 @@ type Role {
 
 type UserAccessLevel {
   id: Int!
-  userId: Int!
-  roleId: Int!
 }
 
 type Users {
@@ -44,7 +42,6 @@ type Users {
   updated_at: String!
   created_at: String!
   deleted_at: String!
-  ual: [UserAccessLevel!]
 }
 
 type Company {

@@ -11,13 +11,16 @@ import {
   Query,
   NotFoundException,
   Patch,
+  UseGuards,
 } from '@nestjs/common';
 import { CreateUserInput } from './dto/create-user.input';
 import { UsersService } from './users.service';
 import { Users } from './entities/user.entity';
 import { UpdateUserInput } from './dto/update-user.input';
+import { ApiKeyGuard } from 'src/auth/api-key/api-key.guard';
 
 @Controller('users')
+@UseGuards(ApiKeyGuard)
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
