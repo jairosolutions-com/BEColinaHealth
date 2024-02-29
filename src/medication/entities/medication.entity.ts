@@ -17,7 +17,7 @@ export class Medication {
   @Field((type) => Int)
   id: number;
 
-  @Column()
+  @Column({ nullable: true })
   @Field()
   uuid: string;
 
@@ -33,7 +33,7 @@ export class Medication {
   @Field()
   medicationStatus: string;
 
-  @Column({ nullable: true })
+  @Column()
   @Field()
   updated_at: string;
 

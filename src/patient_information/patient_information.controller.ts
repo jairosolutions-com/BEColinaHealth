@@ -11,7 +11,7 @@ export class PatientInformationController {
         return this.patientInformationService.getAllPatientsFullInfo();
     }
 
-    
+
     //values per page is set as perPage, page is page number 
     //when limiting number of items per page, check the service for getList
     //get patient list page basic info (id, name, age, gender)
@@ -31,7 +31,10 @@ export class PatientInformationController {
     ) {
         return this.patientInformationService.searchAllPatientInfoByTerm(term, page);
     }
-
+    @Get('overview/:id')
+    getPatientOverviewById(@Param('id') id: number) {
+        return this.patientInformationService.getPatientOverviewById(id);
+    }
     // POST /patient-information
     @Post()
     createPatient(@Body() createPatientInformationInput: CreatePatientInformationInput) {

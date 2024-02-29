@@ -6,6 +6,7 @@ import { LabResults } from 'src/lab_results/entities/lab_result.entity';
 import { MedicalHistory } from 'src/medical_history/entities/medical_history.entity';
 import { Medication } from 'src/medication/entities/medication.entity';
 import { Notes } from 'src/notes/entities/note.entity';
+import { Prescription } from 'src/prescription/entities/prescription.entity';
 import { VitalSigns } from 'src/vital_signs/entities/vital_sign.entity';
 
 import {
@@ -102,6 +103,11 @@ export class PatientInformation {
   @OneToMany(() => Medication, (medication) => medication.patient)
   @Field(() => [Medication], { nullable: true })
   medications: Medication[];
+  
+  //Patient information to table PRESCRIPTION
+
+  @OneToMany(() => Prescription, (prescription) => prescription.patientInformation)
+  prescription: Prescription[];
 
   //Patient information to table VitalSigns
   @OneToMany(() => VitalSigns, (vital_signs) => vital_signs.patient)

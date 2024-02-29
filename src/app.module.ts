@@ -16,6 +16,7 @@ import { CompanyModule } from './company/company.module';
 import { UserAccessLevelModule } from './user_access_level/user_access_level.module';
 import { RoleModule } from './role/role.module';
 import { AuthModule } from './auth/auth.module';
+import { PrescriptionModule } from './prescription/prescription.module';
 import { PatientInformation } from './patient_information/entities/patient_information.entity';
 import { join } from 'path';
 import { APP_GUARD } from '@nestjs/core';
@@ -49,6 +50,7 @@ import { ApiKeyGuard } from './auth/api-key/api-key.guard';
     EmergencyContactModule,
     CompanyModule,
     AuthModule,
+    PrescriptionModule,
   ],
   controllers: [AppController],
   providers: [
