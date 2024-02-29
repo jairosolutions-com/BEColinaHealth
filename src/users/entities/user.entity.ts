@@ -19,7 +19,7 @@ import {
 export class Users {
   @PrimaryGeneratedColumn()
   @Field((type) => Int)
-  Id: number;
+  id: number;
 
   @Column()
   @Field()

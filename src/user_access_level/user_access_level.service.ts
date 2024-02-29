@@ -1,26 +1,46 @@
-import { Injectable } from '@nestjs/common';
-import { CreateUserAccessLevelInput } from './dto/create-user_access_level.input';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Role } from 'src/role/entities/role.entity';
+import { FindOneOptions, Repository } from 'typeorm';
 import { UpdateUserAccessLevelInput } from './dto/update-user_access_level.input';
+import { UserAccessLevel } from './entities/user_access_level.entity';
+import { NotFoundException } from '@nestjs/common';
 
-@Injectable()
 export class UserAccessLevelService {
-  create(createUserAccessLevelInput: CreateUserAccessLevelInput) {
-    return 'This action adds a new userAccessLevel';
-  }
+  constructor(
+    @InjectRepository(UserAccessLevel)
+    private userAccessLevelRepository: Repository<UserAccessLevel>,
+    @InjectRepository(Role)
+    private roleRepository: Repository<Role>, // Inject Role repository
+  ) {}
 
-  findAll() {
-    return `This action returns all userAccessLevel`;
-  }
+  async update(
+    users: number,
+    updateUserAccessLevelInput: UpdateUserAccessLevelInput,
+  ): Promise<UserAccessLevel> {
+    const { role } = updateUserAccessLevelInput;
 
-  findOne(id: number) {
-    return `This action returns a #${id} userAccessLevel`;
-  }
+    // Find the user access level by userId
+    const userAccessLevel = await this.userAccessLevelRepository.findOne({
+      where: { users: { id: users } },
+    } as FindOneOptions<UserAccessLevel>);
+    if (!userAccessLevel) {
+      throw new NotFoundException('User access level not found');
+    }
 
-  update(id: number, updateUserAccessLevelInput: UpdateUserAccessLevelInput) {
-    return `This action updates a #${id} userAccessLevel`;
-  }
+    // Fetch the new role based on roleId
+    const newRole = await this.roleRepository.findOne({
+      where: { id: role },
+    });
+    if (!newRole) {
+      throw new NotFoundException('Role not found');
+    }
 
-  remove(id: number) {
-    return `This action removes a #${id} userAccessLevel`;
+    // Update roleId
+    userAccessLevel.role = newRole;
+
+    // Save changes
+    await this.userAccessLevelRepository.save(userAccessLevel);
+
+    return userAccessLevel;
   }
 }
