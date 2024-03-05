@@ -3,11 +3,14 @@ import { PatientInformation } from 'src/patient_information/entities/patient_inf
 
 import {
   Column,
+  CreateDateColumn,
+  DeleteDateColumn,
   Entity,
   JoinColumn,
   ManyToOne,
   PrimaryColumn,
   PrimaryGeneratedColumn,
+  UpdateDateColumn,
 } from 'typeorm';
 
 @Entity()
@@ -41,17 +44,18 @@ export class VitalSigns {
   @Field()
   respiratoryRate: string;
 
-  @Column({ nullable: true })
+  @UpdateDateColumn({ name: 'updated_at', nullable: true })
   @Field()
   updated_at: string;
 
-  @Column({ nullable: true })
+  @CreateDateColumn({ name: 'created_at', nullable: true })
   @Field()
   created_at: string;
 
-  @Column({ nullable: true })
+  @DeleteDateColumn({ name: 'deleted_at', nullable: true })
   @Field()
   deleted_at: string;
+
 
   //vital_signs Table with FK patientId from PatientInformation table
   @ManyToOne(() => PatientInformation, (patient) => patient.vital_signs)
