@@ -1,41 +1,49 @@
 import { InputType, Int, Field } from '@nestjs/graphql';
+import { IsNotEmpty } from 'class-validator';
 
 @InputType()
 export class CreateVitalSignInput {
-  @Field(() => Int)
+  @IsNotEmpty()
+  @Field((type) => Int)
   id: number;
 
+  @IsNotEmpty()
   @Field()
   uuid: string;
 
+  @IsNotEmpty()
   @Field()
-  name: string;
+  date: string;
 
-  @Field({ nullable: true })
-  numDays: string;
-
+  @IsNotEmpty()
   @Field()
-  dosage: string;
-
-  @Field()
-  frequency: string;
+  time: string;
 
   @Field()
-  interval: string;
+  bloodPressure: string;
 
   @Field()
-  maintenance: boolean;
+  heartRate: string;
 
+  @Field()
+  temperature: string;
+
+  @Field()
+  respiratoryRate: string;
+
+  @IsNotEmpty()
   @Field(() => Int)
   patientId: number;
 
+  @IsNotEmpty()
   @Field()
   updated_at: string;
 
-  @Field({ nullable: true })
+  @IsNotEmpty()
+  @Field()
   created_at: string;
 
-  @Field({ nullable: true })
+  @IsNotEmpty()
+  @Field()
   deleted_at: string;
-
 }

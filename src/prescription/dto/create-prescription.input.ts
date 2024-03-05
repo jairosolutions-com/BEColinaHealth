@@ -1,20 +1,22 @@
 import { InputType, Int, Field } from '@nestjs/graphql';
+import { IsNotEmpty } from 'class-validator';
 
 @InputType()
 export class CreatePrescriptionInput {
   @Field((type) => Int)
   id: number;
 
-
   @Field()
   uuid: string;
 
+  @IsNotEmpty()
   @Field()
   name: string;
 
   @Field({ nullable: true })
   numDays: string;
 
+  @IsNotEmpty()
   @Field()
   dosage: string;
 

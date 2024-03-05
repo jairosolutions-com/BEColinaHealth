@@ -1,4 +1,5 @@
 import { InputType, Int, Field } from '@nestjs/graphql';
+import { IsNotEmpty } from 'class-validator';
 
 @InputType()
 export class CreatePatientInformationInput {
@@ -8,15 +9,18 @@ export class CreatePatientInformationInput {
   @Field()
   uuid: string;
 
+  @IsNotEmpty()
   @Field()
   firstName: string;
 
+  @IsNotEmpty()
   @Field()
   lastName: string;
 
   @Field((type) => Int)
   age: number;
 
+  @IsNotEmpty()
   @Field()
   dateOfBirth: Date;
 

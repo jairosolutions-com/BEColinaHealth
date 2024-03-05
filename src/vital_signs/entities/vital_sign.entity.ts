@@ -24,25 +24,33 @@ export class VitalSigns {
   @Field()
   uuid: string;
 
-  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
-  @Field()
-  date: Date;
-
   @Column()
+  @Field()
+  date: string;
+
+  @Column({ nullable: true })
+  @Field()
+  time: string;
+
+  @Column({ nullable: true })
   @Field()
   bloodPressure: string;
 
-  @Column()
+  @Column({ nullable: true })
   @Field()
   heartRate: string;
 
-  @Column()
+  @Column({ nullable: true })
   @Field()
   temperature: string;
 
-  @Column()
+  @Column({ nullable: true })
   @Field()
   respiratoryRate: string;
+
+  @Column({ nullable: true })
+  @Field(() => Int)
+  patientId: number;
 
   @UpdateDateColumn({ name: 'updated_at', nullable: true })
   @Field()
