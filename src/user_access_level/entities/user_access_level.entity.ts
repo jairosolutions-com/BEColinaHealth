@@ -1,7 +1,3 @@
-import { ObjectType, Field, Int } from '@nestjs/graphql';
-import { Role } from 'src/role/entities/role.entity';
-import { Users } from 'src/users/entities/user.entity';
-
 import {
   Column,
   Entity,
@@ -10,31 +6,23 @@ import {
   OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
+import { Role } from 'src/role/entities/role.entity';
+import { Users } from 'src/users/entities/user.entity';
 
 @Entity()
-@ObjectType()
 export class UserAccessLevel {
   @PrimaryGeneratedColumn()
-  @Field(() => Int)
   id: number;
 
-  @Column()
-  @Field(() => Int)
-  userId: number;
-
-  @Column()
-  @Field(() => Int)
-  roleId: number;
-
-  @OneToMany(() => Users, (users) => users.ual)
+  @ManyToOne(() => Users, (users) => users.ual, { nullable: true })
   @JoinColumn({
     name: 'userId',
   })
-  users: Users;
+  users: Users | null;
 
-  @ManyToOne(() => Role, (role) => role.ual)
+  @ManyToOne(() => Role, (role) => role.ual, { nullable: true })
   @JoinColumn({
     name: 'roleId',
   })
-  role: Role;
+  role: Role | null;
 }
