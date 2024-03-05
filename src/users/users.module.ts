@@ -6,11 +6,27 @@ import { IdService } from 'services/uuid/id.service';
 import { Users } from './entities/user.entity';
 import { Role } from 'src/role/entities/role.entity';
 import { UserAccessLevel } from 'src/user_access_level/entities/user_access_level.entity';
+// import { MailerModule } from '@nestjs-modules/mailer';
+// import { EmailService } from './email.service';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Users, Role, UserAccessLevel])],
+  imports: [
+    TypeOrmModule.forFeature([Users, Role, UserAccessLevel]),
+    // MailerModule.forRoot({
+    //   transport: {
+    //     service: 'gmail',
+    //     auth: {
+    //       user: 'kentjohnliloc@yahoo.com',
+    //       pass: 'yqiwjkjseyubyxxt',
+    //     },
+    //   },
+    // }),
+  ],
   providers: [UsersService, IdService, Role, UserAccessLevel],
   controllers: [UsersController],
-  exports: [UsersService],
+  exports: [
+    UsersService,
+    // EmailService
+  ],
 })
 export class UsersModule {}
