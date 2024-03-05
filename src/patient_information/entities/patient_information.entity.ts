@@ -45,7 +45,7 @@ export class PatientInformation {
   @Field((type) => Int)
   age: number;
 
-  @Column({ type: 'date', nullable: true})
+  @Column({ type: 'date', nullable: true })
   @Field()
   dateOfBirth: Date;
 
@@ -77,7 +77,7 @@ export class PatientInformation {
   @Field()
   allergies: string;
 
-  @Column({ type: 'date', nullable:true})
+  @Column({ type: 'date', nullable: true })
   @Field()
   admissionDate: Date;
 
@@ -103,7 +103,7 @@ export class PatientInformation {
   @OneToMany(() => Medication, (medication) => medication.patient)
   @Field(() => [Medication], { nullable: true })
   medications: Medication[];
-  
+
   //Patient information to table PRESCRIPTION
 
   @OneToMany(() => Prescription, (prescription) => prescription.patientInformation)
@@ -135,10 +135,8 @@ export class PatientInformation {
   appointment: Appointment[];
 
   //Patient information to table Emergency Contact
-  @OneToMany(
-    () => EmergencyContact,
-    (emergency_contact) => emergency_contact.patient,
-  )
+  @OneToMany(() => EmergencyContact,
+    (emergency_contact) => emergency_contact.patient,)
   @Field(() => [EmergencyContact], { nullable: true })
   emergency_contact: EmergencyContact[];
 
