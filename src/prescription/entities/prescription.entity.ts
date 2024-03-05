@@ -1,6 +1,7 @@
 import { ObjectType, Field, Int } from '@nestjs/graphql';
+import { Medication } from 'src/medication/entities/medication.entity';
 import { PatientInformation } from 'src/patient_information/entities/patient_information.entity';
-import { ManyToOne, JoinColumn, Column, PrimaryGeneratedColumn, Entity, UpdateDateColumn, CreateDateColumn, DeleteDateColumn, Index } from 'typeorm';
+import { ManyToOne, JoinColumn, Column, PrimaryGeneratedColumn, Entity, UpdateDateColumn, CreateDateColumn, DeleteDateColumn, Index, OneToMany } from 'typeorm';
 @Entity()
 @ObjectType()
 
@@ -11,7 +12,6 @@ export class Prescription {
   id: number;
 
   @Column()
-  @Field()
   uuid: string;
 
   @Column()
@@ -51,4 +51,9 @@ export class Prescription {
   @ManyToOne(() => PatientInformation, patientInformation => patientInformation.prescription)
   @JoinColumn({ name: 'patientId' }) // FK attribute
   patientInformation: PatientInformation;
+
+  @OneToMany(() => Medication, medication => medication.prescription)
+  @Field(() => [Medication], { nullable: true })
+  medications: Medication[];
+
 } 
