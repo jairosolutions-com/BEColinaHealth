@@ -156,6 +156,7 @@ export class PatientInformationService {
         'notes',
         'appointment',
         'emergency_contact',
+        'prescription',
 
       ],
     });
