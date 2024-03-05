@@ -45,8 +45,8 @@ export class PrescriptionService {
     return this.prescriptionRepository.save(newPrescription);
   }
 
-  //PAGED
-  async getPrescriptionById(patientId: number, page: number = 1, sortBy: string = 'lastName', sortOrder: 'ASC' | 'DESC' = 'ASC', perPage: number = 5): Promise<{ data: Prescription[], totalPages: number, currentPage: number, totalCount }> {
+  //PAGED Prescription list PER PATIENT
+  async getAllPrescriptionsByPatient(patientId: number, page: number = 1, sortBy: string = 'lastName', sortOrder: 'ASC' | 'DESC' = 'ASC', perPage: number = 5): Promise<{ data: Prescription[], totalPages: number, currentPage: number, totalCount }> {
     const skip = (page - 1) * perPage;
     const totalPatientPrescription = await this.prescriptionRepository.count({
       where: { patientId },
@@ -70,27 +70,34 @@ export class PrescriptionService {
     const prescription = await this.prescriptionRepository.find();
     return prescription;
   }
+
+
   async updatePrescription(id: number,
     updatePrescriptionInput: UpdatePrescriptionInput,
   ): Promise<Prescription> {
     const { ...updateData } = updatePrescriptionInput;
-
+    const prescription = await this.prescriptionRepository.findOne({ where: { id } });
+    if (!prescription) {
+      throw new NotFoundException(`Prescription ID-${id}  not found.`);
+    }
+    Object.assign(prescription, updateData);
+    return this.prescriptionRepository.save(prescription);
+  }
+  async softDeletePrescription(id: number): Promise<{ message: string, deletedPrescription: Prescription }> {
     // Find the patient record by ID
     const prescription = await this.prescriptionRepository.findOne({ where: { id } });
 
     if (!prescription) {
-      throw new NotFoundException(`Patient ID-${id} not found.`);
+      throw new NotFoundException(`Prescription ID-${id} does not exist.`);
     }
 
+    // Set the deleted_at property to mark as soft deleted
+    prescription.deleted_at = new Date().toISOString();
 
-    // Update the patient record with the new data
-    Object.assign(prescription, updateData);
+    // Save and return the updated patient record
+    const deletedPrescription = await this.prescriptionRepository.save(prescription);
 
-    // Save the updated patient record
-    return this.prescriptionRepository.save(prescription);
-  }
+    return { message: `Prescription with ID ${id} has been soft-deleted.`, deletedPrescription };
 
-  remove(id: number) {
-    return `This action removes a #${id} prescription`;
   }
 }

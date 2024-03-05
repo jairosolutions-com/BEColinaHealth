@@ -1,13 +1,17 @@
 import { Field, Int, ObjectType } from '@nestjs/graphql';
 import { PatientInformation } from 'src/patient_information/entities/patient_information.entity';
+import { Prescription } from 'src/prescription/entities/prescription.entity';
 
 import {
   Column,
+  CreateDateColumn,
+  DeleteDateColumn,
   Entity,
   JoinColumn,
   ManyToOne,
   PrimaryColumn,
   PrimaryGeneratedColumn,
+  UpdateDateColumn,
 } from 'typeorm';
 
 @Entity()
@@ -18,32 +22,45 @@ export class Medication {
   id: number;
 
   @Column({ nullable: true })
-  @Field()
   uuid: string;
 
-  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
-  @Field()
-  medicationDate: Date;
+  @Column()
+  medicationName: string;
+
+  @Column()
+  medicationDate: string;
 
   @Column()
   @Field()
-  comments: string;
+  medicationTime: string;
 
   @Column()
   @Field()
+  notes: string;
+
+  @Column({ nullable: true })
+  patientId: number;
+
+  @Column({ nullable: true })
+  prescriptionId: number;
+
+  @Column()
   medicationStatus: string;
 
-  @Column()
+  @UpdateDateColumn({ name: 'updated_at', nullable: true })
   @Field()
   updated_at: string;
 
-  @Column({ nullable: true })
+  @CreateDateColumn({ name: 'created_at', nullable: true })
   @Field()
   created_at: string;
 
-  @Column({ nullable: true })
+  @DeleteDateColumn({ name: 'deleted_at', nullable: true })
   @Field()
   deleted_at: string;
+
+
+
 
   //Medication Table with FK patientId from PatientInformation table
   @ManyToOne(() => PatientInformation, (patient) => patient.medications)
@@ -51,4 +68,10 @@ export class Medication {
     name: 'patientId',
   })
   patient: PatientInformation;
+  // Foreign key reference to the Prescription entity
+  @ManyToOne(() => Prescription)
+  @JoinColumn({ name: 'prescriptionId', referencedColumnName: 'id' }) // FK attribute
+  prescription: Prescription;
+
 }
+
