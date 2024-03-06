@@ -20,7 +20,7 @@ import { AuthGuard } from './auth.guard';
     JwtModule.register({
       global: true,
       secret: jwtConstants.secret, // Replace with your own secret key
-      signOptions: { expiresIn: '1hr' }, // Optional: Set expiration time for tokens
+      signOptions: { expiresIn: '10hr' }, // Optional: Set expiration time for tokens
     }),
     TypeOrmModule.forFeature([Users, Role, UserAccessLevel]),
   ],
