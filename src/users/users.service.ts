@@ -146,7 +146,7 @@ export class UsersService {
     }
 
     const newUser = new Users();
-    newUser.uuid = this.idService.generateRandomUUID('Uid-');
+    newUser.uuid = this.idService.generateRandomUUID('UID-');
     newUser.email = createUserInput.email;
     newUser.fName = createUserInput.fName;
     newUser.lName = createUserInput.lName;
@@ -158,22 +158,43 @@ export class UsersService {
 
     newUser.password = await this.hashPassword(createUserInput.password);
 
-    // Save the new user to the database
-    const savedUser = await this.usersRepository.save(newUser);
+    // Initially declare savedUser as null or undefined
+    let savedUser: Users | null = null;
 
-    // Now, create a new user access level record
-    // Assuming Role with id 3 is the default role
-    const defaultRole = await this.roleRepository.findOne({ where: { id: 3 } });
-    if (!defaultRole) {
-      throw new Error('Default role not found');
+    let defaultRole;
+    try {
+      // Attempt to retrieve the default role
+      defaultRole = await this.roleRepository.findOne({ where: { id: 3 } });
+      if (!defaultRole) {
+        // If the default role is not found, throw a specific error for this case
+        throw new HttpException(
+          'Default role not found',
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+
+      // Save the new user to the database
+      savedUser = await this.usersRepository.save(newUser);
+      const newUserAccessLevel = new UserAccessLevel();
+      newUserAccessLevel.users = savedUser; // Assign the user to the user property
+      newUserAccessLevel.role = defaultRole; // Assign the fetched role to the role property
+
+      // Save the new user access level record to the database
+      await this.ualRepository.save(newUserAccessLevel);
+    } catch (error) {
+      // If there's an error retrieving the role, rethrow or handle it appropriately
+      throw new HttpException(
+        'Failed to assign default role',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
 
-    const newUserAccessLevel = new UserAccessLevel();
-    newUserAccessLevel.users = savedUser; // Assign the user to the user property
-    newUserAccessLevel.role = defaultRole; // Assign the fetched role to the role property
-
-    // Save the new user access level record to the database
-    await this.ualRepository.save(newUserAccessLevel);
+    if (!savedUser) {
+      throw new HttpException(
+        'User could not be saved',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
 
     return savedUser;
   }
