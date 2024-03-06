@@ -18,9 +18,11 @@ import { UsersService } from './users.service';
 import { Users } from './entities/user.entity';
 import { UpdateUserInput } from './dto/update-user.input';
 import { ApiKeyGuard } from 'src/auth/api-key/api-key.guard';
+import { AuthGuard } from 'src/auth/auth.guard';
+import { Public } from 'src/auth/decorators/public.decorator';
 
 @Controller('users')
-@UseGuards(ApiKeyGuard)
+@UseGuards(AuthGuard)
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
@@ -183,6 +185,26 @@ export class UsersController {
       }
     }
   }
+
+  // @Post('reset-password')
+  // async requestPasswordReset(@Body() body: { email: string }): Promise<void> {
+  //   const { email } = body;
+
+  //   try {
+  //     // Generate a reset token for the user and send it to their email
+  //     const resetToken = await this.usersService.generateResetToken(email);
+  //     // Send the reset token via email here
+  //     console.log(`Reset token for ${email}: ${resetToken}`);
+  //   } catch (error) {
+  //     if (error instanceof NotFoundException) {
+  //       // User not found
+  //       console.error('User not found');
+  //     } else {
+  //       // Other error
+  //       console.error('Error:', error.message);
+  //     }
+  //   }
+  // }
 
   @Patch('update/:Id')
   async updateUser(

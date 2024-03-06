@@ -20,7 +20,8 @@ import { PrescriptionModule } from './prescription/prescription.module';
 import { PatientInformation } from './patient_information/entities/patient_information.entity';
 import { join } from 'path';
 import { APP_GUARD } from '@nestjs/core';
-import { ApiKeyGuard } from './auth/api-key/api-key.guard';
+import { AuthGuard } from './auth/auth.guard';
+// import { ApiKeyGuard } from './auth/api-key/api-key.guard';
 
 @Module({
   imports: [
@@ -57,7 +58,7 @@ import { ApiKeyGuard } from './auth/api-key/api-key.guard';
     AppService,
     {
       provide: APP_GUARD,
-      useClass: ApiKeyGuard,
+      useClass: AuthGuard,
     },
   ],
 })

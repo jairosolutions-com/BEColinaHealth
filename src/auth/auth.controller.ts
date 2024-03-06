@@ -9,12 +9,14 @@ import {
 import { AuthService } from './auth.service';
 import { SignInDto } from './dto/auth.input'; // Import the SignInDto
 import { ApiKeyGuard } from 'src/auth/api-key/api-key.guard';
+import { AuthGuard } from './auth.guard';
+import { Public } from './decorators/public.decorator';
 
 @Controller('auth')
-@UseGuards(ApiKeyGuard)
 export class AuthController {
   constructor(private authService: AuthService) {}
 
+  @Public()
   @HttpCode(HttpStatus.OK)
   @Post('login')
   signIn(@Body() signInDto: SignInDto) {

@@ -45,6 +45,14 @@ export class Users {
   @Field()
   status: string;
 
+  @Column({ nullable: true }) // Nullable because the token might not be set initially
+  @Field({ nullable: true })
+  resetToken: string;
+
+  @Column({ nullable: true })
+  @Field({ nullable: true })
+  resetTokenExpires: Date;
+
   @UpdateDateColumn({ name: 'updated_at', nullable: true })
   @Field()
   updated_at: string;

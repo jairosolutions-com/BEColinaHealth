@@ -6,7 +6,15 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Any, FindManyOptions, ILike, IsNull, Like, Repository } from 'typeorm';
+import {
+  Any,
+  FindManyOptions,
+  ILike,
+  IsNull,
+  Like,
+  MoreThan,
+  Repository,
+} from 'typeorm';
 import { CreateUserInput } from './dto/create-user.input';
 import { Users } from './entities/user.entity';
 import { IdService } from 'services/uuid/id.service'; // Import idService
@@ -14,6 +22,8 @@ import * as bcrypt from 'bcrypt';
 import { UpdateUserInput } from './dto/update-user.input';
 import { UserAccessLevel } from 'src/user_access_level/entities/user_access_level.entity';
 import { Role } from 'src/role/entities/role.entity';
+// import { randomBytes } from 'crypto';
+// import { EmailService } from './email.service';
 
 @Injectable()
 export class UsersService {
@@ -23,6 +33,7 @@ export class UsersService {
     @InjectRepository(Role) private readonly roleRepository: Repository<Role>,
     @InjectRepository(UserAccessLevel)
     private readonly ualRepository: Repository<Role>,
+    // private readonly emailService: EmailService,
     private readonly idService: IdService,
   ) {}
 
@@ -235,4 +246,57 @@ export class UsersService {
     // Save and return the updated user
     return this.usersRepository.save(user);
   }
+
+  // async generateResetToken(email: string): Promise<string> {
+  //   const user = await this.getUserByEmail(email);
+  //   if (!user) {
+  //     throw new Error('User not found');
+  //   }
+  //   try {
+  //     // Generate a reset token for the user
+  //     const resetToken = await this.generateResetToken(email);
+
+  //     // Send the reset token via email
+  //     await this.emailService.sendResetToken(email, resetToken);
+
+  //     console.log(`Reset token for ${email} sent successfully`);
+  //   } catch (error) {
+  //     // Handle errors
+  //     console.error('Error sending reset token email:', error);
+  //     throw new Error('Failed to send reset token email');
+  //   }
+  //   const resetToken = randomBytes(20).toString('hex');
+  //   const resetTokenExpires = new Date();
+  //   resetTokenExpires.setHours(resetTokenExpires.getHours() + 1); // Token expires in 1 hour
+
+  //   await this.usersRepository.update(user.id, {
+  //     resetToken,
+  //     resetTokenExpires,
+  //   });
+
+  //   return resetToken;
+  // }
+
+  // async findByResetToken(token: string): Promise<Users> {
+  //   return await this.usersRepository.findOne({
+  //     where: {
+  //       resetToken: token,
+  //       resetTokenExpires: MoreThan(new Date()),
+  //     },
+  //   });
+  // }
+
+  // async resetPassword(token: string, newPassword: string): Promise<void> {
+  //   const user = await this.findByResetToken(token);
+  //   if (!user) {
+  //     throw new Error('Invalid or expired token');
+  //   }
+
+  //   // Update the user's password and clear the reset token fields
+  //   await this.usersRepository.update(user.id, {
+  //     password: newPassword,
+  //     resetToken: null,
+  //     resetTokenExpires: null,
+  //   });
+  // }
 }
