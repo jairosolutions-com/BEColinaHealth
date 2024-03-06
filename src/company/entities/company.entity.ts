@@ -1,7 +1,15 @@
 import { PatientInformation } from 'src/patient_information/entities/patient_information.entity';
 import { Users } from 'src/users/entities/user.entity';
 
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  CreateDateColumn,
+  DeleteDateColumn,
+  Entity,
+  OneToMany,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
+} from 'typeorm';
 
 @Entity()
 export class Company {
@@ -32,13 +40,13 @@ export class Company {
   @Column()
   zip: string;
 
-  @Column({ nullable: true })
+  @UpdateDateColumn({ name: 'updated_at', nullable: true })
   updated_at: string;
 
-  @Column({ nullable: true })
+  @CreateDateColumn({ name: 'created_at', nullable: true })
   created_at: string;
 
-  @Column({ nullable: true })
+  @DeleteDateColumn({ name: 'deleted_at', nullable: true })
   deleted_at: string;
 
   @OneToMany(() => PatientInformation, (patient) => patient.company)
