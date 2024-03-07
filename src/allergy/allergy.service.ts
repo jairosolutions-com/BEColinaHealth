@@ -56,7 +56,7 @@ export class AllergyService {
     };
   }
 
-  async getAllLabResults(): Promise<Allergy[]> {
+  async getAllAllergy(): Promise<Allergy[]> {
     const allergy = await this.allergyRepository.find();
     return allergy;
   }

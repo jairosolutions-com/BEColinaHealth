@@ -1,7 +1,7 @@
-import { InputType, Int, Field } from '@nestjs/graphql';
+import { Field } from "@nestjs/graphql";
 
-@InputType()
 export class CreateAllergyInput {
+    
     @Field()
     id: number;
 
@@ -34,4 +34,5 @@ export class CreateAllergyInput {
 
     @Field()
     deleted_at: string;
-}  
+
+}

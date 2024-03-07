@@ -1,7 +1,7 @@
 import { Body, Controller, Get, Param, Patch, Post, Query } from '@nestjs/common';
 import { MedicationService } from './medicationLog.service';
 import { CreateMedicationInput } from './dto/create-medicationLog.input';
-import { UpdateMedicationInput } from './dto/update-medicationLog.input';
+import { UpdateMedicationInput } from './dto/update-medication.input';
 
 @Controller('medication')
 export class MedicationController {
@@ -29,7 +29,7 @@ export class MedicationController {
     //     const aschMedications = this.medicationService.getAllASCHMedicationsByPatient(patientId, pageAsch, sortByAsch, sortOrderAsch);
     //     return { prnMedications, aschMedications };
     // }
-     @Get(':id/asch')
+    @Get(':id/asch')
     findAllPatientASSMedication(
         @Param('id') patientId: number,
         @Query('page') page: number,
