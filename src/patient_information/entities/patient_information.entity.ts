@@ -1,4 +1,5 @@
 import { Field, Int, ObjectType } from '@nestjs/graphql';
+import { Allergy } from 'src/allergy/entities/allergy.entity';
 import { Appointment } from 'src/appointment/entities/appointment.entity';
 import { Company } from 'src/company/entities/company.entity';
 import { EmergencyContact } from 'src/emergency_contact/entities/emergency_contact.entity';
@@ -7,6 +8,7 @@ import { MedicalHistory } from 'src/medical_history/entities/medical_history.ent
 import { Medication } from 'src/medication/entities/medication.entity';
 import { Notes } from 'src/notes/entities/note.entity';
 import { Prescription } from 'src/prescription/entities/prescription.entity';
+import { Surgery } from 'src/surgery/entities/surgery.entity';
 import { VitalSigns } from 'src/vital_signs/entities/vital_sign.entity';
 
 import {
@@ -106,7 +108,10 @@ export class PatientInformation {
 
   //Patient information to table PRESCRIPTION
 
-  @OneToMany(() => Prescription, (prescription) => prescription.patientInformation)
+  @OneToMany(
+    () => Prescription,
+    (prescription) => prescription.patientInformation,
+  )
   prescription: Prescription[];
 
   //Patient information to table VitalSigns
@@ -135,8 +140,10 @@ export class PatientInformation {
   appointment: Appointment[];
 
   //Patient information to table Emergency Contact
-  @OneToMany(() => EmergencyContact,
-    (emergency_contact) => emergency_contact.patient,)
+  @OneToMany(
+    () => EmergencyContact,
+    (emergency_contact) => emergency_contact.patient,
+  )
   @Field(() => [EmergencyContact], { nullable: true })
   emergency_contact: EmergencyContact[];
 
@@ -146,4 +153,12 @@ export class PatientInformation {
     name: 'companyId',
   })
   company: Company;
+
+  //Patient information to table Allergy
+  @OneToMany(() => Allergy, (allergy) => allergy.patient)
+  allergy: Allergy[];
+
+  //Patient information to table Allergy
+  @OneToMany(() => Surgery, (surgery) => surgery.patient)
+  surgery: Surgery[];
 }

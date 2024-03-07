@@ -22,6 +22,8 @@ import { join } from 'path';
 import { APP_GUARD } from '@nestjs/core';
 import { AuthGuard } from './auth/auth.guard';
 // import { ApiKeyGuard } from './auth/api-key/api-key.guard';
+import { AllergyModule } from './allergy/allergy.module';
+import { SurgeryModule } from './surgery/surgery.module';
 
 @Module({
   imports: [
@@ -52,6 +54,8 @@ import { AuthGuard } from './auth/auth.guard';
     CompanyModule,
     AuthModule,
     PrescriptionModule,
+    AllergyModule,
+    SurgeryModule,
   ],
   controllers: [AppController],
   providers: [
