@@ -23,7 +23,7 @@ export class LabResults {
   @Column()
   uuid: string;
 
-  @Column()
+  @Column({nullable:true})
   date: string;
 
   @Column()

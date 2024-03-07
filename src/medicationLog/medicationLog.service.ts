@@ -1,6 +1,6 @@
 import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateMedicationInput } from './dto/create-medicationLog.input';
-import { UpdateMedicationInput } from './dto/update-medicationLog.input';
+import { UpdateMedicationInput } from './dto/update-medication.input';
 import { InjectRepository } from '@nestjs/typeorm';
 import { IdService } from 'services/uuid/id.service';
 import { ILike, Repository } from 'typeorm';

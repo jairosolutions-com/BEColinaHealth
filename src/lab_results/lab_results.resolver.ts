@@ -5,8 +5,8 @@ import { CreateLabResultInput } from './dto/create-lab_result.input';
 import { UpdateLabResultInput } from './dto/update-lab_result.input';
 
 @Resolver(() => LabResults)
-export class LabResultsResolver {}
-  // constructor(private readonly labResultsService: LabResultsService) {}
+export class LabResultsResolver {
+  constructor(private readonly labResultsService: LabResultsService) {}
 
   // @Mutation(() => LabResults)
   // createLabResult(
@@ -39,4 +39,4 @@ export class LabResultsResolver {}
   // removeLabResult(@Args('id', { type: () => Int }) id: number) {
   //   return this.labResultsService.remove(id);
   // }
-
+}

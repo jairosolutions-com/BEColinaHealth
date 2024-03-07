@@ -34,6 +34,10 @@ export class PatientInformationController {
     @Get('overview/:id')
     getPatientOverviewById(@Param('id') id: number) {
         return this.patientInformationService.getPatientOverviewById(id);
+    } 
+    @Get('fullInfo/:id')
+    getPatientFullInfoById(@Param('id') id: number) {
+        return this.patientInformationService.getPatientFullInfoById(id);
     }
     // POST /patient-information
     @Post()

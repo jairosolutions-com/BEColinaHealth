@@ -58,6 +58,21 @@ export class PatientInformationService {
     const patientList = await this.patientInformationRepository.find({
       select: ["id", "uuid", "firstName", "lastName", "age", "gender", "codeStatus"],
       where: { id },
+      relations: ["allergy"]
+    });
+
+    const processedPatientList = patientList.map(patient => {
+      const allergies = patient.allergy.map(allergy => allergy.type).join(', ');
+      return { ...patient, allergies };
+    });
+    return processedPatientList;
+  }
+
+  async getPatientFullInfoById(id: number): Promise<PatientInformation[]> {
+    const patientList = await this.patientInformationRepository.find({
+
+      where: { id },
+      relations: ["allergy"]
     });
 
     const processedPatientList = patientList.map(patient => {
