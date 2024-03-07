@@ -91,7 +91,7 @@ export class PatientInformationService {
 
     //find the data
     const patientList = await this.patientInformationRepository.find({
-      select: ["id", "uuid", "firstName", "lastName", "age", "gender" , "codeStatus", ""],
+      select: ["id", "uuid", "firstName", "lastName", "age", "gender" , "codeStatus"],
       skip: skip,
       take: perPage,
       order: { [sortBy]: sortOrder } // Apply sorting based on sortBy and sortOrder
