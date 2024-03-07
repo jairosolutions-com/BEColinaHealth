@@ -4,8 +4,7 @@ import { Appointment } from 'src/appointment/entities/appointment.entity';
 import { Company } from 'src/company/entities/company.entity';
 import { EmergencyContact } from 'src/emergency_contact/entities/emergency_contact.entity';
 import { LabResults } from 'src/lab_results/entities/lab_result.entity';
-import { MedicalHistory } from 'src/medical_history/entities/medical_history.entity';
-import { Medication } from 'src/medication/entities/medication.entity';
+import { Medication } from 'src/medication_log/entities/medicationLog.entity';
 import { Notes } from 'src/notes/entities/note.entity';
 import { Prescription } from 'src/prescription/entities/prescription.entity';
 import { Surgery } from 'src/surgery/entities/surgery.entity';
@@ -51,6 +50,9 @@ export class PatientInformation {
   @Field()
   dateOfBirth: Date;
 
+  @Column({nullable: true })
+  medicalCondition: string;
+
   @Column()
   @Field()
   gender: string;
@@ -83,7 +85,7 @@ export class PatientInformation {
   @Field()
   admissionDate: Date;
 
-  @Column()
+  @Column({nullable: true })
   @Field()
   codeStatus: string;
 
@@ -119,10 +121,10 @@ export class PatientInformation {
   @Field(() => [VitalSigns], { nullable: true })
   vital_signs: VitalSigns[];
 
-  //Patient information to table MedicalHistory
-  @OneToMany(() => MedicalHistory, (medical_history) => medical_history.patient)
-  @Field(() => [MedicalHistory], { nullable: true })
-  medical_history: MedicalHistory[];
+  // //Patient information to table MedicalHistory
+  // @OneToMany(() => MedicalHistory, (medical_history) => medical_history.patient)
+  // @Field(() => [MedicalHistory], { nullable: true })
+  // medical_history: MedicalHistory[];
 
   //Patient information to table LabResults
   @OneToMany(() => LabResults, (lab_results) => lab_results.patient)

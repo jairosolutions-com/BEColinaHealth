@@ -1,5 +1,5 @@
 import { ObjectType, Field, Int } from '@nestjs/graphql';
-import { Medication } from 'src/medication/entities/medication.entity';
+import { Medication } from 'src/medication_log/entities/medicationLog.entity';
 import { PatientInformation } from 'src/patient_information/entities/patient_information.entity';
 import { ManyToOne, JoinColumn, Column, PrimaryGeneratedColumn, Entity, UpdateDateColumn, CreateDateColumn, DeleteDateColumn, Index, OneToMany } from 'typeorm';
 @Entity()
@@ -18,7 +18,7 @@ export class Prescription {
   name: string;
 
   @Column({ nullable: true })
-  numDays: string;
+  status: string;
 
   @Column()
   dosage: string;
@@ -29,10 +29,10 @@ export class Prescription {
   @Column()
   interval: string;
 
-  @Column()
-  maintenance: boolean;
+  // @Column()
+  // maintenance: boolean;
 
-  @Column({nullable:true})
+  @Column({ nullable: true })
   patientId: number;
 
 
@@ -52,8 +52,8 @@ export class Prescription {
   @JoinColumn({ name: 'patientId' }) // FK attribute
   patientInformation: PatientInformation;
 
-  @OneToMany(() => Medication, medication => medication.prescription)
-  @Field(() => [Medication], { nullable: true })
-  medications: Medication[];
+  // @OneToMany(() => Medication, medication => medication.prescription)
+  // @Field(() => [Medication], { nullable: true })
+  // medications: Medication[];
 
 } 

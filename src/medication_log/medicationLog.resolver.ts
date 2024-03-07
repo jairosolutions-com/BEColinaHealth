@@ -1,8 +1,8 @@
 import { Resolver, Query, Mutation, Args, Int } from '@nestjs/graphql';
-import { MedicationService } from './medication.service';
-import { Medication } from './entities/medication.entity';
-import { CreateMedicationInput } from './dto/create-medication.input';
-import { UpdateMedicationInput } from './dto/update-medication.input';
+import { MedicationService } from './medicationLog.service';
+import { Medication } from './entities/medicationLog.entity';
+import { CreateMedicationInput } from './dto/create-medicationLog.input';
+import { UpdateMedicationInput } from './dto/update-medicationLog.input';
 
 @Resolver(() => Medication)
 export class MedicationResolver {

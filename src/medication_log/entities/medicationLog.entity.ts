@@ -1,6 +1,6 @@
 import { Field, Int, ObjectType } from '@nestjs/graphql';
 import { PatientInformation } from 'src/patient_information/entities/patient_information.entity';
-import { Prescription } from 'src/prescription/entities/prescription.entity';
+;
 
 import {
   Column,
@@ -42,7 +42,7 @@ export class Medication {
   patientId: number;
 
   @Column({ nullable: true })
-  prescriptionId: number;
+  medicationType: string;
 
   @Column()
   medicationStatus: string;
@@ -68,10 +68,10 @@ export class Medication {
     name: 'patientId',
   })
   patient: PatientInformation;
-  // Foreign key reference to the Prescription entity
-  @ManyToOne(() => Prescription)
-  @JoinColumn({ name: 'prescriptionId', referencedColumnName: 'id' }) // FK attribute
-  prescription: Prescription;
+  // // Foreign key reference to the Prescription entity
+  // @ManyToOne(() => Prescription)
+  // @JoinColumn({ name: 'prescriptionId', referencedColumnName: 'id' }) // FK attribute
+  // prescription: Prescription;
 
 }
 
