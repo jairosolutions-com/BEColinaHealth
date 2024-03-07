@@ -15,24 +15,19 @@ export class MedicationController {
     getAllMedication() {
         return this.medicationService.getAllMedication();
     }
-    @Get(':id/asch')
-    findAllPatientASSMedication(
+    @Get(':id')
+    findAllPatientMedications(
         @Param('id') patientId: number,
-        @Query('page') page: number,
-        @Query('sortBy') sortBy: string,
-        @Query('sortOrder') sortOrder: 'ASC' | 'DESC'
+        @Query('pagePrn') pagePrn: number, // Pagination for PRN medications
+        @Query('pageAsch') pageAsch: number, // Pagination for ASCH medications
+        @Query('sortByPrn') sortByPrn: string = 'medicationDate',
+        @Query('sortOrderPrn') sortOrderPrn: 'ASC' | 'DESC' = 'ASC',
+        @Query('sortByAsch') sortByAsch: string = 'medicationDate',
+        @Query('sortOrderAsch') sortOrderAsch: 'ASC' | 'DESC' = 'ASC'
     ) {
-        return this.medicationService.getAllASCHMedicationsByPatient(patientId, page, sortBy, sortOrder);
-    }
-
-    @Get(':id/prn')
-    findAllPatientPRNMedication(
-        @Param('id') patientId: number,
-        @Query('page') page: number,
-        @Query('sortBy') sortBy: string,
-        @Query('sortOrder') sortOrder: 'ASC' | 'DESC'
-    ) {
-        return this.medicationService.getAllPRNMedicationsByPatient(patientId, page, sortBy, sortOrder);
+        const prnMedications = this.medicationService.getAllPRNMedicationsByPatient(patientId, pagePrn, sortByPrn, sortOrderPrn);
+        const aschMedications = this.medicationService.getAllASCHMedicationsByPatient(patientId, pageAsch, sortByAsch, sortOrderAsch);
+        return { prnMedications, aschMedications };
     }
 
     //can delete both asch and prn
