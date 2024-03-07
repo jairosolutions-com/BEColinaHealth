@@ -19,7 +19,7 @@ export class MedicationService {
   ) { }
 
   async createMedication(input: CreateMedicationInput):
-    Promise<{ Medication, message: string }> {
+    Promise<Medication> {
     var message = "";
 
     const existingLowercaseboth = await this.medicationRepository.findOne({
@@ -47,16 +47,15 @@ export class MedicationService {
 
     Object.assign(newMedication, input);
     this.medicationRepository.save(newMedication);
-    return {
-      Medication: newMedication,
-      message: message
-    };
+    return newMedication;
   }
 
   async getAllASCHMedicationsByPatient(patientId: number, page: number = 1, sortBy: string = 'medicationDate', sortOrder: 'ASC' | 'DESC' = 'ASC', perPage: number = 5): Promise<{ data: Medication[], totalPages: number, currentPage: number, totalCount }> {
     const skip = (page - 1) * perPage;
     const totalPatientASCHMedication = await this.medicationRepository.count({
-      where: { patientId },
+      where: {
+        patientId, medicationType: 'ASCH'
+      },
       skip: skip,
       take: perPage,
     });
@@ -81,7 +80,7 @@ export class MedicationService {
     const skip = (page - 1) * perPage;
     const totalPatientPRNMedication = await this.medicationRepository.count({
       where: {
-        patientId
+        patientId, medicationType: 'PRN'
       },
       skip: skip,
       take: perPage,
