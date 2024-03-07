@@ -46,8 +46,6 @@ export class UpdatePatientInformationInput extends PartialType(CreatePatientInfo
   @Field()
   phoneNo: string;
 
-  @Field()
-  allergies: string;
 
   @Field()
   codeStatus: string;

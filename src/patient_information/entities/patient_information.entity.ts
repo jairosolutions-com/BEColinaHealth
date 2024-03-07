@@ -77,9 +77,6 @@ export class PatientInformation {
   @Field()
   phoneNo: string;
 
-  @Column()
-  @Field()
-  allergies: string;
 
   @Column({ type: 'date', nullable: true })
   @Field()

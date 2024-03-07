@@ -2,7 +2,7 @@ import { Resolver, Query, Mutation, Args, Int } from '@nestjs/graphql';
 import { MedicationService } from './medicationLog.service';
 import { Medication } from './entities/medicationLog.entity';
 import { CreateMedicationInput } from './dto/create-medicationLog.input';
-import { UpdateMedicationInput } from './dto/update-medicationLog.input';
+import { UpdateMedicationInput } from './dto/update-medication.input';
 
 @Resolver(() => Medication)
 export class MedicationResolver {
