@@ -1,4 +1,5 @@
 import { Field } from "@nestjs/graphql";
+import { IsNotEmpty } from "class-validator";
 
 export class CreateAllergyInput {
     
@@ -8,9 +9,11 @@ export class CreateAllergyInput {
     @Field()
     uuid: string;
 
+    @IsNotEmpty()
     @Field()
     type: string;
 
+    @IsNotEmpty()
     @Field()
     allergen: string;
 
@@ -23,6 +26,7 @@ export class CreateAllergyInput {
     @Field()
     notes: string;
 
+    @IsNotEmpty()
     @Field()
     patientId: number;
 
