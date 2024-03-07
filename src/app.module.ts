@@ -4,7 +4,7 @@ import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { PatientInformationModule } from './patient_information/patient_information.module';
-import { MedicationModule } from './medication/medication.module';
+import { MedicationModule } from './medicationLog/medicationLog.module';
 import { VitalSignsModule } from './vital_signs/vital_signs.module';
 import { MedicalHistoryModule } from './medical_history/medical_history.module';
 import { LabResultsModule } from './lab_results/lab_results.module';
@@ -62,4 +62,4 @@ import { AuthGuard } from './auth/auth.guard';
     },
   ],
 })
-export class AppModule {}
+export class AppModule { }

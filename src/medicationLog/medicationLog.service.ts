@@ -1,10 +1,10 @@
 import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
-import { CreateMedicationInput } from './dto/create-medication.input';
-import { UpdateMedicationInput } from './dto/update-medication.input';
+import { CreateMedicationInput } from './dto/create-medicationLog.input';
+import { UpdateMedicationInput } from './dto/update-medicationLog.input';
 import { InjectRepository } from '@nestjs/typeorm';
 import { IdService } from 'services/uuid/id.service';
 import { ILike, Repository } from 'typeorm';
-import { Medication } from './entities/medication.entity';
+import { Medication } from './entities/medicationLog.entity';
 import { Prescription } from 'src/prescription/entities/prescription.entity';
 
 @Injectable()
@@ -28,6 +28,7 @@ export class MedicationService {
         medicationDate: ILike(`%${input.medicationDate}%`),
         medicationStatus: ILike(`%${input.medicationStatus}%`),
         medicationTime: ILike(`%${input.medicationTime}%`),
+        medicationType: ILike(`%${input.medicationType}%`),
         patientId: (input.patientId)
       },
 
@@ -37,21 +38,10 @@ export class MedicationService {
       throw new ConflictException('Medication already exists.');
     }
 
-    // Find the matching prescription based on medicationName and patientId
-    const prescription = await this.prescriptionRepository.findOne({
-      where: { name: ILike(`%${input.medicationName}%`), patientId: input.patientId },
-    });
     const newMedication = new Medication();
-    if (!prescription) {
-      message = "Not prescribed but added to medication log";
-      newMedication.prescriptionId = null;
-    }
-    else {
-      newMedication.prescriptionId = prescription.id;
-    }
 
 
-    const uuidPrefix = 'MDC-'; // Customize prefix as needed
+    const uuidPrefix = 'MDL-'; // Customize prefix as needed
     const uuid = this.idService.generateRandomUUID(uuidPrefix);
     newMedication.uuid = uuid;
 
@@ -63,53 +53,56 @@ export class MedicationService {
     };
   }
 
-  async getAllMedicationsByPatient(patientId: number, page: number = 1, sortBy: string = 'medicationDate', sortOrder: 'ASC' | 'DESC' = 'ASC', perPage: number = 5): Promise<{ data: Medication[], totalPages: number, currentPage: number, totalCount }> {
+  async getAllASCHMedicationsByPatient(patientId: number, page: number = 1, sortBy: string = 'medicationDate', sortOrder: 'ASC' | 'DESC' = 'ASC', perPage: number = 5): Promise<{ data: Medication[], totalPages: number, currentPage: number, totalCount }> {
     const skip = (page - 1) * perPage;
-    const totalPatientMedication = await this.medicationRepository.count({
+    const totalPatientASCHMedication = await this.medicationRepository.count({
       where: { patientId },
       skip: skip,
       take: perPage,
     });
-    const totalPages = Math.ceil(totalPatientMedication / perPage);
+    const totalPages = Math.ceil(totalPatientASCHMedication / perPage);
     const medicationList = await this.medicationRepository.find({
-      where: { patientId },
-      relations: [
-        'prescription',
-      ],
+      where: {
+        patientId, medicationType: 'ASCH'
+      },
       skip: skip,
       take: perPage,
+      order: { [sortBy]: sortOrder } // Apply sorting based on sortBy and sortOrder
     });
     return {
       data: medicationList,
       totalPages: totalPages,
       currentPage: page,
-      totalCount: totalPatientMedication
+      totalCount: totalPatientASCHMedication
     };
   }
 
-  // async getPrescriptionByMedication(id: number, page: number = 1, sortBy: string = 'medicationDate', sortOrder: 'ASC' | 'DESC' = 'ASC', perPage: number = 5): Promise<{ data: Medication[], totalPages: number, currentPage: number, totalCount }> {
-  //   const skip = (page - 1) * perPage;
-  //   const totalPatientMedication = await this.medicationRepository.count({
-  //     where: { prescriptionId: id },
-  //     skip: skip,
-  //     take: perPage,
-  //   });
-  //   const totalPages = Math.ceil(totalPatientMedication / perPage);
-  //   const medicationList = await this.medicationRepository.find({
-  //     where: { prescriptionId: id },
-  //     relations: [
-  //       'prescription',
-  //     ],
-  //     skip: skip,
-  //     take: perPage,
-  //   });
-  //   return {
-  //     data: medicationList,
-  //     totalPages: totalPages,
-  //     currentPage: page,
-  //     totalCount: totalPatientMedication
-  //   };
-  // }
+  async getAllPRNMedicationsByPatient(patientId: number, page: number = 1, sortBy: string = 'medicationDate', sortOrder: 'ASC' | 'DESC' = 'ASC', perPage: number = 5): Promise<{ data: Medication[], totalPages: number, currentPage: number, totalCount }> {
+    const skip = (page - 1) * perPage;
+    const totalPatientPRNMedication = await this.medicationRepository.count({
+      where: {
+        patientId
+      },
+      skip: skip,
+      take: perPage,
+    });
+    const totalPages = Math.ceil(totalPatientPRNMedication / perPage);
+    const medicationList = await this.medicationRepository.find({
+      where: {
+        patientId, medicationType: 'PRN'
+      },
+      skip: skip,
+      take: perPage,
+      order: { [sortBy]: sortOrder } // Apply sorting based on sortBy and sortOrder
+    });
+    return {
+      data: medicationList,
+      totalPages: totalPages,
+      currentPage: page,
+      totalCount: totalPatientPRNMedication
+    };
+  }
+
   async getAllMedication(): Promise<Medication[]> {
     const medication = await this.medicationRepository.find();
     return medication;

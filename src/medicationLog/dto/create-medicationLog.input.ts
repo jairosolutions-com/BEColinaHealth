@@ -1,9 +1,8 @@
+import { InputType, Int, Field } from '@nestjs/graphql';
 import { IsNotEmpty } from 'class-validator';
-import { CreateMedicationInput } from './create-medication.input';
-import { InputType, Field, Int, PartialType } from '@nestjs/graphql';
 
 @InputType()
-export class UpdateMedicationInput extends PartialType(CreateMedicationInput) {
+export class CreateMedicationInput {
   @Field((type) => Int)
   id: number;
 
@@ -31,7 +30,7 @@ export class UpdateMedicationInput extends PartialType(CreateMedicationInput) {
   patientId: number;
 
   @Field()
-  prescriptionId: number;
+  medicationType: string;
 
   @IsNotEmpty()
   @Field()
@@ -45,5 +44,4 @@ export class UpdateMedicationInput extends PartialType(CreateMedicationInput) {
 
   @Field()
   deleted_at: string;
-
 }

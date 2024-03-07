@@ -14,7 +14,7 @@ export class CreatePrescriptionInput {
   name: string;
 
   @Field({ nullable: true })
-  numDays: string;
+  status: string;
 
   @IsNotEmpty()
   @Field()

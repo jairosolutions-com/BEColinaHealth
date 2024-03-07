@@ -21,8 +21,7 @@ export class PrescriptionService {
         name: ILike(`%${input.name}%`),
         dosage: ILike(`%${input.dosage}%`),
         interval: ILike(`%${input.interval}%`),
-        numDays: ILike(`%${input.numDays}%`),
-        maintenance: (input.maintenance),
+        status: ILike(`%${input.status}%`),
         patientId: (input.patientId)
       },
 
@@ -65,6 +64,19 @@ export class PrescriptionService {
       currentPage: page,
       totalCount: totalPatientPrescription
     };
+  }
+
+
+  //LIST Prescription NAMES Dropdown  PER PATIENT
+  async getPrescriptionDropDownByPatient(patientId: number): Promise<Prescription[]> {
+   
+    const prescriptionNameList = await this.prescriptionRepository.find({
+      select: ["name"],
+      where: { patientId }
+
+    });
+    return prescriptionNameList
+    ;
   }
   async getAllPrescriptions(): Promise<Prescription[]> {
     const prescription = await this.prescriptionRepository.find();
