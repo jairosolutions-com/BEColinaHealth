@@ -29,7 +29,6 @@ export class CreateLabResultInput {
   @Field()
   triglycerides: string;
 
-
   @Field()
   patientId: number;
 

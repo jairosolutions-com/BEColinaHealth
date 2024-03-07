@@ -6,7 +6,7 @@ import { UpdateLabResultInput } from './dto/update-lab_result.input';
 
 @Resolver(() => LabResults)
 export class LabResultsResolver {
-  // constructor(private readonly labResultsService: LabResultsService) {}
+  constructor(private readonly labResultsService: LabResultsService) {}
 
   // @Mutation(() => LabResults)
   // createLabResult(
@@ -35,8 +35,8 @@ export class LabResultsResolver {
   //   );
   // }
 
-  // @Mutation(() => LabResults)
-  // removeLabResult(@Args('id', { type: () => Int }) id: number) {
-  //   return this.labResultsService.remove(id);
-  // }
+  @Mutation(() => LabResults)
+  removeLabResult(@Args('id', { type: () => Int }) id: number) {
+    return this.labResultsService.remove(id);
+  }
 }
