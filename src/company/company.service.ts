@@ -27,7 +27,7 @@ export class CompanyService {
     const [company, total] = await this.companyRepository.findAndCount({
       take: limit,
       skip: (page - 1) * limit,
-      order: { created_at: 'DESC' },
+      order: { name: 'ASC' },
     });
     return { company, total };
   }

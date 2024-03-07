@@ -3,11 +3,15 @@ import { CreatePatientInformationInput } from './dto/create-patient_information.
 import { UpdatePatientInformationInput } from './dto/update-patient_information.input';
 import { PatientInformation } from './entities/patient_information.entity';
 import { ILike, Repository } from 'typeorm';
-import { IdService } from 'services/uuid/id.service'; // 
-import { HttpException, HttpStatus, NotFoundException, ConflictException } from '@nestjs/common';
+import { IdService } from 'services/uuid/id.service'; //
+import {
+  HttpException,
+  HttpStatus,
+  NotFoundException,
+  ConflictException,
+} from '@nestjs/common';
 
 import { InjectRepository } from '@nestjs/typeorm';
-
 
 @Injectable()
 export class PatientInformationService {
@@ -15,18 +19,20 @@ export class PatientInformationService {
     @InjectRepository(PatientInformation)
     private patientInformationRepository: Repository<PatientInformation>,
     private idService: IdService, // Inject the IdService
-  ) { }
+  ) {}
   //CREATE PATIENT INFO
-  async createPatientInformation(input: CreatePatientInformationInput): Promise<PatientInformation> {
+  async createPatientInformation(
+    input: CreatePatientInformationInput,
+  ): Promise<PatientInformation> {
     // Check if a patient with similar information already exists
-    const existingLowercaseboth = await this.patientInformationRepository.findOne({
-      where: {
-        firstName: ILike(`%${input.firstName}%`),
-        lastName: ILike(`%${input.lastName}%`),
-        dateOfBirth: input.dateOfBirth // Check for exact match
-      },
-
-    });
+    const existingLowercaseboth =
+      await this.patientInformationRepository.findOne({
+        where: {
+          firstName: ILike(`%${input.firstName}%`),
+          lastName: ILike(`%${input.lastName}%`),
+          dateOfBirth: input.dateOfBirth, // Check for exact match
+        },
+      });
     // If a patient with similar information exists, throw an error
     if (existingLowercaseboth) {
       throw new ConflictException('Patient already exists.');
@@ -56,6 +62,8 @@ export class PatientInformationService {
   //GET ONE  PATIENT INFORMATION VIA ID
   async getPatientOverviewById(id: number): Promise<PatientInformation[]> {
     const patientList = await this.patientInformationRepository.find({
+      where: { id },
+
       select: ["id", "uuid", "firstName", "lastName", "age", "gender", "codeStatus"],
       where: { id },
       relations: ["allergy"]
@@ -64,6 +72,7 @@ export class PatientInformationService {
     const processedPatientList = patientList.map(patient => {
       const allergies = patient.allergy.map(allergy => allergy.type).join(', ');
       return { ...patient, allergies };
+
     });
     return processedPatientList;
   }
@@ -85,13 +94,22 @@ export class PatientInformationService {
 
   //GET PAGED PATIENT LIST basic info for patient list with return to pages
 
-  async getAllPatientsBasicInfo(page: number = 1, sortBy: string = 'lastName', sortOrder: 'ASC' | 'DESC' = 'ASC', perPage: number = 5):
-    //what is the expected data
-    Promise<{ data: PatientInformation[], totalPages: number, currentPage: number, totalCount }> {
+  async getAllPatientsBasicInfo(
+    page: number = 1,
+    sortBy: string = 'lastName',
+    sortOrder: 'ASC' | 'DESC' = 'ASC',
+    perPage: number = 5,
+  ): //what is the expected data
+  Promise<{
+    data: PatientInformation[];
+    totalPages: number;
+    currentPage: number;
+    totalCount;
+  }> {
     const skip = (page - 1) * perPage;
     //count the total rows searched
     const totalPatients = await this.patientInformationRepository.count({
-      select: ["id", "uuid", "firstName", "lastName", "age", "gender"],
+      select: ['id', 'uuid', 'firstName', 'lastName', 'age', 'gender'],
 
       skip: skip,
       take: perPage,
@@ -101,7 +119,15 @@ export class PatientInformationService {
 
     //find the data
     const patientList = await this.patientInformationRepository.find({
-      select: ["id", "uuid", "firstName", "lastName", "age", "gender"],
+      select: [
+        'id',
+        'uuid',
+        'firstName',
+        'lastName',
+        'age',
+        'gender',
+        'codeStatus',
+      ],
       skip: skip,
       take: perPage,
       order: { [sortBy]: sortOrder }, // Apply sorting based on sortBy and sortOrder
@@ -111,14 +137,21 @@ export class PatientInformationService {
       data: patientList,
       totalPages: totalPages,
       currentPage: page,
-      totalCount: totalPatients
+      totalCount: totalPatients,
     };
   }
 
-
-  async searchAllPatientInfoByTerm(term: string, page: number = 1, perPage: number = 5):
-    //what is the expected data
-    Promise<{ data: PatientInformation[], totalPages: number, currentPage: number, totalCount }> {
+  async searchAllPatientInfoByTerm(
+    term: string,
+    page: number = 1,
+    perPage: number = 5,
+  ): //what is the expected data
+  Promise<{
+    data: PatientInformation[];
+    totalPages: number;
+    currentPage: number;
+    totalCount;
+  }> {
     const searchTerm = `%${term}%`; // Add wildcards to the search term
     const skip = (page - 1) * perPage;
     //count the total rows searched
@@ -138,23 +171,19 @@ export class PatientInformationService {
         { firstName: ILike(searchTerm) },
         { lastName: ILike(searchTerm) },
         { uuid: ILike(`%ptn-${searchTerm}%`) },
-        //ptn prefix 
+        //ptn prefix
       ],
       skip: skip,
       take: perPage,
-
     });
-
 
     return {
       data: patientList,
       totalPages: totalPages,
       currentPage: page,
-      totalCount: totalPatients
+      totalCount: totalPatients,
     };
   }
-
-
 
   async getAllPatientsWithDetails(): Promise<PatientInformation[]> {
     return this.patientInformationRepository.find({
@@ -167,22 +196,23 @@ export class PatientInformationService {
         'appointment',
         'emergency_contact',
         'prescription',
-
       ],
     });
   }
-  async updatePatientInformation(id: number,
+  async updatePatientInformation(
+    id: number,
     updatePatientInformationInput: UpdatePatientInformationInput,
   ): Promise<PatientInformation> {
     const { ...updateData } = updatePatientInformationInput;
 
     // Find the patient record by ID
-    const patient = await this.patientInformationRepository.findOne({ where: { id } });
+    const patient = await this.patientInformationRepository.findOne({
+      where: { id },
+    });
 
     if (!patient) {
       throw new NotFoundException(`Patient ID-${id} not found.`);
     }
-
 
     // Update the patient record with the new data
     Object.assign(patient, updateData);
@@ -191,9 +221,13 @@ export class PatientInformationService {
     return this.patientInformationRepository.save(patient);
   }
 
-  async softDeletePatient(id: number): Promise<{ message: string, deletedPatient: PatientInformation }> {
+  async softDeletePatient(
+    id: number,
+  ): Promise<{ message: string; deletedPatient: PatientInformation }> {
     // Find the patient record by ID
-    const patient = await this.patientInformationRepository.findOne({ where: { id } });
+    const patient = await this.patientInformationRepository.findOne({
+      where: { id },
+    });
 
     if (!patient) {
       throw new NotFoundException(`Patient ID-${id} does not exist.`);
@@ -203,14 +237,16 @@ export class PatientInformationService {
     patient.deleted_at = new Date().toISOString();
 
     // Save and return the updated patient record
-    const deletedPatient = await this.patientInformationRepository.save(patient);
+    const deletedPatient =
+      await this.patientInformationRepository.save(patient);
 
-    return { message: `Patient with ID ${id} has been soft-deleted.`, deletedPatient };
-
+    return {
+      message: `Patient with ID ${id} has been soft-deleted.`,
+      deletedPatient,
+    };
   }
 
   // async restore(id: number): Promise<void> {
   //   await this.prescriptionRepository.restore(id);
   // }
-
 }

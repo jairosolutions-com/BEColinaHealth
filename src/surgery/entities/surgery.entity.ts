@@ -24,7 +24,7 @@ export class Surgery {
   @Column()
   typeOfSurgery: string;
 
-  @Column()
+  @Column({ type: 'text', nullable: true })
   notes: string;
 
   @CreateDateColumn({ name: 'created_at', nullable: true })
