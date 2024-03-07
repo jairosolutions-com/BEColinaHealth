@@ -1,5 +1,4 @@
 import { ObjectType, Field, Int } from '@nestjs/graphql';
-import { Medication } from 'src/medication_log/entities/medicationLog.entity';
 import { PatientInformation } from 'src/patient_information/entities/patient_information.entity';
 import { ManyToOne, JoinColumn, Column, PrimaryGeneratedColumn, Entity, UpdateDateColumn, CreateDateColumn, DeleteDateColumn, Index, OneToMany } from 'typeorm';
 @Entity()
