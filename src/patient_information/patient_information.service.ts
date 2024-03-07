@@ -82,7 +82,7 @@ export class PatientInformationService {
     const skip = (page - 1) * perPage;
     //count the total rows searched
     const totalPatients = await this.patientInformationRepository.count({
-      select: ["id", "uuid", "firstName", "lastName", "age", "gender"],
+      select: ["id", "uuid", "firstName", "lastName", "age", "gender" ],
       skip: skip,
       take: perPage,
     });
@@ -91,7 +91,7 @@ export class PatientInformationService {
 
     //find the data
     const patientList = await this.patientInformationRepository.find({
-      select: ["id", "uuid", "firstName", "lastName", "age", "gender"],
+      select: ["id", "uuid", "firstName", "lastName", "age", "gender" , "codeStatus", ""],
       skip: skip,
       take: perPage,
       order: { [sortBy]: sortOrder } // Apply sorting based on sortBy and sortOrder

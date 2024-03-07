@@ -3,7 +3,7 @@ import { Appointment } from 'src/appointment/entities/appointment.entity';
 import { Company } from 'src/company/entities/company.entity';
 import { EmergencyContact } from 'src/emergency_contact/entities/emergency_contact.entity';
 import { LabResults } from 'src/lab_results/entities/lab_result.entity';
-import { Medication } from 'src/medicationLog/entities/medicationLog.entity';
+import { Medication } from 'src/medication_log/entities/medicationLog.entity';
 import { Notes } from 'src/notes/entities/note.entity';
 import { Prescription } from 'src/prescription/entities/prescription.entity';
 import { VitalSigns } from 'src/vital_signs/entities/vital_sign.entity';
@@ -48,6 +48,9 @@ export class PatientInformation {
   @Field()
   dateOfBirth: Date;
 
+  @Column({nullable: true })
+  medicalCondition: string;
+
   @Column()
   @Field()
   gender: string;
@@ -80,7 +83,7 @@ export class PatientInformation {
   @Field()
   admissionDate: Date;
 
-  @Column()
+  @Column({nullable: true })
   @Field()
   codeStatus: string;
 

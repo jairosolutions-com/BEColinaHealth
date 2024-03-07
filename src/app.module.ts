@@ -4,9 +4,9 @@ import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { PatientInformationModule } from './patient_information/patient_information.module';
-import { MedicationModule } from './medicationLog/medicationLog.module';
+import { MedicationModule } from './medication_log/medicationLog.module';
 import { VitalSignsModule } from './vital_signs/vital_signs.module';
-import { MedicalHistoryModule } from './medical_history/medical_history.module';
+// import { MedicalHistoryModule } from './medical_history/medical_history.module';
 import { LabResultsModule } from './lab_results/lab_results.module';
 import { NotesModule } from './notes/notes.module';
 import { AppointmentModule } from './appointment/appointment.module';
@@ -44,7 +44,7 @@ import { AuthGuard } from './auth/auth.guard';
     PatientInformationModule,
     MedicationModule,
     VitalSignsModule,
-    MedicalHistoryModule,
+    // MedicalHistoryModule,
     LabResultsModule,
     NotesModule,
     AppointmentModule,

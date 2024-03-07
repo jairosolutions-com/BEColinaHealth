@@ -25,6 +25,9 @@ export class CreatePatientInformationInput {
   dateOfBirth: Date;
 
   @Field()
+  medicalCondition: string;
+
+  @Field()
   gender: string;
 
   @Field()

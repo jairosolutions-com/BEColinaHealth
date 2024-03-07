@@ -26,6 +26,9 @@ export class UpdatePatientInformationInput extends PartialType(CreatePatientInfo
   dateOfBirth: Date;
 
   @Field()
+  medicalCondition: string;
+
+  @Field()
   gender: string;
 
   @Field()
