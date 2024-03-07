@@ -1,4 +1,10 @@
-import { HttpException, HttpStatus, Injectable, Query } from '@nestjs/common';
+import {
+  HttpException,
+  HttpStatus,
+  Injectable,
+  NotFoundException,
+  Query,
+} from '@nestjs/common';
 import { CreateCompanyInput } from './dto/create-company.input';
 import { UpdateCompanyInput } from './dto/update-company.input';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -83,5 +89,57 @@ export class CompanyService {
         );
       }
     }
+  }
+
+  async updateCompany(
+    id: number,
+    updateCompanyInput: UpdateCompanyInput,
+  ): Promise<Company> {
+    const company = await this.companyRepository.findOne({
+      where: {
+        id,
+      },
+    });
+    if (!company) {
+      throw new Error(`Company with id ${id} not found`);
+    }
+
+    if (updateCompanyInput.contactNo !== undefined) {
+      company.contactNo = updateCompanyInput.contactNo;
+    }
+    if (updateCompanyInput.country !== undefined) {
+      company.country = updateCompanyInput.country;
+    }
+    if (updateCompanyInput.email !== undefined) {
+      company.email = updateCompanyInput.email;
+    }
+    if (updateCompanyInput.name !== undefined) {
+      company.name = updateCompanyInput.name;
+    }
+    if (updateCompanyInput.state !== undefined) {
+      company.state = updateCompanyInput.state;
+    }
+    if (updateCompanyInput.website !== undefined) {
+      company.website = updateCompanyInput.website;
+    }
+    if (updateCompanyInput.zip !== undefined) {
+      company.zip = updateCompanyInput.zip;
+    }
+
+    return this.companyRepository.save(company);
+  }
+
+  async softDeleteCompany(id: number): Promise<Company> {
+    const company = await this.companyRepository.findOne({
+      where: {
+        id: id,
+      },
+    });
+    if (!company) {
+      throw new NotFoundException(`Company with id ${id} not found`);
+    }
+    company.deleted_at = new Date().toISOString();
+
+    return this.companyRepository.save(company);
   }
 }

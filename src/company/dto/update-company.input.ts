@@ -1,8 +1,24 @@
-import { CreateCompanyInput } from './create-company.input';
-import { InputType, Field, Int, PartialType } from '@nestjs/graphql';
+import { IsOptional } from 'class-validator';
 
-@InputType()
-export class UpdateCompanyInput extends PartialType(CreateCompanyInput) {
-  @Field(() => Int)
-  id: number;
+export class UpdateCompanyInput {
+  @IsOptional()
+  name: string;
+
+  @IsOptional()
+  contactNo: string;
+
+  @IsOptional()
+  website: string;
+
+  @IsOptional()
+  email: string;
+
+  @IsOptional()
+  country: string;
+
+  @IsOptional()
+  state: string;
+
+  @IsOptional()
+  zip: string;
 }

@@ -263,7 +263,7 @@ export class UsersService {
     if (!user) {
       throw new NotFoundException(`User with id ${id} not found`);
     }
-
+    user.deleted_at = new Date().toISOString();
     // Save and return the updated user
     return this.usersRepository.save(user);
   }
