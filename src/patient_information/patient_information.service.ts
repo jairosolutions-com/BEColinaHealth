@@ -56,22 +56,16 @@ export class PatientInformationService {
   //GET ONE  PATIENT INFORMATION VIA ID
   async getPatientOverviewById(id: number): Promise<PatientInformation[]> {
     const patientList = await this.patientInformationRepository.find({
-      where: { id }
-
+      select: ["id", "uuid", "firstName", "lastName", "age", "gender", "codeStatus"],
+      where: { id },
     });
-    return patientList;
+
+    const processedPatientList = patientList.map(patient => {
+      const allergies = patient.allergy.map(allergy => allergy.type).join(', ');
+      return { ...patient, allergies };
+    });
+    return processedPatientList;
   }
-  // async getPatientMedicalHistoryById(id: number): Promise<PatientInformation[]> {
-  //   const patientList = await this.patientInformationRepository.find({
-  //     where: { id },
-  //     relations: [
-  //       'medical_history',
-  //     ],
-
-  //   });
-  //   return patientList;
-  // }
-
 
 
   //GET PAGED PATIENT LIST basic info for patient list with return to pages
@@ -82,7 +76,8 @@ export class PatientInformationService {
     const skip = (page - 1) * perPage;
     //count the total rows searched
     const totalPatients = await this.patientInformationRepository.count({
-      select: ["id", "uuid", "firstName", "lastName", "age", "gender" ],
+      select: ["id", "uuid", "firstName", "lastName", "age", "gender"],
+
       skip: skip,
       take: perPage,
     });
@@ -91,10 +86,10 @@ export class PatientInformationService {
 
     //find the data
     const patientList = await this.patientInformationRepository.find({
-      select: ["id", "uuid", "firstName", "lastName", "age", "gender" , "codeStatus", ""],
+      select: ["id", "uuid", "firstName", "lastName", "age", "gender"],
       skip: skip,
       take: perPage,
-      order: { [sortBy]: sortOrder } // Apply sorting based on sortBy and sortOrder
+      order: { [sortBy]: sortOrder }, // Apply sorting based on sortBy and sortOrder
 
     });
     return {

@@ -46,9 +46,6 @@ export class CreatePatientInformationInput {
   phoneNo: string;
 
   @Field()
-  allergies: string;
-
-  @Field()
   codeStatus: string;
 
   @Field()

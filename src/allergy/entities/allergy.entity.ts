@@ -33,6 +33,9 @@ export class Allergy {
   @Column()
   notes: string;
 
+  @Column()
+  patientId: number;
+
   @CreateDateColumn({ name: 'created_at', nullable: true })
   created_at: string;
 
