@@ -1,7 +1,7 @@
 import { Controller, Get, Param, Post, Body, Query, Patch } from '@nestjs/common';
-import { PatientInformationService } from './patient_information.service';
 import { CreatePatientInformationInput } from './dto/create-patient_information.input';
 import { UpdatePatientInformationInput } from './dto/update-patient_information.input';
+import { PatientInformationService } from './patient_information.service';
 
 @Controller('patient-information')
 export class PatientInformationController {
@@ -34,7 +34,7 @@ export class PatientInformationController {
     @Get('overview/:id')
     getPatientOverviewById(@Param('id') id: number) {
         return this.patientInformationService.getPatientOverviewById(id);
-    } 
+    }
     @Get('fullInfo/:id')
     getPatientFullInfoById(@Param('id') id: number) {
         return this.patientInformationService.getPatientFullInfoById(id);

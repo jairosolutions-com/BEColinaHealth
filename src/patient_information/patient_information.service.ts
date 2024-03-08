@@ -65,7 +65,6 @@ export class PatientInformationService {
       where: { id },
 
       select: ["id", "uuid", "firstName", "lastName", "age", "gender", "codeStatus"],
-      where: { id },
       relations: ["allergy"]
     });
 

@@ -1,5 +1,5 @@
 import { Resolver, Query, Mutation, Args, Int } from '@nestjs/graphql';
-import { PatientInformationService } from './patient_information.service';
+import { PatientInformationService } from './patients';
 import { PatientInformation } from './entities/patient_information.entity';
 import { CreatePatientInformationInput } from './dto/create-patient_information.input';
 import { UpdatePatientInformationInput } from './dto/update-patient_information.input';
@@ -8,7 +8,7 @@ import { UpdatePatientInformationInput } from './dto/update-patient_information.
 export class PatientInformationResolver {
   constructor(
     private readonly patientInformationService: PatientInformationService,
-  ) {}
+  ) { }
 
   @Mutation(() => PatientInformation)
   createPatientInformation(
