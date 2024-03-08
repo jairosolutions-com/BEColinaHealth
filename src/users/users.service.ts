@@ -16,12 +16,12 @@ import {
   Repository,
 } from 'typeorm';
 import { CreateUserInput } from './dto/create-user.input';
-import { Users } from './entities/user.entity';
 import { IdService } from 'services/uuid/id.service'; // Import idService
 import * as bcrypt from 'bcrypt';
 import { UpdateUserInput } from './dto/update-user.input';
-import { UserAccessLevel } from 'src/user_access_level/entities/user_access_level.entity';
-import { Role } from 'src/role/entities/role.entity';
+import { UserAccessLevels } from 'src/userAccessLevels/entities/userAccessLevels.entity';
+import { Roles } from 'src/roles/entities/roles.entity';
+import { Users } from './entities/users.entity';
 // import { randomBytes } from 'crypto';
 // import { EmailService } from './email.service';
 
@@ -30,12 +30,12 @@ export class UsersService {
   constructor(
     @InjectRepository(Users)
     private readonly usersRepository: Repository<Users>,
-    @InjectRepository(Role) private readonly roleRepository: Repository<Role>,
-    @InjectRepository(UserAccessLevel)
-    private readonly ualRepository: Repository<Role>,
+    @InjectRepository(Roles) private readonly rolesRepository: Repository<Roles>,
+    @InjectRepository(UserAccessLevels)
+    private readonly ualRepository: Repository<Roles>,
     // private readonly emailService: EmailService,
     private readonly idService: IdService,
-  ) {}
+  ) { }
 
   async getUserById(id: number): Promise<Users | undefined> {
     return this.usersRepository.findOne({ where: { id: id } });
@@ -48,7 +48,7 @@ export class UsersService {
     const [users, total] = await this.usersRepository.findAndCount({
       take: limit,
       skip: (page - 1) * limit,
-      order: { created_at: 'DESC' },
+      order: { createdAt: 'DESC' },
     });
     return { users, total };
   }
@@ -94,7 +94,7 @@ export class UsersService {
       },
       skip: offset,
       take: limit,
-      order: { created_at: 'DESC' },
+      order: { createdAt: 'DESC' },
     });
   }
 
@@ -110,7 +110,7 @@ export class UsersService {
       },
       skip: offset,
       take: limit,
-      order: { created_at: 'DESC' },
+      order: { createdAt: 'DESC' },
     });
   }
 
@@ -126,7 +126,7 @@ export class UsersService {
       },
       skip: offset,
       take: limit,
-      order: { created_at: 'DESC' },
+      order: { createdAt: 'DESC' },
     });
   }
 
@@ -161,30 +161,30 @@ export class UsersService {
     // Initially declare savedUser as null or undefined
     let savedUser: Users | null = null;
 
-    let defaultRole;
+    let defaultRoles;
     try {
-      // Attempt to retrieve the default role
-      defaultRole = await this.roleRepository.findOne({ where: { id: 3 } });
-      if (!defaultRole) {
-        // If the default role is not found, throw a specific error for this case
+      // Attempt to retrieve the default roles
+      defaultRoles = await this.rolesRepository.findOne({ where: { id: 3 } });
+      if (!defaultRoles) {
+        // If the default roles is not found, throw a specific error for this case
         throw new HttpException(
-          'Default role not found',
+          'Default roles not found',
           HttpStatus.BAD_REQUEST,
         );
       }
 
       // Save the new user to the database
       savedUser = await this.usersRepository.save(newUser);
-      const newUserAccessLevel = new UserAccessLevel();
-      newUserAccessLevel.users = savedUser; // Assign the user to the user property
-      newUserAccessLevel.role = defaultRole; // Assign the fetched role to the role property
+      const newUserAccessLevels = new UserAccessLevels();
+      newUserAccessLevels.users = savedUser; // Assign the user to the user property
+      newUserAccessLevels.roles = defaultRoles; // Assign the fetched roles to the roles property
 
       // Save the new user access level record to the database
-      await this.ualRepository.save(newUserAccessLevel);
+      await this.ualRepository.save(newUserAccessLevels);
     } catch (error) {
-      // If there's an error retrieving the role, rethrow or handle it appropriately
+      // If there's an error retrieving the roles, rethrow or handle it appropriately
       throw new HttpException(
-        'Failed to assign default role',
+        'Failed to assign default roles',
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
@@ -263,7 +263,7 @@ export class UsersService {
     if (!user) {
       throw new NotFoundException(`User with id ${id} not found`);
     }
-    user.deleted_at = new Date().toISOString();
+    user.deletedAt = new Date().toISOString();
     // Save and return the updated user
     return this.usersRepository.save(user);
   }
