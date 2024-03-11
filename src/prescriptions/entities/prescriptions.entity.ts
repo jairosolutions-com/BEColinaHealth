@@ -32,6 +32,7 @@ export class Prescriptions {
   // maintenance: boolean;
 
   @Column({ nullable: true })
+  @Field(() => Int)
   patientId: number;
 
 
