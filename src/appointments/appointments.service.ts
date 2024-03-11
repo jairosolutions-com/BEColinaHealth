@@ -1,4 +1,4 @@
-import { ConflictException, Injectable } from '@nestjs/common';
+import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateAppointmentsInput } from './dto/create-appointments.input';
 import { UpdateAppointmentsInput } from './dto/update-appointments.input';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -10,13 +10,14 @@ import { Appointments } from './entities/appointments.entity';
 export class AppointmentsService {
   constructor(
     @InjectRepository(Appointments)
-    private appointmentsRepository: Repository<Appointments>,   
+    private appointmentsRepository: Repository<Appointments>,
     private idService: IdService, // Inject the IdService
-  ) {}
+  ) { }
+  
   async createAppointments(input: CreateAppointmentsInput): Promise<Appointments> {
     const existingLowercaseboth = await this.appointmentsRepository.findOne({
       where: {
-       
+
         patientId: (input.patientId)
       },
     });
@@ -30,6 +31,7 @@ export class AppointmentsService {
     Object.assign(newAppointments, input);
     return this.appointmentsRepository.save(newAppointments);
   }
+
   async getAllAppointmentsByPatient(patientId: number, page: number = 1, sortBy: string = 'appointmentDate', sortOrder: 'ASC' | 'DESC' = 'ASC', perPage: number = 5): Promise<{ data: Appointments[], totalPages: number, currentPage: number, totalCount }> {
     const skip = (page - 1) * perPage;
     const totalPatientAppointments = await this.appointmentsRepository.count({
@@ -50,12 +52,33 @@ export class AppointmentsService {
       totalCount: totalPatientAppointments
     };
   }
+
   async getAllAppointments(): Promise<Appointments[]> {
     return this.appointmentsRepository.find();
   }
-  async updateAppointments(id: number, updateAppointmentsInput: UpdateAppointmentsInput): Promise<Appointments> {
-    const appointments = await this.appointmentsRepository.findOne(id);
-    Object.assign(appointments, updateAppointmentsInput);
-    return this.appointmentsRepository.save(appointments);
+
+  async updateAppointment(id: number,
+    updateLabResultsInput: UpdateAppointmentsInput,
+  ): Promise<Appointments> {
+    const { ...updateData } = updateLabResultsInput;
+    const labResults = await this.appointmentsRepository.findOne({ where: { id } });
+    if (!Appointments) {
+      throw new NotFoundException(`Lab Result ID-${id}  not found.`);
+    }
+    Object.assign(labResults, updateData);
+    return this.appointmentsRepository.save(labResults);
+  }
+
+  async softDeleteAppointment(id: number):  Promise<{ message: string, deletedLabResult: Appointments }> {
+    const appointments = await this.appointmentsRepository.findOne({ where: { id } });
+    if (!Appointments) {
+      throw new NotFoundException(`Appointment ID-${id} does not exist.`);
+    }
+    appointments.deletedAt = new Date().toISOString();
+
+    // Save and return the updated patient record
+    const deletedLabResult = await this.appointmentsRepository.save(appointments);
+
+    return { message: `Appointment with ID ${id} has been soft-deleted.`, deletedLabResult };
   }
 }
