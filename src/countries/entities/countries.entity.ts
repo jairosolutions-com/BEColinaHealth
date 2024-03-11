@@ -5,7 +5,7 @@ import { Column, PrimaryGeneratedColumn, Entity } from 'typeorm';
 export class Countries {
   @PrimaryGeneratedColumn()
   @Field(() => Int)
-  countriesId: number;
+  countryId: number;
 
   @Column()
   @Field()

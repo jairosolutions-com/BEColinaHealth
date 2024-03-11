@@ -22,7 +22,7 @@ export interface ProcessedPatient {
     city: string;
     state: string;
     zip: string;
-    countries: string;
+    country: string;
     phoneNo: string;
     admissionDate?: Date; // Make admissionDate optional since it's nullable
     codeStatus: string;

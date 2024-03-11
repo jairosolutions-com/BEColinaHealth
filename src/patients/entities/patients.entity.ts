@@ -73,7 +73,7 @@ export class Patients {
 
   @Column()
   @Field()
-  countries: string;
+  country: string;
 
   @Column()
   @Field()
