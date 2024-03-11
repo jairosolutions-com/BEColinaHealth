@@ -41,7 +41,7 @@ export class UpdatePatientsInput extends PartialType(CreatePatientsInput) {
   zip: string;
 
   @Field()
-  countries: string;
+  country: string;
 
   @Field()
   phoneNo: string;

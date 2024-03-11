@@ -64,7 +64,8 @@ export class Patients {
   zip: string;
 
   @Column()
-  countries: string;
+  @Field()
+  country: string;
 
   @Column()
   phoneNo: string;

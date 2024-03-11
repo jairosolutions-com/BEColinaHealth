@@ -40,7 +40,7 @@ export class CreatePatientsInput {
   zip: string;
 
   @Field()
-  countries: string;
+  country: string;
 
   @Field()
   phoneNo: string;

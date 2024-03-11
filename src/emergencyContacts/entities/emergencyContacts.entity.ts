@@ -3,11 +3,14 @@ import { Patients } from 'src/patients/entities/patients.entity';
 
 import {
   Column,
+  CreateDateColumn,
+  DeleteDateColumn,
   Entity,
   JoinColumn,
   ManyToOne,
   PrimaryColumn,
   PrimaryGeneratedColumn,
+  UpdateDateColumn,
 } from 'typeorm';
 
 @Entity('emergencyContacts')
@@ -56,18 +59,19 @@ export class EmergencyContacts {
   @Column()
   @Field((type) => Int)
   patientId: number;
-
-  @Column({ nullable: true })
+  
+  @UpdateDateColumn({ name: 'updatedAt', nullable: true })
   @Field()
   updatedAt: string;
 
-  @Column({ nullable: true })
+  @CreateDateColumn({ name: 'createdAt', nullable: true })
   @Field()
   createdAt: string;
 
-  @Column({ nullable: true })
+  @DeleteDateColumn({ name: 'deletedAt', nullable: true })
   @Field()
   deletedAt: string;
+
 
   //Emergency Contact Table with FK patientId from Patients table
   @ManyToOne(() => Patients, (patient) => patient.emergencyContacts)

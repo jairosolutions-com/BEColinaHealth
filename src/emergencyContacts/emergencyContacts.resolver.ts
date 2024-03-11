@@ -6,30 +6,30 @@ import { UpdateEmergencyContactsInput } from './dto/update-emergencyContacts.inp
 
 @Resolver(() => EmergencyContacts)
 export class EmergencyContactsResolver {
-  constructor(private readonly emergencyContactService: EmergencyContactsService) { }
+  // constructor(private readonly emergencyContactService: EmergencyContactsService) { }
 
-  @Mutation(() => EmergencyContacts)
-  createEmergencyContacts(@Args('createEmergencyContactsInput') createEmergencyContactsInput: CreateEmergencyContactsInput) {
-    return this.emergencyContactService.create(createEmergencyContactsInput);
-  }
+  // @Mutation(() => EmergencyContacts)
+  // createEmergencyContacts(@Args('createEmergencyContactsInput') createEmergencyContactsInput: CreateEmergencyContactsInput) {
+  //   return this.emergencyContactService.create(createEmergencyContactsInput);
+  // }
 
-  @Query(() => [EmergencyContacts], { name: 'emergencyContact' })
-  findAll() {
-    return this.emergencyContactService.findAll();
-  }
+  // @Query(() => [EmergencyContacts], { name: 'emergencyContact' })
+  // findAll() {
+  //   return this.emergencyContactService.findAll();
+  // }
 
-  @Query(() => EmergencyContacts, { name: 'emergencyContact' })
-  findOne(@Args('id', { type: () => Int }) id: number) {
-    return this.emergencyContactService.findOne(id);
-  }
+  // @Query(() => EmergencyContacts, { name: 'emergencyContact' })
+  // findOne(@Args('id', { type: () => Int }) id: number) {
+  //   return this.emergencyContactService.findOne(id);
+  // }
 
-  @Mutation(() => EmergencyContacts)
-  updateEmergencyContacts(@Args('updateEmergencyContactsInput') updateEmergencyContactsInput: UpdateEmergencyContactsInput) {
-    return this.emergencyContactService.update(updateEmergencyContactsInput.id, updateEmergencyContactsInput);
-  }
+  // @Mutation(() => EmergencyContacts)
+  // updateEmergencyContacts(@Args('updateEmergencyContactsInput') updateEmergencyContactsInput: UpdateEmergencyContactsInput) {
+  //   return this.emergencyContactService.update(updateEmergencyContactsInput.id, updateEmergencyContactsInput);
+  // }
 
-  @Mutation(() => EmergencyContacts)
-  removeEmergencyContacts(@Args('id', { type: () => Int }) id: number) {
-    return this.emergencyContactService.remove(id);
-  }
+  // @Mutation(() => EmergencyContacts)
+  // removeEmergencyContacts(@Args('id', { type: () => Int }) id: number) {
+  //   return this.emergencyContactService.remove(id);
+  // }
 }

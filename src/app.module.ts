@@ -45,7 +45,6 @@ import { VitalSignsModule } from './vitalSigns/vitalSigns.module';
     PatientsModule,
     MedicationLogsModule,
     VitalSignsModule,
-    // MedicalHistoryModule,
     LabResultsModule,
     NotesModule,
     AppointmentsModule,
