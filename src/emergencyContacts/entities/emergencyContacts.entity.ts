@@ -10,7 +10,7 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 
-@Entity('emergencyContact')
+@Entity('emergencyContacts')
 @ObjectType()
 export class EmergencyContacts {
   @PrimaryGeneratedColumn()

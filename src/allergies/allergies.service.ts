@@ -66,7 +66,7 @@ export class AllergiesService {
     const { ...updateData } = updateAllergiesInput;
     const allergies = await this.allergiesRepository.findOne({ where: { id } });
     if (!allergies) {
-      throw new NotFoundException(`Lab Result ID-${id}  not found.`);
+      throw new NotFoundException(`Allergy ID-${id}  not found.`);
     }
     Object.assign(allergies, updateData);
     return this.allergiesRepository.save(allergies);
@@ -76,7 +76,7 @@ export class AllergiesService {
     const allergies = await this.allergiesRepository.findOne({ where: { id } });
 
     if (!allergies) {
-      throw new NotFoundException(`Lab Result ID-${id} does not exist.`);
+      throw new NotFoundException(`Allergy ID-${id} does not exist.`);
     }
 
     // Set the deletedAt property to mark as soft deleted

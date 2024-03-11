@@ -14,7 +14,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 
-@Entity()
+@Entity('medicationLogs')
 @ObjectType()
 export class MedicationLogs {
   @PrimaryGeneratedColumn()
@@ -25,14 +25,14 @@ export class MedicationLogs {
   uuid: string;
 
   @Column()
-  medicationLogsName: string;
+  medicationName: string;
 
   @Column()
-  medicationLogsDate: string;
+  medicationDate: string;
 
   @Column()
   @Field()
-  medicationLogsTime: string;
+  medicationTime: string;
 
   @Column()
   @Field()
@@ -42,10 +42,10 @@ export class MedicationLogs {
   patientId: number;
 
   @Column({ nullable: true })
-  medicationLogsType: string;
+  medicationType: string;
 
   @Column()
-  medicationLogsStatus: string;
+  medicationStatus: string;
 
   @UpdateDateColumn({ name: 'updatedAt', nullable: true })
   @Field()

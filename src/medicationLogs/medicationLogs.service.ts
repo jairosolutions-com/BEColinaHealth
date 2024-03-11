@@ -24,11 +24,11 @@ export class MedicationLogsService {
 
     const existingLowercaseboth = await this.medicationLogsRepository.findOne({
       where: {
-        medicationLogsName: ILike(`%${input.medicationLogsName}%`),
-        medicationLogsDate: ILike(`%${input.medicationLogsDate}%`),
-        medicationLogsStatus: ILike(`%${input.medicationLogsStatus}%`),
-        medicationLogsTime: ILike(`%${input.medicationLogsTime}%`),
-        medicationLogsType: ILike(`%${input.medicationLogsType}%`),
+        medicationName: ILike(`%${input.medicationLogsName}%`),
+        medicationDate: ILike(`%${input.medicationLogsDate}%`),
+        medicationStatus: ILike(`%${input.medicationLogsStatus}%`),
+        medicationTime: ILike(`%${input.medicationLogsTime}%`),
+        medicationType: ILike(`%${input.medicationLogsType}%`),
         patientId: (input.patientId)
       },
 
@@ -54,7 +54,7 @@ export class MedicationLogsService {
     const skip = (page - 1) * perPage;
     const totalPatientASCHMedicationLogs = await this.medicationLogsRepository.count({
       where: {
-        patientId, medicationLogsType: 'ASCH'
+        patientId, medicationType: 'ASCH'
       },
       skip: skip,
       take: perPage,
@@ -62,7 +62,7 @@ export class MedicationLogsService {
     const totalPages = Math.ceil(totalPatientASCHMedicationLogs / perPage);
     const medicationLogsList = await this.medicationLogsRepository.find({
       where: {
-        patientId, medicationLogsType: 'ASCH'
+        patientId, medicationType: 'ASCH'
       },
       skip: skip,
       take: perPage,
@@ -80,7 +80,7 @@ export class MedicationLogsService {
     const skip = (page - 1) * perPage;
     const totalPatientPRNMedicationLogs = await this.medicationLogsRepository.count({
       where: {
-        patientId, medicationLogsType: 'PRN'
+        patientId, medicationType: 'PRN'
       },
       skip: skip,
       take: perPage,
@@ -88,7 +88,7 @@ export class MedicationLogsService {
     const totalPages = Math.ceil(totalPatientPRNMedicationLogs / perPage);
     const medicationLogsList = await this.medicationLogsRepository.find({
       where: {
-        patientId, medicationLogsType: 'PRN'
+        patientId, medicationType: 'PRN'
       },
       skip: skip,
       take: perPage,

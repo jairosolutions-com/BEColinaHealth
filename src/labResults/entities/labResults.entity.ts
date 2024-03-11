@@ -13,7 +13,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 
-@Entity()
+@Entity('labResults')
 @ObjectType()
 export class LabResults {
   @PrimaryGeneratedColumn()
