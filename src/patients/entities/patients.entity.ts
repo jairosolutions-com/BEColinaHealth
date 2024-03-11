@@ -33,15 +33,12 @@ export class Patients {
   id: number;
 
   @Column()
-  @Field()
   uuid: string;
 
   @Column()
-  @Field()
   firstName: string;
 
   @Column()
-  @Field()
   lastName: string;
 
   @Column({ nullable: true })
@@ -49,55 +46,43 @@ export class Patients {
   age: number;
 
   @Column({ type: 'date', nullable: true })
-  @Field()
   dateOfBirth: Date;
 
   @Column({ nullable: true })
   medicalCondition: string;
 
   @Column()
-  @Field()
   gender: string;
 
   @Column()
-  @Field()
   city: string;
 
   @Column()
-  @Field()
   state: string;
 
   @Column()
-  @Field()
   zip: string;
 
   @Column()
-  @Field()
   countries: string;
 
   @Column()
-  @Field()
   phoneNo: string;
 
 
   @Column({ type: 'date', nullable: true })
-  @Field()
   admissionDate: Date;
 
   @Column({ nullable: true })
-  @Field()
   codeStatus: string;
 
   @UpdateDateColumn({ name: 'updatedAt', nullable: true })
-  @Field()
   updatedAt: string;
 
   @CreateDateColumn({ name: 'createdAt', nullable: true })
-  @Field()
   createdAt: string;
 
   @DeleteDateColumn({ name: 'deletedAt', nullable: true })
-  @Field()
   deletedAt: string;
 
   //RELATIONAL FIELDS

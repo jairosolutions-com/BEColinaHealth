@@ -35,10 +35,10 @@ export class MedicationLogs {
   medicationTime: string;
 
   @Column()
-  @Field()
   notes: string;
 
   @Column({ nullable: true })
+  @Field(() => Int)
   patientId: number;
 
   @Column({ nullable: true })
