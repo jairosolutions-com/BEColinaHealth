@@ -35,6 +35,10 @@ export class Appointments {
   @Column()
   appointmentStatus: string;
 
+  @Column()
+  @Field((type) => Int)
+  patientId: number;
+  
   @Column({ nullable: true })
   updatedAt: string;
 

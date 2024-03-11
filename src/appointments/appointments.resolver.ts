@@ -6,30 +6,30 @@ import { UpdateAppointmentsInput } from './dto/update-appointments.input';
 
 @Resolver(() => Appointments)
 export class AppointmentsResolver {
-  constructor(private readonly appointmentsService: AppointmentsService) { }
+  // constructor(private readonly appointmentsService: AppointmentsService) { }
 
-  @Mutation(() => Appointments)
-  createAppointments(@Args('createAppointmentsInput') createAppointmentsInput: CreateAppointmentsInput) {
-    return this.appointmentsService.create(createAppointmentsInput);
-  }
+  // @Mutation(() => Appointments)
+  // createAppointments(@Args('createAppointmentsInput') createAppointmentsInput: CreateAppointmentsInput) {
+  //   return this.appointmentsService.create(createAppointmentsInput);
+  // }
 
-  @Query(() => [Appointments], { name: 'appointments' })
-  findAll() {
-    return this.appointmentsService.findAll();
-  }
+  // @Query(() => [Appointments], { name: 'appointments' })
+  // findAll() {
+  //   return this.appointmentsService.findAll();
+  // }
 
-  @Query(() => Appointments, { name: 'appointments' })
-  findOne(@Args('id', { type: () => Int }) id: number) {
-    return this.appointmentsService.findOne(id);
-  }
+  // @Query(() => Appointments, { name: 'appointments' })
+  // findOne(@Args('id', { type: () => Int }) id: number) {
+  //   return this.appointmentsService.findOne(id);
+  // }
 
-  @Mutation(() => Appointments)
-  updateAppointments(@Args('updateAppointmentsInput') updateAppointmentsInput: UpdateAppointmentsInput) {
-    return this.appointmentsService.update(updateAppointmentsInput.id, updateAppointmentsInput);
-  }
+  // @Mutation(() => Appointments)
+  // updateAppointments(@Args('updateAppointmentsInput') updateAppointmentsInput: UpdateAppointmentsInput) {
+  //   return this.appointmentsService.update(updateAppointmentsInput.id, updateAppointmentsInput);
+  // }
 
-  @Mutation(() => Appointments)
-  removeAppointments(@Args('id', { type: () => Int }) id: number) {
-    return this.appointmentsService.remove(id);
-  }
+  // @Mutation(() => Appointments)
+  // removeAppointments(@Args('id', { type: () => Int }) id: number) {
+  //   return this.appointmentsService.remove(id);
+  // }
 }
