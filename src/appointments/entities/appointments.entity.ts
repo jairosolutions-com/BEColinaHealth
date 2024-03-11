@@ -23,7 +23,7 @@ export class Appointments {
   @Column()
   uuid: string;
 
-  @Column()
+  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   dateCreated: Date;
 
   @Column()
@@ -31,6 +31,9 @@ export class Appointments {
 
   @Column()
   appointmentTime: string;
+
+  @Column()
+  appointmentEndTime: string;
 
   @Column()
   details: string;

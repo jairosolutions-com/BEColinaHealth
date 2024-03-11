@@ -18,6 +18,9 @@ export class CreateAppointmentsInput {
   appointmentTime: string;
 
   @Field()
+  appointmentEndTime: string;
+
+  @Field()
   details: string;
 
   @Field()

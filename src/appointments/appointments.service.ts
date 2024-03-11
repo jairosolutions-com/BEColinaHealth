@@ -15,13 +15,15 @@ export class AppointmentsService {
   ) { }
   
   async createAppointments(input: CreateAppointmentsInput): Promise<Appointments> {
-    const existingLowercaseboth = await this.appointmentsRepository.findOne({
+    const existingAppointment = await this.appointmentsRepository.findOne({
       where: {
-
-        patientId: (input.patientId)
+        appointmentDate: (input.appointmentDate),
+        appointmentStatus: (input.appointmentStatus),
+        appointmentTime: (input.appointmentTime),
+        appointmentEndTime: (input.appointmentEndTime),
       },
     });
-    if (existingLowercaseboth) {
+    if (existingAppointment) {
       throw new ConflictException('Appointment already exists.');
     }
     const newAppointments = new Appointments();
