@@ -27,7 +27,7 @@ export class Appointments {
   dateCreated: Date;
 
   @Column()
-  appointmentDate: Date;
+  appointmentDate: string;
 
   @Column()
   appointmentTime: string;

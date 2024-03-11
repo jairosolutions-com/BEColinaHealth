@@ -23,10 +23,14 @@ import { UserAccessLevelsModule } from './userAccessLevels/userAccessLevels.modu
 import { UsersModule } from './users/users.module';
 import { PatientsModule } from './patients/patients.module';
 import { VitalSignsModule } from './vitalSigns/vitalSigns.module';
+import { ScheduleModule } from '@nestjs/schedule';
+import { CronjobsModule } from '../services/cronjobs/cronjobs.module';
+
 
 @Module({
   imports: [
     ConfigModule.forRoot({ envFilePath: '.env.local' }),
+    ScheduleModule.forRoot(),
     TypeOrmModule.forRoot({
       type: 'postgres',
       host: process.env.DB_HOST,
@@ -54,6 +58,7 @@ import { VitalSignsModule } from './vitalSigns/vitalSigns.module';
     PrescriptionsModule,
     AllergiesModule,
     SurgeriesModule,
+    CronjobsModule,
   ],
   controllers: [AppController],
   providers: [
