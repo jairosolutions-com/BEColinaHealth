@@ -53,6 +53,10 @@ export class EmergencyContacts {
   @Field()
   countries: string;
 
+  @Column()
+  @Field((type) => Int)
+  patientId: number;
+
   @Column({ nullable: true })
   @Field()
   updatedAt: string;

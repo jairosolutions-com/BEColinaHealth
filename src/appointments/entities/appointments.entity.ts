@@ -18,31 +18,24 @@ export class Appointments {
   id: number;
 
   @Column()
-  @Field()
   uuid: string;
 
-  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
-  @Field()
+  @Column()
   dateCreated: Date;
 
-  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
-  @Field()
-  appointmentsDate: Date;
-
-  @Column({ type: 'time', default: () => 'CURRENT_TIMESTAMP' })
-  @Field()
-  appointmentsTime: string;
+  @Column()
+  appointmentDate: Date;
 
   @Column()
-  @Field()
+  appointmentTime: string;
+
+  @Column()
   details: string;
 
   @Column()
-  @Field()
-  appointmentsStatus: string;
+  appointmentStatus: string;
 
   @Column({ nullable: true })
-  @Field()
   updatedAt: string;
 
   @Column({ nullable: true })
