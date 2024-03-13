@@ -12,7 +12,7 @@ export class CreateAppointmentsInput {
   dateCreated: Date;
 
   @Field()
-  appointmentDate: Date;
+  appointmentDate: string;
 
   @Field()
   appointmentTime: string;

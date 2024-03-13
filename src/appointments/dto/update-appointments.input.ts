@@ -13,7 +13,7 @@ export class UpdateAppointmentsInput extends PartialType(CreateAppointmentsInput
   dateCreated: Date;
 
   @Field()
-  appointmentDate: Date;
+  appointmentDate: string;
 
   @Field()
   appointmentTime: string;
