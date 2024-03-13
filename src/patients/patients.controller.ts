@@ -32,11 +32,11 @@ export class PatientsController {
         return this.patientsService.searchAllPatientInfoByTerm(term, page);
     }
     @Get('overview/:id')
-    getPatientOverviewById(@Param('id') id: number) {
+    getPatientOverviewById(@Param('id') id: string) {
         return this.patientsService.getPatientOverviewById(id);
     }
     @Get('fullInfo/:id')
-    getPatientFullInfoById(@Param('id') id: number) {
+    getPatientFullInfoById(@Param('id') id: string) {
         return this.patientsService.getPatientFullInfoById(id);
     }
     // POST /patient-information

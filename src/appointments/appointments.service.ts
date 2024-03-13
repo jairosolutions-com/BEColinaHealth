@@ -34,16 +34,16 @@ export class AppointmentsService {
     return this.appointmentsRepository.save(newAppointments);
   }
 
-  async getAllAppointmentsByPatient(patientId: number, page: number = 1, sortBy: string = 'appointmentDate', sortOrder: 'ASC' | 'DESC' = 'ASC', perPage: number = 5): Promise<{ data: Appointments[], totalPages: number, currentPage: number, totalCount }> {
+  async getAllAppointmentsByPatient(patientId: string, page: number = 1, sortBy: string = 'appointmentDate', sortOrder: 'ASC' | 'DESC' = 'ASC', perPage: number = 5): Promise<{ data: Appointments[], totalPages: number, currentPage: number, totalCount }> {
     const skip = (page - 1) * perPage;
     const totalPatientAppointments = await this.appointmentsRepository.count({
-      where: { patientId },
+      where: { uuid: patientId},
       skip: skip,
       take: perPage,
     });
     const totalPages = Math.ceil(totalPatientAppointments / perPage);
     const appointmentsList = await this.appointmentsRepository.find({
-      where: { patientId },
+      where: { uuid: patientId},
       skip: skip,
       take: perPage,
     });

@@ -45,16 +45,16 @@ export class PrescriptionsService {
   }
 
   //PAGED Prescriptions list PER PATIENT
-  async getAllPrescriptionsByPatient(patientId: number, page: number = 1, sortBy: string = 'lastName', sortOrder: 'ASC' | 'DESC' = 'ASC', perPage: number = 5): Promise<{ data: Prescriptions[], totalPages: number, currentPage: number, totalCount }> {
+  async getAllPrescriptionsByPatient(patientId: string, page: number = 1, sortBy: string = 'lastName', sortOrder: 'ASC' | 'DESC' = 'ASC', perPage: number = 5): Promise<{ data: Prescriptions[], totalPages: number, currentPage: number, totalCount }> {
     const skip = (page - 1) * perPage;
     const totalPatientPrescriptions = await this.prescriptionsRepository.count({
-      where: { patientId },
+      where: { uuid: patientId},
       skip: skip,
       take: perPage,
     });
     const totalPages = Math.ceil(totalPatientPrescriptions / perPage);
     const prescriptionsList = await this.prescriptionsRepository.find({
-      where: { patientId },
+      where: { uuid: patientId},
       skip: skip,
       take: perPage,
     });
@@ -68,11 +68,11 @@ export class PrescriptionsService {
 
 
   //LIST Prescriptions NAMES Dropdown  PER PATIENT
-  async getPrescriptionsDropDownByPatient(patientId: number): Promise<Prescriptions[]> {
+  async getPrescriptionsDropDownByPatient(patientId: string): Promise<Prescriptions[]> {
 
     const prescriptionsNameList = await this.prescriptionsRepository.find({
       select: ["name"],
-      where: { patientId }
+      where: { uuid: patientId},
 
     });
     return prescriptionsNameList

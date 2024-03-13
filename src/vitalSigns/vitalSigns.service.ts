@@ -28,16 +28,16 @@ export class VitalSignsService {
   }
 
   //PAGED Prescriptions list PER PATIENT
-  async getAllVitalSignsByPatient(patientId: number, page: number = 1, sortBy: string = 'lastName', sortOrder: 'ASC' | 'DESC' = 'ASC', perPage: number = 5): Promise<{ data: VitalSigns[], totalPages: number, currentPage: number, totalCount }> {
+  async getAllVitalSignsByPatient(patientId: string, page: number = 1, sortBy: string = 'lastName', sortOrder: 'ASC' | 'DESC' = 'ASC', perPage: number = 5): Promise<{ data: VitalSigns[], totalPages: number, currentPage: number, totalCount }> {
     const skip = (page - 1) * perPage;
     const totalPatientVitalSign = await this.vitalSignsRepository.count({
-      where: { patientId },
+      where: { uuid: patientId},
       skip: skip,
       take: perPage,
     });
     const totalPages = Math.ceil(totalPatientVitalSign / perPage);
     const vitalSignList = await this.vitalSignsRepository.find({
-      where: { patientId },
+      where: { uuid: patientId},
       skip: skip,
       take: perPage,
     });

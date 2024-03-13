@@ -16,7 +16,7 @@ export class AppointmentsController {
   }
   @Post('id')
   findAllAppointmentsByPatient(
-    @Param('id') patientId: number,
+    @Param('id') patientId: string,
     @Query('page') page: number,
     @Query('sortBy') sortBy: string,
     @Query('sortOrder') sortOrder: 'ASC' | 'DESC',) {

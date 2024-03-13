@@ -17,7 +17,7 @@ export class VitalSignsController {
     }
     @Post(':id')
     findAllPatientVitalSigns(
-        @Param('id') patientId: number,
+        @Param('id') patientId: string,
         @Query('page') page: number,
         @Query('sortBy') sortBy: string,
         @Query('sortOrder') sortOrder: 'ASC' | 'DESC',) {

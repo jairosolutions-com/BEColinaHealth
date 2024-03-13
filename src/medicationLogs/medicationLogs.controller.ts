@@ -18,7 +18,7 @@ export class MedicationLogsController {
 
     @Post(':id/asch')
     findAllPatientASSMedicationLogs(
-        @Param('id') patientId: number,
+        @Param('id') patientId: string,
         @Query('page') page: number,
         @Query('sortBy') sortBy: string,
         @Query('sortOrder') sortOrder: 'ASC' | 'DESC'
@@ -28,7 +28,7 @@ export class MedicationLogsController {
 
     @Post(':id/prn')
     findAllPatientPRNMedicationLogs(
-        @Param('id') patientId: number,
+        @Param('id') patientId: string,
         @Query('page') page: number,
         @Query('sortBy') sortBy: string,
         @Query('sortOrder') sortOrder: 'ASC' | 'DESC'

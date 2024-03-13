@@ -61,10 +61,10 @@ export class PatientsService {
   }
 
   //GET ONE  PATIENT INFORMATION VIA ID
-  async getPatientOverviewById(id: number): Promise<ProcessedPatient[]> {
+  async getPatientOverviewById(id: string): Promise<ProcessedPatient[]> {
     const patientList = await this.patientsRepository.find({
-      select: ["id", "uuid", "firstName", "lastName", "age", "gender" , "codeStatus", "medicalCondition"],
-            where: { id },
+      select: ["uuid", "firstName", "lastName", "age", "gender" , "codeStatus", "medicalCondition"],
+            where: {  uuid : id,},
       relations: ["allergies"]
     });
 
@@ -74,10 +74,10 @@ export class PatientsService {
     });
     return processedPatientList;
   }
-  async getPatientFullInfoById(id: number): Promise<fullPatientInfo[]> {
+  async getPatientFullInfoById(id: string): Promise<fullPatientInfo[]> {
     const patientList = await this.patientsRepository.find({
 
-      where: { id },
+      where: { uuid:id },
       relations: ["allergies"]
     });
 
@@ -106,7 +106,7 @@ export class PatientsService {
     const skip = (page - 1) * perPage;
     //count the total rows searched
     const totalPatients = await this.patientsRepository.count({
-      select: ['id', 'uuid', 'firstName', 'lastName', 'age', 'gender'],
+      select: ['uuid', 'firstName', 'lastName', 'age', 'gender'],
 
       skip: skip,
       take: perPage,
@@ -117,7 +117,6 @@ export class PatientsService {
     //find the data
     const patientList = await this.patientsRepository.find({
       select: [
-        'id',
         'uuid',
         'firstName',
         'lastName',

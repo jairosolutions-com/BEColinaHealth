@@ -20,7 +20,7 @@ export class EmergencyContactsController {
 
     @Post(':id')
     findAllEmergencyContactsByPatient(
-        @Param('id') patientId: number,
+        @Param('id') patientId: string,
         @Query('page') page: number,
         @Query('sortBy') sortBy: string,
         @Query('sortOrder') sortOrder: 'ASC' | 'DESC',) {

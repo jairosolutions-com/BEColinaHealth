@@ -50,11 +50,11 @@ export class MedicationLogsService {
     return newMedicationLogs;
   }
 
-  async getAllASCHMedicationLogsByPatient(patientId: number, page: number = 1, sortBy: string = 'medicationLogsDate', sortOrder: 'ASC' | 'DESC' = 'ASC', perPage: number = 5): Promise<{ data: MedicationLogs[], totalPages: number, currentPage: number, totalCount }> {
+  async getAllASCHMedicationLogsByPatient(patientId: string, page: number = 1, sortBy: string = 'medicationLogsDate', sortOrder: 'ASC' | 'DESC' = 'ASC', perPage: number = 5): Promise<{ data: MedicationLogs[], totalPages: number, currentPage: number, totalCount }> {
     const skip = (page - 1) * perPage;
     const totalPatientASCHMedicationLogs = await this.medicationLogsRepository.count({
       where: {
-        patientId, medicationType: 'ASCH'
+        uuid : patientId, medicationType: 'ASCH'
       },
       skip: skip,
       take: perPage,
@@ -62,7 +62,7 @@ export class MedicationLogsService {
     const totalPages = Math.ceil(totalPatientASCHMedicationLogs / perPage);
     const medicationLogsList = await this.medicationLogsRepository.find({
       where: {
-        patientId, medicationType: 'ASCH'
+        uuid : patientId, medicationType: 'ASCH'
       },
       skip: skip,
       take: perPage,
@@ -76,11 +76,11 @@ export class MedicationLogsService {
     };
   }
 
-  async getAllPRNMedicationLogsByPatient(patientId: number, page: number = 1, sortBy: string = 'medicationLogsDate', sortOrder: 'ASC' | 'DESC' = 'ASC', perPage: number = 5): Promise<{ data: MedicationLogs[], totalPages: number, currentPage: number, totalCount }> {
+  async getAllPRNMedicationLogsByPatient(patientId: string, page: number = 1, sortBy: string = 'medicationLogsDate', sortOrder: 'ASC' | 'DESC' = 'ASC', perPage: number = 5): Promise<{ data: MedicationLogs[], totalPages: number, currentPage: number, totalCount }> {
     const skip = (page - 1) * perPage;
     const totalPatientPRNMedicationLogs = await this.medicationLogsRepository.count({
       where: {
-        patientId, medicationType: 'PRN'
+        uuid : patientId, medicationType: 'PRN'
       },
       skip: skip,
       take: perPage,
@@ -88,7 +88,7 @@ export class MedicationLogsService {
     const totalPages = Math.ceil(totalPatientPRNMedicationLogs / perPage);
     const medicationLogsList = await this.medicationLogsRepository.find({
       where: {
-        patientId, medicationType: 'PRN'
+        uuid : patientId, medicationType: 'PRN'
       },
       skip: skip,
       take: perPage,

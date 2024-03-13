@@ -38,16 +38,16 @@ export class LabResultsService {
 
   }
 
-  async getAllLabResultsByPatient(patientId: number, page: number = 1, sortBy: string = 'medicationLogsDate', sortOrder: 'ASC' | 'DESC' = 'ASC', perPage: number = 5): Promise<{ data: LabResults[], totalPages: number, currentPage: number, totalCount }> {
+  async getAllLabResultsByPatient(patientId: string, page: number = 1, sortBy: string = 'medicationLogsDate', sortOrder: 'ASC' | 'DESC' = 'ASC', perPage: number = 5): Promise<{ data: LabResults[], totalPages: number, currentPage: number, totalCount }> {
     const skip = (page - 1) * perPage;
     const totalPatientLabResults = await this.labResultsRepository.count({
-      where: { patientId },
+      where: { uuid: patientId},
       skip: skip,
       take: perPage,
     });
     const totalPages = Math.ceil(totalPatientLabResults / perPage);
     const labResultsList = await this.labResultsRepository.find({
-      where: { patientId },
+      where: { uuid: patientId},
       skip: skip,
       take: perPage,
     });
