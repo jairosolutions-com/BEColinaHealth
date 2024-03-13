@@ -3,7 +3,9 @@ import { Cron, SchedulerRegistry } from '@nestjs/schedule';
 import { AppointmentsService } from '../../src/appointments/appointments.service';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Appointments } from 'src/appointments/entities/appointments.entity';
-import { Repository } from 'typeorm'; import { DateTime } from 'luxon';
+import { Repository } from 'typeorm';
+import { DateTime } from 'luxon';
+const dt = DateTime.local();
 
 @Injectable()
 export class CronjobsService {
@@ -16,27 +18,23 @@ export class CronjobsService {
 
     @Cron('* * * * *') // Cron job to check appointments every minute
     async checkDailyAppointments() {
-        const currentDateTime = DateTime.local(); // Get current date and time using Luxon
-        const formattedDate = currentDateTime.toFormat('yyyy-MM-dd');
+        const currentDate = new Date();
+        const formattedDate = this.formatDate(currentDate);
         console.log('Checking appointments for date:', formattedDate);
-
         const appointments = await this.appointmentsRepository.find({
             where: {
-                appointmentDate: formattedDate,
-                appointmentStatus: 'scheduled' || 'ongoing',
+                // appointmentDate: formattedDate,
             },
         });
 
         for (const appointment of appointments) {
             const appointmentDateTime = this.parseDateTime(appointment.appointmentDate, appointment.appointmentTime);
             const appointmentEndDateTime = this.parseDateTime(appointment.appointmentDate, appointment.appointmentEndTime);
-            console.log('appointmentDateTime:', appointmentDateTime);
-            console.log('appointmentEndDateTime:', appointmentEndDateTime);
-            console.log('currentDateTime:', currentDateTime);
-            if (currentDateTime >= appointmentDateTime && currentDateTime <= appointmentEndDateTime) {
+
+            if (currentDate >= appointmentDateTime && currentDate <= appointmentEndDateTime) {
                 await this.updateAppointmentStatus(appointment, 'ongoing');
                 console.log('Marked ongoing for appointment:', appointment.id);
-            } else if (currentDateTime > appointmentEndDateTime) {
+            } else if (currentDate > appointmentEndDateTime) {
                 if (appointment.appointmentStatus !== 'successful') {
                     await this.updateAppointmentStatus(appointment, 'missed');
                     console.log('Marked missed for appointment:', appointment.id);
@@ -54,8 +52,15 @@ export class CronjobsService {
         appointment.appointmentStatus = status;
         await this.appointmentsRepository.save(appointment);
     }
+    formatDate(date: Date): string {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are zero-based
+        const day = String(date.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    }
 
-    parseDateTime(dateString: string, timeString: string): DateTime {
+
+    parseDateTime(dateString: string, timeString: string): Date {
         const [year, month, day] = dateString.split('-').map(Number);
         const [hoursString, minutesString] = timeString.split(":");
         let hours = parseInt(hoursString, 10);
@@ -68,12 +73,6 @@ export class CronjobsService {
             hours = 0;
         }
 
-        return DateTime.fromObject({
-            year,
-            month,
-            day,
-            hour: hours,
-            minute: minutes,
-        });
+        return new Date(year, month - 1, day, hours, minutes);
     }
 }
