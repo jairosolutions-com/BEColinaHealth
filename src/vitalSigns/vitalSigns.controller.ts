@@ -11,11 +11,11 @@ export class VitalSignsController {
     createVitalSign(@Body() createVitalSignInput: CreateVitalSignInput) {
         return this.vitalSignService.createVitalSign(createVitalSignInput);
     }
-    @Get()
+    @Post('getAll')
     getAllVitalSigns() {
         return this.vitalSignService.getAllVitalSign();
     }
-    @Get(':id')
+    @Post(':id')
     findAllPatientVitalSigns(
         @Param('id') patientId: number,
         @Query('page') page: number,

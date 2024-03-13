@@ -10,11 +10,11 @@ export class AppointmentsController {
   createAppointments(@Body() createAppointmentsInput: CreateAppointmentsInput) {
     return this.appointmentService.createAppointments(createAppointmentsInput);
   }
-  @Get()
+  @Post('getAll')
   getAppointments(){
     return this.appointmentService.getAllAppointments();
   }
-  @Get('id')
+  @Post('id')
   findAllAppointmentsByPatient(
     @Param('id') patientId: number,
     @Query('page') page: number,

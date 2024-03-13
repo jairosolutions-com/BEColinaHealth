@@ -12,12 +12,12 @@ export class AllergiesController {
     createAllergies(@Body() createAllergiesInput: CreateAllergiesInput) {
         return this.allergiesService.createAllergies(createAllergiesInput);
     }
-    @Get()
+    @Post('getAll')
     getAllAllergies() {
         return this.allergiesService.getAllAllergies();
     }
-    @Get(':id')
-    findAllPatientVitalSigns(
+    @Post(':id')
+    findAllPatientAllergies(
         @Param('id') patientId: number,
         @Query('page') page: number,
         @Query('sortBy') sortBy: string,

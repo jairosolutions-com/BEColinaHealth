@@ -11,12 +11,12 @@ export class MedicationLogsController {
     createMedicationLogs(@Body() createMedicationLogsInput: CreateMedicationLogsInput) {
         return this.medicationLogsService.createMedicationLogs(createMedicationLogsInput);
     }
-    @Get()
+    @Post('getAll')
     getAllMedicationLogs() {
         return this.medicationLogsService.getAllMedicationLogs();
     }
 
-    @Get(':id/asch')
+    @Post(':id/asch')
     findAllPatientASSMedicationLogs(
         @Param('id') patientId: number,
         @Query('page') page: number,
@@ -26,7 +26,7 @@ export class MedicationLogsController {
         return this.medicationLogsService.getAllASCHMedicationLogsByPatient(patientId, page, sortBy, sortOrder);
     }
 
-    @Get(':id/prn')
+    @Post(':id/prn')
     findAllPatientPRNMedicationLogs(
         @Param('id') patientId: number,
         @Query('page') page: number,

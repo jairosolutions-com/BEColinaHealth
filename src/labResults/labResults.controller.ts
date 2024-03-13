@@ -10,11 +10,11 @@ export class LabResultsController {
     createLabResult(@Body() createLabResultInput: CreateLabResultInput) {
         return this.labResultsService.createLabResults(createLabResultInput);
     }
-    @Get()
+    @Post('getAll')
     getLabResults() {
         return this.labResultsService.getAllLabResults();
     }
-    @Get(':id')
+    @Post(':id')
     findAllLabResultsByPatient(
         @Param('id') patientId: number,
         @Query('page') page: number,

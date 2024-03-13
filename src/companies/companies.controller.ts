@@ -21,7 +21,7 @@ import { UpdateCompaniesInput } from './dto/update-companies.input';
 export class CompaniesController {
   constructor(private readonly companyService: CompaniesService) { }
 
-  @Get('search')
+  @Post('search')
   async searchCompanies(
     @Query('keyword') keyword: string,
     @Query('page') page: number = 1,
@@ -30,7 +30,7 @@ export class CompaniesController {
     return this.companyService.searchCompanies(keyword, page, limit);
   }
 
-  @Get()
+  @Post('getAll')
   async getAllCompanies(
     @Query('page') page: number = 1,
     @Query('limit') limit: number = 10,
