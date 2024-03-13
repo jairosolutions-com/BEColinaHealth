@@ -6,7 +6,7 @@ import { PatientsService } from './patients.service';
 @Controller('patient-information')
 export class PatientsController {
     constructor(private readonly patientsService: PatientsService) { }
-    @Get()
+    @Post('getAll')
     findAllPatientsAllInfo() {
         return this.patientsService.getAllPatientsFullInfo();
     }
@@ -15,7 +15,7 @@ export class PatientsController {
     //values per page is set as perPage, page is page number 
     //when limiting number of items per page, check the service for getList
     //get patient list page basic info (id, name, age, gender)
-    @Get('list')
+    @Post('list')
     findAllPatientsBasicInfo(
         @Query('page') page: number,
         @Query('sortBy') sortBy: string,
@@ -24,7 +24,7 @@ export class PatientsController {
         return this.patientsService.getAllPatientsBasicInfo(page, sortBy, sortOrder);
     }
     //search for term and filter it then use paging
-    @Get('search')
+    @Post('search')
     getPatientsByName(
         @Query('term') term: string,
         @Query('page') page: number = 1,
@@ -32,11 +32,11 @@ export class PatientsController {
         return this.patientsService.searchAllPatientInfoByTerm(term, page);
     }
     @Get('overview/:id')
-    getPatientOverviewById(@Param('id') id: number) {
+    getPatientOverviewById(@Param('id') id: string) {
         return this.patientsService.getPatientOverviewById(id);
     }
     @Get('fullInfo/:id')
-    getPatientFullInfoById(@Param('id') id: number) {
+    getPatientFullInfoById(@Param('id') id: string) {
         return this.patientsService.getPatientFullInfoById(id);
     }
     // POST /patient-information

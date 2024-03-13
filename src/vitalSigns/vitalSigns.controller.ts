@@ -11,13 +11,13 @@ export class VitalSignsController {
     createVitalSign(@Body() createVitalSignInput: CreateVitalSignInput) {
         return this.vitalSignService.createVitalSign(createVitalSignInput);
     }
-    @Get()
+    @Post('getAll')
     getAllVitalSigns() {
         return this.vitalSignService.getAllVitalSign();
     }
-    @Get(':id')
+    @Post(':id')
     findAllPatientVitalSigns(
-        @Param('id') patientId: number,
+        @Param('id') patientId: string,
         @Query('page') page: number,
         @Query('sortBy') sortBy: string,
         @Query('sortOrder') sortOrder: 'ASC' | 'DESC',) {

@@ -6,34 +6,34 @@ import { UpdateEmergencyContactsInput } from './dto/update-emergencyContacts.inp
 
 @Controller('emergency-contacts')
 export class EmergencyContactsController {
-    constructor(private readonly emergencyContactService: EmergencyContactsService) { } 
+    constructor(private readonly emergencyContactService: EmergencyContactsService) { }
 
     @Post()
     createEmergencyContacts(@Body() createEmergencyContactsInput: CreateEmergencyContactsInput) {
         return this.emergencyContactService.createEmergencyContacts(createEmergencyContactsInput);
     }
 
-    @Get()
+    @Post('getAll')
     getEmergencyContacts() {
         return this.emergencyContactService.getAllEmergencyContacts();
     }
 
-    @Get(':id')
+    @Post(':id')
     findAllEmergencyContactsByPatient(
-        @Param('id') patientId: number, 
+        @Param('id') patientId: string,
         @Query('page') page: number,
-        @Query('sortBy') sortBy: string,    
-        @Query('sortOrder') sortOrder: 'ASC' | 'DESC',) {   
+        @Query('sortBy') sortBy: string,
+        @Query('sortOrder') sortOrder: 'ASC' | 'DESC',) {
         return this.emergencyContactService.getAllEmergencyContactsByPatient(patientId, page, sortBy, sortOrder);
-        }
-    @Patch('update/:id')    
+    }
+    @Patch('update/:id')
     updateEmergencyContacts(@Param('id') id: number, @Body() updateEmergencyContactsInput: UpdateEmergencyContactsInput) {
         return this.emergencyContactService.updateEmergencyContacts(id, updateEmergencyContactsInput);
     }
-    @Patch('delete/:id')    
+    @Patch('delete/:id')
     softDeleteEmergencyContacts(@Param('id') id: number) {
         return this.emergencyContactService.softDeleteEmergencyContacts(id);
-    }       
+    }
 
-    
+
 }

@@ -13,13 +13,13 @@ export class PrescriptionsController {
     createPrescriptions(@Body() createPrescriptionsInput: CreatePrescriptionsInput) {
         return this.prescriptionsService.createPrescriptions(createPrescriptionsInput);
     }
-    @Get()
+    @Post('getAll')
     getAllPrescriptions() {
         return this.prescriptionsService.getAllPrescriptions();
     }
-    @Get(':id')
+    @Post(':id')
     findAllPatientPrescriptions(
-        @Param('id') patientId: number,
+        @Param('id') patientId: string,
         @Query('page') page: number,
         @Query('sortBy') sortBy: string,
         @Query('sortOrder') sortOrder: 'ASC' | 'DESC',) {

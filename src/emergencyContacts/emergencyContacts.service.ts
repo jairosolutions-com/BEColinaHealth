@@ -36,16 +36,16 @@ export class EmergencyContactsService {
   async getAllEmergencyContacts(): Promise<EmergencyContacts[]> {
     return this.emergencyContactsRepository.find();
   }
-  async getAllEmergencyContactsByPatient(patientId: number, page: number = 1, sortBy: string = 'emergencyContactsDate', sortOrder: 'ASC' | 'DESC' = 'ASC', perPage: number = 5): Promise<{ data: EmergencyContacts[], totalPages: number, currentPage: number, totalCount }> {
+  async getAllEmergencyContactsByPatient(patientId: string, page: number = 1, sortBy: string = 'emergencyContactsDate', sortOrder: 'ASC' | 'DESC' = 'ASC', perPage: number = 5): Promise<{ data: EmergencyContacts[], totalPages: number, currentPage: number, totalCount }> {
     const skip = (page - 1) * perPage;
     const totalPatientEmergencyContacts = await this.emergencyContactsRepository.count({
-      where: { patientId },
+      where: { uuid: patientId},
       skip: skip,
       take: perPage,
     });
     const totalPages = Math.ceil(totalPatientEmergencyContacts / perPage);
     const emergencyContactsList = await this.emergencyContactsRepository.find({
-      where: { patientId },
+      where: { uuid: patientId},
       skip: skip,
       take: perPage,
     });

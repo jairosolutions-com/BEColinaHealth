@@ -13,10 +13,10 @@ export class CountryResolver {
     return this.countriesService.create(createCountryInput);
   }
 
-  @Query(() => [Countries], { name: 'countries' })
-  findAll() {
-    return this.countriesService.findAll();
-  }
+  // @Query(() => [Countries], { name: 'countries' })
+  // findAll() {
+  //   return this.countriesService.findAll();
+  // }
 
   @Query(() => Countries, { name: 'countries' })
   findOne(@Args('id', { type: () => Int }) id: number) {

@@ -13,13 +13,13 @@ export class AppointmentsController {
     return this.appointmentService.createAppointments(createAppointmentsInput);
 
   }
-  @Get()
-  getAppointments() {
+  @Post('getAll')
+  getAppointments(){
     return this.appointmentService.getAllAppointments();
   }
-  @Get('id')
+  @Post('id')
   findAllAppointmentsByPatient(
-    @Param('id') patientId: number,
+    @Param('id') patientId: string,
     @Query('page') page: number,
     @Query('sortBy') sortBy: string,
     @Query('sortOrder') sortOrder: 'ASC' | 'DESC',) {
