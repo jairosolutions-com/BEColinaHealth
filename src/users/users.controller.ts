@@ -12,10 +12,11 @@ import {
   NotFoundException,
   Patch,
   UseGuards,
+  Logger,
 } from '@nestjs/common';
 import { CreateUserInput } from './dto/create-user.input';
 import { UsersService } from './users.service';
-import { Users } from './entities/user.entity';
+import { Users } from './entities/users.entity';
 import { UpdateUserInput } from './dto/update-user.input';
 import { ApiKeyGuard } from 'src/auth/api-key/api-key.guard';
 import { AuthGuard } from 'src/auth/auth.guard';
@@ -24,6 +25,8 @@ import { Public } from 'src/auth/decorators/public.decorator';
 @Controller('users')
 @UseGuards(AuthGuard)
 export class UsersController {
+  private readonly logger = new Logger(UsersService.name);
+
   constructor(private readonly usersService: UsersService) {}
 
   @Get('search')
@@ -146,8 +149,8 @@ export class UsersController {
   ): Promise<{ users: Users[]; total: number }> {
     return this.usersService.getAllUsers(page, limit);
   }
-
-  @Post()
+@Public()
+ @Post()
   @UsePipes(new ValidationPipe({ transform: true })) // Apply ValidationPipe
   async createUser(@Body() createUserInput: CreateUserInput): Promise<any> {
     // Validate email and password
@@ -170,6 +173,9 @@ export class UsersController {
     try {
       return await this.usersService.createUser(createUserInput);
     } catch (error) {
+      this.logger.error('Failed to create user', error.stack);
+      this.logger.error('Error type:', typeof error); // Log the type of error
+      this.logger.error('Error:', error); // Log the error object itself
       if (
         error instanceof HttpException &&
         error.getStatus() === HttpStatus.CONFLICT

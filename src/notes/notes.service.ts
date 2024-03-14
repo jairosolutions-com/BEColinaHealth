@@ -1,11 +1,11 @@
 import { Injectable } from '@nestjs/common';
-import { CreateNoteInput } from './dto/create-note.input';
-import { UpdateNoteInput } from './dto/update-note.input';
+import { CreateNotesInput } from './dto/create-notes.input';
+import { UpdateNotesInput } from './dto/update-notes.input';
 
 @Injectable()
 export class NotesService {
-  create(createNoteInput: CreateNoteInput) {
-    return 'This action adds a new note';
+  create(createNotesInput: CreateNotesInput) {
+    return 'This action adds a new notes';
   }
 
   findAll() {
@@ -13,14 +13,14 @@ export class NotesService {
   }
 
   findOne(id: number) {
-    return `This action returns a #${id} note`;
+    return `This action returns a #${id} notes`;
   }
 
-  update(id: number, updateNoteInput: UpdateNoteInput) {
-    return `This action updates a #${id} note`;
+  update(id: number, updateNotesInput: UpdateNotesInput) {
+    return `This action updates a #${id} notes`;
   }
 
   remove(id: number) {
-    return `This action removes a #${id} note`;
+    return `This action removes a #${id} notes`;
   }
 }

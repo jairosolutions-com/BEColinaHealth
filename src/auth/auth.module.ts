@@ -4,11 +4,11 @@ import { AuthController } from './auth.controller';
 import { UsersModule } from '../users/users.module';
 import { UsersService } from 'src/users/users.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { Users } from 'src/users/entities/user.entity';
+import { Users } from 'src/users/entities/users.entity';
 import { IdService } from 'services/uuid/id.service';
 import { JwtModule } from '@nestjs/jwt';
-import { Role } from 'src/role/entities/role.entity';
-import { UserAccessLevel } from 'src/user_access_level/entities/user_access_level.entity';
+import { Roles } from 'src/roles/entities/roles.entity';
+import { UserAccessLevels } from 'src/userAccessLevels/entities/userAccessLevels.entity';
 import { jwtConstants } from './constant';
 import { APP_GUARD } from '@nestjs/core';
 import { AuthGuard } from './auth.guard';
@@ -22,7 +22,7 @@ import { AuthGuard } from './auth.guard';
       secret: jwtConstants.secret, // Replace with your own secret key
       signOptions: { expiresIn: '10hr' }, // Optional: Set expiration time for tokens
     }),
-    TypeOrmModule.forFeature([Users, Role, UserAccessLevel]),
+    TypeOrmModule.forFeature([Users, Roles, UserAccessLevels]),
   ],
   providers: [
     AuthService,
@@ -36,4 +36,4 @@ import { AuthGuard } from './auth.guard';
   ],
   controllers: [AuthController],
 })
-export class AuthModule {}
+export class AuthModule { }

@@ -1,16 +1,16 @@
 import { Resolver, Query, Mutation, Args, Int } from '@nestjs/graphql';
 import { NotesService } from './notes.service';
-import { Notes } from './entities/note.entity';
-import { CreateNoteInput } from './dto/create-note.input';
-import { UpdateNoteInput } from './dto/update-note.input';
+import { Notes } from './entities/notes.entity';
+import { CreateNotesInput } from './dto/create-notes.input';
+import { UpdateNotesInput } from './dto/update-notes.input';
 
 @Resolver(() => Notes)
 export class NotesResolver {
-  constructor(private readonly notesService: NotesService) {}
+  constructor(private readonly notesService: NotesService) { }
 
   @Mutation(() => Notes)
-  createNote(@Args('createNoteInput') createNoteInput: CreateNoteInput) {
-    return this.notesService.create(createNoteInput);
+  createNotes(@Args('createNotesInput') createNotesInput: CreateNotesInput) {
+    return this.notesService.create(createNotesInput);
   }
 
   @Query(() => [Notes], { name: 'notes' })
@@ -18,18 +18,18 @@ export class NotesResolver {
     return this.notesService.findAll();
   }
 
-  @Query(() => Notes, { name: 'note' })
+  @Query(() => Notes, { name: 'notes' })
   findOne(@Args('id', { type: () => Int }) id: number) {
     return this.notesService.findOne(id);
   }
 
   @Mutation(() => Notes)
-  updateNote(@Args('updateNoteInput') updateNoteInput: UpdateNoteInput) {
-    return this.notesService.update(updateNoteInput.id, updateNoteInput);
+  updateNotes(@Args('updateNotesInput') updateNotesInput: UpdateNotesInput) {
+    return this.notesService.update(updateNotesInput.id, updateNotesInput);
   }
 
   @Mutation(() => Notes)
-  removeNote(@Args('id', { type: () => Int }) id: number) {
+  removeNotes(@Args('id', { type: () => Int }) id: number) {
     return this.notesService.remove(id);
   }
 }

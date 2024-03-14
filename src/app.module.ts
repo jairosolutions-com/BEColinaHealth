@@ -3,31 +3,34 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { PatientInformationModule } from './patient_information/patient_information.module';
-import { MedicationModule } from './medication_log/medicationLog.module';
-import { VitalSignsModule } from './vital_signs/vital_signs.module';
-// import { MedicalHistoryModule } from './medical_history/medical_history.module';
-import { LabResultsModule } from './lab_results/lab_results.module';
-import { NotesModule } from './notes/notes.module';
-import { AppointmentModule } from './appointment/appointment.module';
-import { EmergencyContactModule } from './emergency_contact/emergency_contact.module';
-import { UsersModule } from './users/users.module';
-import { CompanyModule } from './company/company.module';
-import { UserAccessLevelModule } from './user_access_level/user_access_level.module';
-import { RoleModule } from './role/role.module';
-import { AuthModule } from './auth/auth.module';
-import { PrescriptionModule } from './prescription/prescription.module';
-import { PatientInformation } from './patient_information/entities/patient_information.entity';
-import { join } from 'path';
-import { APP_GUARD } from '@nestjs/core';
-import { AuthGuard } from './auth/auth.guard';
+
 // import { ApiKeyGuard } from './auth/api-key/api-key.guard';
-import { AllergyModule } from './allergy/allergy.module';
-import { SurgeryModule } from './surgery/surgery.module';
+import { AllergiesModule } from './allergies/allergies.module';
+import { SurgeriesModule } from './surgeries/surgeries.module';
+import { APP_GUARD } from '@nestjs/core';
+import { join } from 'path';
+import { AppointmentsModule } from './appointments/appointments.module';
+import { AuthGuard } from './auth/auth.guard';
+import { AuthModule } from './auth/auth.module';
+import { CompaniesModule } from './companies/companies.module';
+import { EmergencyContactsModule } from './emergencyContacts/emergencyContacts.module';
+import { LabResultsModule } from './labResults/labResults.module';
+import { MedicationLogsModule } from './medicationLogs/medicationLogs.module';
+import { NotesModule } from './notes/notes.module';
+import { PrescriptionsModule } from './prescriptions/prescriptions.module';
+import { RolesModule } from './roles/roles.module';
+import { UserAccessLevelsModule } from './userAccessLevels/userAccessLevels.module';
+import { UsersModule } from './users/users.module';
+import { PatientsModule } from './patients/patients.module';
+import { VitalSignsModule } from './vitalSigns/vitalSigns.module';
+import { ScheduleModule } from '@nestjs/schedule';
+import { CronjobsModule } from '../services/cronjobs/cronjobs.module';
+
 
 @Module({
   imports: [
     ConfigModule.forRoot({ envFilePath: '.env.local' }),
+    ScheduleModule.forRoot(),
     TypeOrmModule.forRoot({
       type: 'postgres',
       host: process.env.DB_HOST,
@@ -41,21 +44,21 @@ import { SurgeryModule } from './surgery/surgery.module';
       autoLoadEntities: true, // Automatically load entities without the need for the entities array
     }),
     UsersModule,
-    RoleModule,
-    UserAccessLevelModule,
-    PatientInformationModule,
-    MedicationModule,
+    RolesModule,
+    UserAccessLevelsModule,
+    PatientsModule,
+    MedicationLogsModule,
     VitalSignsModule,
-    // MedicalHistoryModule,
     LabResultsModule,
     NotesModule,
-    AppointmentModule,
-    EmergencyContactModule,
-    CompanyModule,
+    AppointmentsModule,
+    EmergencyContactsModule,
+    CompaniesModule,
     AuthModule,
-    PrescriptionModule,
-    AllergyModule,
-    SurgeryModule,
+    PrescriptionsModule,
+    AllergiesModule,
+    SurgeriesModule,
+    CronjobsModule,
   ],
   controllers: [AppController],
   providers: [
