@@ -22,7 +22,6 @@ export class UpdateMedicationLogsInput extends PartialType(CreateMedicationLogsI
   @Field()
   medicationLogsTime: string;
 
-  @IsNotEmpty()
   @Field()
   notes: string;
 
@@ -30,12 +29,12 @@ export class UpdateMedicationLogsInput extends PartialType(CreateMedicationLogsI
   @Field()
   patientId: number;
 
-  @Field()
-  medicationLogsType: string;
-
   @IsNotEmpty()
   @Field()
-  medicationLogsStatus: string;
+  medicationType: string;
+
+  @Field()
+  medicationLogStatus: string;
 
   @Field()
   updatedAt: string;
@@ -45,5 +44,5 @@ export class UpdateMedicationLogsInput extends PartialType(CreateMedicationLogsI
 
   @Field()
   deletedAt: string;
-
 }
+
