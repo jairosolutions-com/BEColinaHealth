@@ -6,6 +6,7 @@ import { IdService } from 'services/uuid/id.service';
 import { ILike, Repository } from 'typeorm';
 import { MedicationLogs } from './entities/medicationLogs.entity';
 import { Prescriptions } from 'src/prescriptions/entities/prescriptions.entity';
+import { Patients } from 'src/patients/entities/patients.entity';
 
 @Injectable()
 export class MedicationLogsService {
@@ -15,6 +16,10 @@ export class MedicationLogsService {
     private medicationLogsRepository: Repository<MedicationLogs>,
     @InjectRepository(Prescriptions)
     private readonly prescriptionsRepository: Repository<Prescriptions>,
+    @InjectRepository(Patients)
+    private patientsRepository: Repository<Patients>,
+
+
     private idService: IdService, // Inject the IdService
   ) { }
 
@@ -49,19 +54,24 @@ export class MedicationLogsService {
     return newMedicationLogs;
   }
 
-  async getAllASCHMedicationLogsByPatient(patientId: string, page: number = 1, sortBy: string = 'medicationLogsDate', sortOrder: 'ASC' | 'DESC' = 'ASC', perPage: number = 5): Promise<{ data: MedicationLogs[], totalPages: number, currentPage: number, totalCount }> {
+  async getAllASCHMedicationLogsByPatient(patientUuid: string, page: number = 1, sortBy: string = 'medicationLogsDate', sortOrder: 'ASC' | 'DESC' = 'ASC', perPage: number = 5): Promise<{ data: MedicationLogs[], totalPages: number, currentPage: number, totalCount }> {
     const skip = (page - 1) * perPage;
+
+    const { id: patientId } = await this.patientsRepository.findOne({
+      select: ["id"],
+      where: { uuid: patientUuid }
+    });
+
     const totalPatientASCHMedicationLogs = await this.medicationLogsRepository.count({
       where: {
-        uuid: patientId, medicationType: 'ASCH'
+        patientId, medicationType: 'ASCH'
       },
-      skip: skip,
-      take: perPage,
     });
     const totalPages = Math.ceil(totalPatientASCHMedicationLogs / perPage);
+
     const medicationLogsList = await this.medicationLogsRepository.find({
       where: {
-        uuid: patientId, medicationType: 'ASCH'
+        patientId, medicationType: 'ASCH'
       },
       skip: skip,
       take: perPage,
@@ -75,19 +85,24 @@ export class MedicationLogsService {
     };
   }
 
-  async getAllPRNMedicationLogsByPatient(patientId: string, page: number = 1, sortBy: string = 'medicationLogsDate', sortOrder: 'ASC' | 'DESC' = 'ASC', perPage: number = 5): Promise<{ data: MedicationLogs[], totalPages: number, currentPage: number, totalCount }> {
+  async getAllPRNMedicationLogsByPatient(patientUuid: string, page: number = 1, sortBy: string = 'medicationLogsDate', sortOrder: 'ASC' | 'DESC' = 'ASC', perPage: number = 5): Promise<{ data: MedicationLogs[], totalPages: number, currentPage: number, totalCount }> {
     const skip = (page - 1) * perPage;
-    const totalPatientPRNMedicationLogs = await this.medicationLogsRepository.count({
-      where: {
-        uuid: patientId, medicationType: 'PRN'
-      },
-      skip: skip,
-      take: perPage,
+
+    const { id: patientId } = await this.patientsRepository.findOne({
+      select: ["id"],
+      where: { uuid: patientUuid }
     });
+
+    const totalPatientPRNMedicationLogs = await this.
+      medicationLogsRepository.count({
+        where: {
+          patientId, medicationType: 'PRN'
+        },
+      });
     const totalPages = Math.ceil(totalPatientPRNMedicationLogs / perPage);
     const medicationLogsList = await this.medicationLogsRepository.find({
       where: {
-        uuid: patientId, medicationType: 'PRN'
+        patientId, medicationType: 'PRN'
       },
       skip: skip,
       take: perPage,

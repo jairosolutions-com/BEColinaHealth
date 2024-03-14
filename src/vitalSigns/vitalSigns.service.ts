@@ -5,12 +5,17 @@ import { VitalSigns } from './entities/vitalSigns.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { IdService } from 'services/uuid/id.service';
 import { Repository } from 'typeorm';
+import { Patients } from 'src/patients/entities/patients.entity';
 
 @Injectable()
 export class VitalSignsService {
   constructor(
     @InjectRepository(VitalSigns)
     private vitalSignsRepository: Repository<VitalSigns>,
+
+    @InjectRepository(Patients)
+    private patientsRepository: Repository<Patients>,
+
     private idService: IdService, // Inject the IdService
   ) { }
   async createVitalSign(input: CreateVitalSignInput): Promise<VitalSigns> {
@@ -28,16 +33,22 @@ export class VitalSignsService {
   }
 
   //PAGED Prescriptions list PER PATIENT
-  async getAllVitalSignsByPatient(patientId: string, page: number = 1, sortBy: string = 'lastName', sortOrder: 'ASC' | 'DESC' = 'ASC', perPage: number = 5): Promise<{ data: VitalSigns[], totalPages: number, currentPage: number, totalCount }> {
+  async getAllVitalSignsByPatient(patientUuid: string, page: number = 1, sortBy: string = 'lastName', sortOrder: 'ASC' | 'DESC' = 'ASC', perPage: number = 5): Promise<{ data: VitalSigns[], totalPages: number, currentPage: number, totalCount }> {
     const skip = (page - 1) * perPage;
+    const { id: patientId } = await this.patientsRepository.findOne({
+      select: ["id"],
+      where: { uuid: patientUuid }
+    });
+
+
     const totalPatientVitalSign = await this.vitalSignsRepository.count({
-      where: { uuid: patientId },
+      where: { patientId },
       skip: skip,
       take: perPage,
     });
     const totalPages = Math.ceil(totalPatientVitalSign / perPage);
     const vitalSignList = await this.vitalSignsRepository.find({
-      where: { uuid: patientId },
+      where: { patientId },
       skip: skip,
       take: perPage,
     });

@@ -17,9 +17,9 @@ export class AllergiesController {
         return this.allergiesService.getAllAllergies();
     }
     @Post(':id')
-    findPatientsPost(
+    findAllergiesPost(
         @Param('id') patientId: string,
-        @Body() body: { page: number, sortBy: string, sortOrder: 'ASC' | 'DESC' }
+        @Body() body: { page: number, sortBy: string , sortOrder: 'ASC' | 'DESC' }
     ) {
         const { page, sortBy, sortOrder } = body;
         return this.allergiesService.getAllAllergiesByPatient(patientId, page, sortBy, sortOrder);

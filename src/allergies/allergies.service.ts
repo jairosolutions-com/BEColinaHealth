@@ -5,12 +5,15 @@ import { Allergies } from './entities/allergies.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { IdService } from 'services/uuid/id.service';
 import { Repository, ILike } from 'typeorm';
+import { Patients } from 'src/patients/entities/patients.entity';
 
 @Injectable()
 export class AllergiesService {
   constructor(
     @InjectRepository(Allergies)
     private allergiesRepository: Repository<Allergies>,
+    @InjectRepository(Patients)
+    private patientsRepository: Repository<Patients>,
     private idService: IdService, // Inject the IdService
   ) { }
   async createAllergies(input: CreateAllergiesInput):
@@ -35,16 +38,21 @@ export class AllergiesService {
 
   }
 
-  async getAllAllergiesByPatient(patientId: string, page: number = 1, sortBy: string = 'type', sortOrder: 'ASC' | 'DESC' = 'ASC', perPage: number = 5): Promise<{ data: Allergies[], totalPages: number, currentPage: number, totalCount }> {
+  async getAllAllergiesByPatient(patientUuid: string, page: number = 1, sortBy: string = 'type', sortOrder: 'ASC' | 'DESC' = 'ASC', perPage: number = 5): Promise<{ data: Allergies[], totalPages: number, currentPage: number, totalCount }> {
     const skip = (page - 1) * perPage;
+   
+    const { id: patientId } = await this.patientsRepository.findOne({
+      select: ["id"],
+      where: { uuid: patientUuid }
+    }); 
+    
     const totalPatientAllergies = await this.allergiesRepository.count({
-      where: { uuid: patientId },
-      skip: skip,
-      take: perPage,
+      where: { patientId },
     });
     const totalPages = Math.ceil(totalPatientAllergies / perPage);
+
     const AllergiesList = await this.allergiesRepository.find({
-      where: { uuid: patientId },
+      where: { patientId: patientId },
       skip: skip,
       take: perPage,
     });
