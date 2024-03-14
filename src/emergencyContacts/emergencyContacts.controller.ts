@@ -21,9 +21,9 @@ export class EmergencyContactsController {
     @Post(':id')
     findAllEmergencyContactsByPatient(
         @Param('id') patientId: string,
-        @Query('page') page: number,
-        @Query('sortBy') sortBy: string,
-        @Query('sortOrder') sortOrder: 'ASC' | 'DESC',) {
+        @Body() body: { page: number, sortBy: string , sortOrder: 'ASC' | 'DESC' }
+    ) {
+      const { page, sortBy, sortOrder } = body;
         return this.emergencyContactService.getAllEmergencyContactsByPatient(patientId, page, sortBy, sortOrder);
     }
     @Patch('update/:id')

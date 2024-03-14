@@ -19,20 +19,18 @@ export class MedicationLogsController {
     @Post(':id/asch')
     findAllPatientASSMedicationLogs(
         @Param('id') patientId: string,
-        @Query('page') page: number,
-        @Query('sortBy') sortBy: string,
-        @Query('sortOrder') sortOrder: 'ASC' | 'DESC'
+        @Body() body: { page: number, sortBy: string , sortOrder: 'ASC' | 'DESC' }
     ) {
+      const { page, sortBy, sortOrder } = body;
         return this.medicationLogsService.getAllASCHMedicationLogsByPatient(patientId, page, sortBy, sortOrder);
     }
 
     @Post(':id/prn')
     findAllPatientPRNMedicationLogs(
         @Param('id') patientId: string,
-        @Query('page') page: number,
-        @Query('sortBy') sortBy: string,
-        @Query('sortOrder') sortOrder: 'ASC' | 'DESC'
+        @Body() body: { page: number, sortBy: string , sortOrder: 'ASC' | 'DESC' }
     ) {
+      const { page, sortBy, sortOrder } = body;
         return this.medicationLogsService.getAllPRNMedicationLogsByPatient(patientId, page, sortBy, sortOrder);
     }
 

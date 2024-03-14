@@ -17,21 +17,21 @@ export class AllergiesController {
         return this.allergiesService.getAllAllergies();
     }
     @Post(':id')
-    findAllergiesPost(
+    findAllPatientAllergies(
         @Param('id') patientId: string,
         @Body() body: { page: number, sortBy: string , sortOrder: 'ASC' | 'DESC' }
     ) {
         const { page, sortBy, sortOrder } = body;
         return this.allergiesService.getAllAllergiesByPatient(patientId, page, sortBy, sortOrder);
     }
-    @Post(':id')
-    findAllPatientAllergies(
-        @Param('id') patientId: string,
-        @Query('page') page: number,
-        @Query('sortBy') sortBy: string,
-        @Query('sortOrder') sortOrder: 'ASC' | 'DESC',) {
-        return this.allergiesService.getAllAllergiesByPatient(patientId, page, sortBy, sortOrder);
-    }
+    // @Post(':id')
+    // findAllPatientAllergies(
+    //     @Param('id') patientId: string,
+    //     @Query('page') page: number,
+    //     @Query('sortBy') sortBy: string,
+    //     @Query('sortOrder') sortOrder: 'ASC' | 'DESC',) {
+    //     return this.allergiesService.getAllAllergiesByPatient(patientId, page, sortBy, sortOrder);
+    // }
     //onClick from prescriptions- get prescriptionsId for patch
     @Patch('update/:id')
     updateAllergies(@Param('id') id: string, @Body() updateAllergiesInput: UpdateAllergiesInput) {

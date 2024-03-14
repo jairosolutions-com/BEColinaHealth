@@ -19,10 +19,10 @@ export class AppointmentsController {
   }
   @Post('id')
   findAllAppointmentsByPatient(
-    @Param('id') patientId: string,
-    @Query('page') page: number,
-    @Query('sortBy') sortBy: string,
-    @Query('sortOrder') sortOrder: 'ASC' | 'DESC',) {
+      @Param('id') patientId: string,
+      @Body() body: { page: number, sortBy: string , sortOrder: 'ASC' | 'DESC' }
+  ) {
+    const { page, sortBy, sortOrder } = body;
     return this.appointmentService.getAllAppointmentsByPatient(patientId, page, sortBy, sortOrder);
   }
   @Patch('update/:id')

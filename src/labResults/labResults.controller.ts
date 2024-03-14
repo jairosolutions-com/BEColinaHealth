@@ -17,9 +17,9 @@ export class LabResultsController {
     @Post(':id')
     findAllLabResultsByPatient(
         @Param('id') patientId: string,
-        @Query('page') page: number,
-        @Query('sortBy') sortBy: string,
-        @Query('sortOrder') sortOrder: 'ASC' | 'DESC',) {
+        @Body() body: { page: number, sortBy: string , sortOrder: 'ASC' | 'DESC' }
+    ) {
+      const { page, sortBy, sortOrder } = body;
         return this.labResultsService.getAllLabResultsByPatient(patientId, page, sortBy, sortOrder);
     }
     @Patch('update/:id')
