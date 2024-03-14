@@ -46,7 +46,7 @@ export class PatientsController {
     }
     // PATCH /patient-information/{id}
     @Patch('update/:id')
-    updatePatientInfo(@Param('id') id: number, @Body() updatePatientsInput: UpdatePatientsInput) {
+    updatePatientInfo(@Param('id') id: string, @Body() updatePatientsInput: UpdatePatientsInput) {
         return this.patientsService.updatePatients(id, updatePatientsInput);
     }
 

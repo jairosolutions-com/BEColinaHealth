@@ -23,7 +23,7 @@ export class LabResultsController {
         return this.labResultsService.getAllLabResultsByPatient(patientId, page, sortBy, sortOrder);
     }
     @Patch('update/:id')
-    updateLabResults(@Param('id') id: number, @Body() updateLabResultInput: UpdateLabResultInput) {
+    updateLabResults(@Param('id') id: string, @Body() updateLabResultInput: UpdateLabResultInput) {
         return this.labResultsService.updateLabResults(id, updateLabResultInput);
     }
     @Patch('delete/:id')

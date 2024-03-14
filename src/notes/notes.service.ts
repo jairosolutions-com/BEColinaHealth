@@ -16,7 +16,7 @@ export class NotesService {
     return `This action returns a #${id} notes`;
   }
 
-  update(id: number, updateNotesInput: UpdateNotesInput) {
+  update(id: string, updateNotesInput: UpdateNotesInput) {
     return `This action updates a #${id} notes`;
   }
 

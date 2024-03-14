@@ -27,12 +27,12 @@ export class PrescriptionsController {
     }
     //onClick from prescriptions- get prescriptionsId for patch
     @Patch('update/:id')
-    updatePrescriptions(@Param('id') id: number, @Body() updatePrescriptionsInput: UpdatePrescriptionsInput) {
+    updatePrescriptions(@Param('id') id: string, @Body() updatePrescriptionsInput: UpdatePrescriptionsInput) {
         return this.prescriptionsService.updatePrescriptions(id, updatePrescriptionsInput);
     }
 
     @Patch('delete/:id')
-    softDeletePrescriptions(@Param('id') id: number) {
+    softDeletePrescriptions(@Param('id') id: string) {
         return this.prescriptionsService.softDeletePrescriptions(id);
     }
 }

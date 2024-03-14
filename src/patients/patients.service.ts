@@ -63,8 +63,8 @@ export class PatientsService {
   //GET ONE  PATIENT INFORMATION VIA ID
   async getPatientOverviewById(id: string): Promise<ProcessedPatient[]> {
     const patientList = await this.patientsRepository.find({
-      select: ["uuid", "firstName", "lastName", "age", "gender" , "codeStatus", "medicalCondition"],
-            where: {  uuid : id,},
+      select: ["uuid", "firstName", "lastName", "age", "gender", "codeStatus", "medicalCondition"],
+      where: { uuid: id, },
       relations: ["allergies"]
     });
 
@@ -77,7 +77,7 @@ export class PatientsService {
   async getPatientFullInfoById(id: string): Promise<fullPatientInfo[]> {
     const patientList = await this.patientsRepository.find({
 
-      where: { uuid:id },
+      where: { uuid: id },
       relations: ["allergies"]
     });
 
@@ -196,14 +196,14 @@ export class PatientsService {
     });
   }
   async updatePatients(
-    id: number,
+    id: string,
     updatePatientsInput: UpdatePatientsInput,
   ): Promise<Patients> {
     const { ...updateData } = updatePatientsInput;
 
     // Find the patient record by ID
     const patient = await this.patientsRepository.findOne({
-      where: { id },
+      where: { uuid: id },
     });
 
     if (!patient) {
@@ -218,11 +218,11 @@ export class PatientsService {
   }
 
   async softDeletePatient(
-    id: number,
+    id: string,
   ): Promise<{ message: string; deletedPatient: Patients }> {
     // Find the patient record by ID
     const patient = await this.patientsRepository.findOne({
-      where: { id },
+      where: {uuid: id},
     });
 
     if (!patient) {

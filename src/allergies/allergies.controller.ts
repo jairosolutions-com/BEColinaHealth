@@ -26,7 +26,7 @@ export class AllergiesController {
     }
     //onClick from prescriptions- get prescriptionsId for patch
     @Patch('update/:id')
-    updateAllergies(@Param('id') id: number, @Body() updateAllergiesInput: UpdateAllergiesInput) {
+    updateAllergies(@Param('id') id: string, @Body() updateAllergiesInput: UpdateAllergiesInput) {
         return this.allergiesService.updateAllergies(id, updateAllergiesInput);
     }
 

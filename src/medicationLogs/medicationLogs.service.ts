@@ -105,20 +105,20 @@ export class MedicationLogsService {
     const medicationLogs = await this.medicationLogsRepository.find();
     return medicationLogs;
   }
-  async updateMedicationLogs(id: number,
+  async updateMedicationLogs(id: string,
     updateMedicationLogsInput: UpdateMedicationLogsInput,
   ): Promise<MedicationLogs> {
     const { ...updateData } = updateMedicationLogsInput;
-    const medicationLogs = await this.medicationLogsRepository.findOne({ where: { id } });
+    const medicationLogs = await this.medicationLogsRepository.findOne({ where: { uuid: id } });
     if (!medicationLogs) {
       throw new NotFoundException(`MedicationLogs ID-${id}  not found.`);
     }
     Object.assign(medicationLogs, updateData);
     return this.medicationLogsRepository.save(medicationLogs);
   }
-  async softDeleteMedicationLogs(id: number): Promise<{ message: string, deletedMedicationLogs: MedicationLogs }> {
+  async softDeleteMedicationLogs(id: string): Promise<{ message: string, deletedMedicationLogs: MedicationLogs }> {
     // Find the patient record by ID
-    const medicationLogs = await this.medicationLogsRepository.findOne({ where: { id } });
+    const medicationLogs = await this.medicationLogsRepository.findOne({ where: { uuid: id } });
 
     if (!medicationLogs) {
       throw new NotFoundException(`MedicationLogs ID-${id} does not exist.`);

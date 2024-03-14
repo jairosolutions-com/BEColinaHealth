@@ -26,7 +26,7 @@ export class CountryService {
     return `This action returns a #${id} countries`;
   }
 
-  update(id: number, updateCountryInput: UpdateCountryInput) {
+  update(id: string, updateCountryInput: UpdateCountryInput) {
     return `This action updates a #${id} countries`;
   }
 

@@ -14,7 +14,7 @@ export class AppointmentsController {
 
   }
   @Post('getAll')
-  getAppointments(){
+  getAppointments() {
     return this.appointmentService.getAllAppointments();
   }
   @Post('id')
@@ -26,7 +26,7 @@ export class AppointmentsController {
     return this.appointmentService.getAllAppointmentsByPatient(patientId, page, sortBy, sortOrder);
   }
   @Patch('update/:id')
-  updateAppointments(@Param('id') id: number, @Body() updateAppointmentsInput: UpdateAppointmentsInput) {
+  updateAppointments(@Param('id') id: string, @Body() updateAppointmentsInput: UpdateAppointmentsInput) {
     return this.appointmentService.updateAppointment(id, updateAppointmentsInput);
   }
   @Patch(':id/mark-successful')
