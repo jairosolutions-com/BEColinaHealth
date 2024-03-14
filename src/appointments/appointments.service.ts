@@ -81,7 +81,7 @@ export class AppointmentsService {
     return this.appointmentsRepository.save(labResults);
   }
 
-  async softDeleteAppointment(id: number): Promise<{ message: string, deletedLabResult: Appointments }> {
+  async softDeleteAppointment(id: string): Promise<{ message: string, deletedLabResult: Appointments }> {
     const appointments = await this.appointmentsRepository.findOne({ where: { uuid: id } });
     if (!Appointments) {
       throw new NotFoundException(`Appointment ID-${id} does not exist.`);
@@ -141,7 +141,7 @@ export class AppointmentsService {
       return this.appointmentsRepository.save(appointment);
     }
   }
-  async markAppointmentAsSuccessful(id: number) {
+  async markAppointmentAsSuccessful(id: string) {
     const appointment = await this.appointmentsRepository.findOne({ where: { uuid: id } });
     if (!appointment) {
       throw new NotFoundException(`Appointment with ID ${id} not found`);
