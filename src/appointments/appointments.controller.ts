@@ -8,8 +8,6 @@ export class AppointmentsController {
   constructor(private readonly appointmentService: AppointmentsService) { }
   @Post()
   createAppointments(@Body() createAppointmentsInput: CreateAppointmentsInput) {
-
-    // this.appointmentService.handleCron();
     return this.appointmentService.createAppointments(createAppointmentsInput);
 
   }
@@ -17,7 +15,7 @@ export class AppointmentsController {
   getAppointments() {
     return this.appointmentService.getAllAppointments();
   }
-  @Post('id')
+  @Post(':id')
   findAllAppointmentsByPatient(
       @Param('id') patientId: string,
       @Body() body: { page: number, sortBy: string , sortOrder: 'ASC' | 'DESC' }
