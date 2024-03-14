@@ -30,13 +30,13 @@ export class AppointmentsController {
     return this.appointmentService.updateAppointment(id, updateAppointmentsInput);
   }
   @Patch(':id/mark-successful')
-  async markAppointmentAsSuccessful(@Param('id') id: number) {
+  async markAppointmentAsSuccessful(@Param('id') id: string) {
 
     await this.appointmentService.markAppointmentAsSuccessful(id);
     return { message: 'Appointment marked as successful' };
   }
   @Patch('delete/:id')
-  deleteAppointments(@Param('id') id: number) {
+  deleteAppointments(@Param('id') id: string) {
     return this.appointmentService.softDeleteAppointment(id);
   }
 }

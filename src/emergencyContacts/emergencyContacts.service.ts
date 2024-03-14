@@ -68,7 +68,7 @@ export class EmergencyContactsService {
     Object.assign(emergencyContacts, updateData);
     return this.emergencyContactsRepository.save(emergencyContacts);
   }
-  async softDeleteEmergencyContacts(id: number): Promise<EmergencyContacts> {
+  async softDeleteEmergencyContacts(id: string): Promise<EmergencyContacts> {
     const emergencyContacts = await this.emergencyContactsRepository.findOne({ where: { uuid: id } });
     if (!emergencyContacts) {
       throw new NotFoundException(`Emergency Contacts ID-${id}  not found.`);

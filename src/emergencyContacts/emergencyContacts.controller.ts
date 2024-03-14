@@ -31,7 +31,7 @@ export class EmergencyContactsController {
         return this.emergencyContactService.updateEmergencyContacts(id, updateEmergencyContactsInput);
     }
     @Patch('delete/:id')
-    softDeleteEmergencyContacts(@Param('id') id: number) {
+    softDeleteEmergencyContacts(@Param('id') id: string) {
         return this.emergencyContactService.softDeleteEmergencyContacts(id);
     }
 

@@ -27,7 +27,7 @@ export class LabResultsController {
         return this.labResultsService.updateLabResults(id, updateLabResultInput);
     }
     @Patch('delete/:id')
-    softDeletePrescriptions(@Param('id') id: number) {
+    softDeletePrescriptions(@Param('id') id: string) {
         return this.labResultsService.softDeleteLabResults(id);
     }
 }

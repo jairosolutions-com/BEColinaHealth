@@ -17,6 +17,14 @@ export class AllergiesController {
         return this.allergiesService.getAllAllergies();
     }
     @Post(':id')
+    findPatientsPost(
+        @Param('id') patientId: string,
+        @Body() body: { page: number, sortBy: string, sortOrder: 'ASC' | 'DESC' }
+    ) {
+        const { page, sortBy, sortOrder } = body;
+        return this.allergiesService.getAllAllergiesByPatient(patientId, page, sortBy, sortOrder);
+    }
+    @Post(':id')
     findAllPatientAllergies(
         @Param('id') patientId: string,
         @Query('page') page: number,
@@ -29,9 +37,10 @@ export class AllergiesController {
     updateAllergies(@Param('id') id: string, @Body() updateAllergiesInput: UpdateAllergiesInput) {
         return this.allergiesService.updateAllergies(id, updateAllergiesInput);
     }
+    
 
     @Patch('delete/:id')
-    softDeleteAllergies(@Param('id') id: number) {
+    softDeleteAllergies(@Param('id') id: string) {
         return this.allergiesService.softDeleteAllergies(id);
     }
 }

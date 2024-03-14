@@ -51,7 +51,7 @@ export class PatientsController {
     }
 
     @Patch('delete/:id')
-    softDeletePatient(@Param('id') id: number) {
+    softDeletePatient(@Param('id') id: string) {
         return this.patientsService.softDeletePatient(id);
     }
 }

@@ -74,7 +74,7 @@ export class LabResultsService {
     Object.assign(labResults, updateData);
     return this.labResultsRepository.save(labResults);
   }
-  async softDeleteLabResults(id: number): Promise<{ message: string, deletedLabResult: LabResults }> {
+  async softDeleteLabResults(id: string): Promise<{ message: string, deletedLabResult: LabResults }> {
     // Find the patient record by ID
     const labResults = await this.labResultsRepository.findOne({ where: { uuid: id } });
 
