@@ -41,13 +41,13 @@ export class LabResultsService {
   async getAllLabResultsByPatient(patientId: string, page: number = 1, sortBy: string = 'medicationLogsDate', sortOrder: 'ASC' | 'DESC' = 'ASC', perPage: number = 5): Promise<{ data: LabResults[], totalPages: number, currentPage: number, totalCount }> {
     const skip = (page - 1) * perPage;
     const totalPatientLabResults = await this.labResultsRepository.count({
-      where: { uuid: patientId},
+      where: { uuid: patientId },
       skip: skip,
       take: perPage,
     });
     const totalPages = Math.ceil(totalPatientLabResults / perPage);
     const labResultsList = await this.labResultsRepository.find({
-      where: { uuid: patientId},
+      where: { uuid: patientId },
       skip: skip,
       take: perPage,
     });
@@ -63,11 +63,11 @@ export class LabResultsService {
     const medicationLogs = await this.labResultsRepository.find();
     return medicationLogs;
   }
-  async updateLabResults(id: number,
+  async updateLabResults(id: string,
     updateLabResultsInput: UpdateLabResultInput,
   ): Promise<LabResults> {
     const { ...updateData } = updateLabResultsInput;
-    const labResults = await this.labResultsRepository.findOne({ where: { id } });
+    const labResults = await this.labResultsRepository.findOne({ where: { uuid: id } });
     if (!labResults) {
       throw new NotFoundException(`Lab Result ID-${id}  not found.`);
     }
@@ -76,7 +76,7 @@ export class LabResultsService {
   }
   async softDeleteLabResults(id: number): Promise<{ message: string, deletedLabResult: LabResults }> {
     // Find the patient record by ID
-    const labResults = await this.labResultsRepository.findOne({ where: { id } });
+    const labResults = await this.labResultsRepository.findOne({ where: { uuid: id } });
 
     if (!labResults) {
       throw new NotFoundException(`Lab Result ID-${id} does not exist.`);

@@ -27,7 +27,7 @@ export class EmergencyContactsController {
         return this.emergencyContactService.getAllEmergencyContactsByPatient(patientId, page, sortBy, sortOrder);
     }
     @Patch('update/:id')
-    updateEmergencyContacts(@Param('id') id: number, @Body() updateEmergencyContactsInput: UpdateEmergencyContactsInput) {
+    updateEmergencyContacts(@Param('id') id: string, @Body() updateEmergencyContactsInput: UpdateEmergencyContactsInput) {
         return this.emergencyContactService.updateEmergencyContacts(id, updateEmergencyContactsInput);
     }
     @Patch('delete/:id')

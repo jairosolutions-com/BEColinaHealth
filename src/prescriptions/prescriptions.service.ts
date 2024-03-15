@@ -48,13 +48,13 @@ export class PrescriptionsService {
   async getAllPrescriptionsByPatient(patientId: string, page: number = 1, sortBy: string = 'lastName', sortOrder: 'ASC' | 'DESC' = 'ASC', perPage: number = 5): Promise<{ data: Prescriptions[], totalPages: number, currentPage: number, totalCount }> {
     const skip = (page - 1) * perPage;
     const totalPatientPrescriptions = await this.prescriptionsRepository.count({
-      where: { uuid: patientId},
+      where: { uuid: patientId },
       skip: skip,
       take: perPage,
     });
     const totalPages = Math.ceil(totalPatientPrescriptions / perPage);
     const prescriptionsList = await this.prescriptionsRepository.find({
-      where: { uuid: patientId},
+      where: { uuid: patientId },
       skip: skip,
       take: perPage,
     });
@@ -72,7 +72,7 @@ export class PrescriptionsService {
 
     const prescriptionsNameList = await this.prescriptionsRepository.find({
       select: ["name"],
-      where: { uuid: patientId},
+      where: { uuid: patientId },
 
     });
     return prescriptionsNameList
@@ -84,20 +84,20 @@ export class PrescriptionsService {
   }
 
 
-  async updatePrescriptions(id: number,
+  async updatePrescriptions(id: string,
     updatePrescriptionsInput: UpdatePrescriptionsInput,
   ): Promise<Prescriptions> {
     const { ...updateData } = updatePrescriptionsInput;
-    const prescriptions = await this.prescriptionsRepository.findOne({ where: { id } });
+    const prescriptions = await this.prescriptionsRepository.findOne({ where: { uuid: id } });
     if (!prescriptions) {
       throw new NotFoundException(`Prescriptions ID-${id}  not found.`);
     }
     Object.assign(prescriptions, updateData);
     return this.prescriptionsRepository.save(prescriptions);
   }
-  async softDeletePrescriptions(id: number): Promise<{ message: string, deletedPrescriptions: Prescriptions }> {
+  async softDeletePrescriptions(id: string): Promise<{ message: string, deletedPrescriptions: Prescriptions }> {
     // Find the patient record by ID
-    const prescriptions = await this.prescriptionsRepository.findOne({ where: { id } });
+    const prescriptions = await this.prescriptionsRepository.findOne({ where: { uuid: id } });
 
     if (!prescriptions) {
       throw new NotFoundException(`Prescriptions ID-${id} does not exist.`);

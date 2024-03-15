@@ -25,12 +25,12 @@ export class VitalSignsController {
     }
     //onClick from prescriptions- get prescriptionsId for patch
     @Patch('update/:id')
-    updateVitalSign(@Param('id') id: number, @Body() updateVitalSignInput: UpdateVitalSignInput) {
+    updateVitalSign(@Param('id') id: string, @Body() updateVitalSignInput: UpdateVitalSignInput) {
         return this.vitalSignService.updateVitalSign(id, updateVitalSignInput);
     }
 
     @Patch('delete/:id')
-    softDeleteVitalSign(@Param('id') id: number) {
+    softDeleteVitalSign(@Param('id') id: string) {
         return this.vitalSignService.softDeleteVitalSign(id);
     }
 }

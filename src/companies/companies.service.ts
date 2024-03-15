@@ -92,7 +92,7 @@ export class CompaniesService {
   }
 
   async updateCompanies(
-    id: number,
+    id: string,
     updateCompaniesInput: UpdateCompaniesInput,
   ): Promise<Companies> {
     const companies = await this.companyRepository.findOne({

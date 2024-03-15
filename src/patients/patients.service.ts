@@ -192,14 +192,14 @@ export class PatientsService {
     });
   }
   async updatePatients(
-    id: number,
+    id: string,
     updatePatientsInput: UpdatePatientsInput,
   ): Promise<Patients> {
     const { ...updateData } = updatePatientsInput;
 
     // Find the patient record by ID
     const patient = await this.patientsRepository.findOne({
-      where: { id },
+      where: { uuid: id },
     });
 
     if (!patient) {
@@ -214,11 +214,11 @@ export class PatientsService {
   }
 
   async softDeletePatient(
-    id: number,
+    id: string,
   ): Promise<{ message: string; deletedPatient: Patients }> {
     // Find the patient record by ID
     const patient = await this.patientsRepository.findOne({
-      where: { id },
+      where: { uuid: id },
     });
 
     if (!patient) {

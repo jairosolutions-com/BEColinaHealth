@@ -25,16 +25,16 @@ export class MedicationLogs {
   uuid: string;
 
   @Column()
-  medicationName: string;
+  medicationLogsName: string;
 
   @Column()
-  medicationDate: string;
+  medicationLogsDate: string;
 
   @Column()
   @Field()
-  medicationTime: string;
+  medicationLogsTime: string;
 
-  @Column()
+  @Column({ nullable: true })
   notes: string;
 
   @Column({ nullable: true })
@@ -44,8 +44,8 @@ export class MedicationLogs {
   @Column({ nullable: true })
   medicationType: string;
 
-  @Column()
-  medicationStatus: string;
+  @Column({ nullable: true })
+  medicationLogStatus: string;
 
   @UpdateDateColumn({ name: 'updatedAt', nullable: true })
   @Field()

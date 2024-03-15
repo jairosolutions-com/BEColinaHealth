@@ -31,13 +31,13 @@ export class VitalSignsService {
   async getAllVitalSignsByPatient(patientId: string, page: number = 1, sortBy: string = 'lastName', sortOrder: 'ASC' | 'DESC' = 'ASC', perPage: number = 5): Promise<{ data: VitalSigns[], totalPages: number, currentPage: number, totalCount }> {
     const skip = (page - 1) * perPage;
     const totalPatientVitalSign = await this.vitalSignsRepository.count({
-      where: { uuid: patientId},
+      where: { uuid: patientId },
       skip: skip,
       take: perPage,
     });
     const totalPages = Math.ceil(totalPatientVitalSign / perPage);
     const vitalSignList = await this.vitalSignsRepository.find({
-      where: { uuid: patientId},
+      where: { uuid: patientId },
       skip: skip,
       take: perPage,
     });
@@ -55,20 +55,20 @@ export class VitalSignsService {
   }
 
 
-  async updateVitalSign(id: number,
+  async updateVitalSign(id: string,
     updateVitalSignInput: UpdateVitalSignInput,
   ): Promise<VitalSigns> {
     const { ...updateData } = updateVitalSignInput;
-    const prescriptions = await this.vitalSignsRepository.findOne({ where: { id } });
+    const prescriptions = await this.vitalSignsRepository.findOne({ where: { uuid: id } });
     if (!prescriptions) {
       throw new NotFoundException(`VitalSign  ID-${id}  not found.`);
     }
     Object.assign(prescriptions, updateData);
     return this.vitalSignsRepository.save(prescriptions);
   }
-  async softDeleteVitalSign(id: number): Promise<{ message: string, deletedVitalSign: VitalSigns }> {
+  async softDeleteVitalSign(id: string): Promise<{ message: string, deletedVitalSign: VitalSigns }> {
     // Find the patient record by ID
-    const prescriptions = await this.vitalSignsRepository.findOne({ where: { id } });
+    const prescriptions = await this.vitalSignsRepository.findOne({ where: { uuid: id } });
 
     if (!prescriptions) {
       throw new NotFoundException(`Prescriptions ID-${id} does not exist.`);

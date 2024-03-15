@@ -39,12 +39,12 @@ export class MedicationLogsController {
     //can delete both asch and prn
     //onClick from med- get medID for patch
     @Patch('update/:id')
-    updateMedicationLogsInput(@Param('id') id: number, @Body() updateMedicationLogsInput: UpdateMedicationLogsInput) {
+    updateMedicationLogsInput(@Param('id') id: string, @Body() updateMedicationLogsInput: UpdateMedicationLogsInput) {
         return this.medicationLogsService.updateMedicationLogs(id, updateMedicationLogsInput);
     }
 
     @Patch('delete/:id')
-    softDeleteMedicationLogs(@Param('id') id: number) {
+    softDeleteMedicationLogs(@Param('id') id: string) {
         return this.medicationLogsService.softDeleteMedicationLogs(id);
     }
 }

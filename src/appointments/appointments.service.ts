@@ -9,12 +9,12 @@ import { Cron, CronExpression } from '@nestjs/schedule';
 
 @Injectable()
 export class AppointmentsService {
-    constructor(
-      @InjectRepository(Appointments)
-      private appointmentsRepository: Repository<Appointments>,
-      private idService: IdService, // Inject the IdService
-    ) { }
-    
+  constructor(
+    @InjectRepository(Appointments)
+    private appointmentsRepository: Repository<Appointments>,
+    private idService: IdService, // Inject the IdService
+  ) { }
+
 
   async createAppointments(input: CreateAppointmentsInput): Promise<Appointments> {
     const existingAppointment = await this.appointmentsRepository.findOne({
@@ -40,13 +40,13 @@ export class AppointmentsService {
 
     const skip = (page - 1) * perPage;
     const totalPatientAppointments = await this.appointmentsRepository.count({
-      where: { uuid: patientId},
+      where: { uuid: patientId },
       skip: skip,
       take: perPage,
     });
     const totalPages = Math.ceil(totalPatientAppointments / perPage);
     const appointmentsList = await this.appointmentsRepository.find({
-      where: { uuid: patientId},
+      where: { uuid: patientId },
       skip: skip,
       take: perPage,
     });
@@ -69,11 +69,11 @@ export class AppointmentsService {
 
   }
 
-  async updateAppointment(id: number,
+  async updateAppointment(id: string,
     updateLabResultsInput: UpdateAppointmentsInput,
   ): Promise<Appointments> {
     const { ...updateData } = updateLabResultsInput;
-    const labResults = await this.appointmentsRepository.findOne({ where: { id } });
+    const labResults = await this.appointmentsRepository.findOne({ where: { uuid: id } });
     if (!Appointments) {
       throw new NotFoundException(`Lab Result ID-${id}  not found.`);
     }
@@ -81,8 +81,8 @@ export class AppointmentsService {
     return this.appointmentsRepository.save(labResults);
   }
 
-  async softDeleteAppointment(id: number): Promise<{ message: string, deletedLabResult: Appointments }> {
-    const appointments = await this.appointmentsRepository.findOne({ where: { id } });
+  async softDeleteAppointment(id: string): Promise<{ message: string, deletedLabResult: Appointments }> {
+    const appointments = await this.appointmentsRepository.findOne({ where: { uuid: id } });
     if (!Appointments) {
       throw new NotFoundException(`Appointment ID-${id} does not exist.`);
     }
@@ -141,8 +141,8 @@ export class AppointmentsService {
       return this.appointmentsRepository.save(appointment);
     }
   }
-  async markAppointmentAsSuccessful(id: number) {
-    const appointment = await this.appointmentsRepository.findOne({ where: { id } });
+  async markAppointmentAsSuccessful(id: string) {
+    const appointment = await this.appointmentsRepository.findOne({ where: { uuid: id } });
     if (!appointment) {
       throw new NotFoundException(`Appointment with ID ${id} not found`);
     }

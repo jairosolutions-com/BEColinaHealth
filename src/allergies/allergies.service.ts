@@ -53,11 +53,13 @@ export class AllergiesService {
     const skip = (page - 1) * perPage;
     const totalPatientAllergies = await this.allergiesRepository.count({
       where: { uuid: patientId },
+      where: { uuid: patientId },
       skip: skip,
       take: perPage,
     });
     const totalPages = Math.ceil(totalPatientAllergies / perPage);
     const AllergiesList = await this.allergiesRepository.find({
+      where: { uuid: patientId },
       where: { uuid: patientId },
       skip: skip,
       take: perPage,
@@ -75,11 +77,13 @@ export class AllergiesService {
     return allergies;
   }
   async updateAllergies(
-    id: number,
+    id: string,
     updateAllergiesInput: UpdateAllergiesInput,
   ): Promise<Allergies> {
     const { ...updateData } = updateAllergiesInput;
-    const allergies = await this.allergiesRepository.findOne({ where: { id } });
+    const allergies = await this.allergiesRepository.findOne({
+      where: { uuid: id },
+    });
     if (!allergies) {
       throw new NotFoundException(`Allergy ID-${id}  not found.`);
     }
@@ -87,10 +91,12 @@ export class AllergiesService {
     return this.allergiesRepository.save(allergies);
   }
   async softDeleteAllergies(
-    id: number,
+    id: string,
   ): Promise<{ message: string; deletedAllergies: Allergies }> {
     // Find the patient record by ID
-    const allergies = await this.allergiesRepository.findOne({ where: { id } });
+    const allergies = await this.allergiesRepository.findOne({
+      where: { uuid: id },
+    });
 
     if (!allergies) {
       throw new NotFoundException(`Allergy ID-${id} does not exist.`);

@@ -39,13 +39,13 @@ export class EmergencyContactsService {
   async getAllEmergencyContactsByPatient(patientId: string, page: number = 1, sortBy: string = 'emergencyContactsDate', sortOrder: 'ASC' | 'DESC' = 'ASC', perPage: number = 5): Promise<{ data: EmergencyContacts[], totalPages: number, currentPage: number, totalCount }> {
     const skip = (page - 1) * perPage;
     const totalPatientEmergencyContacts = await this.emergencyContactsRepository.count({
-      where: { uuid: patientId},
+      where: { uuid: patientId },
       skip: skip,
       take: perPage,
     });
     const totalPages = Math.ceil(totalPatientEmergencyContacts / perPage);
     const emergencyContactsList = await this.emergencyContactsRepository.find({
-      where: { uuid: patientId},
+      where: { uuid: patientId },
       skip: skip,
       take: perPage,
     });
@@ -57,11 +57,11 @@ export class EmergencyContactsService {
     };
   }
 
-  async updateEmergencyContacts(id: number,
+  async updateEmergencyContacts(id: string,
     updateLabResultsInput: UpdateEmergencyContactsInput,
   ): Promise<EmergencyContacts> {
     const { ...updateData } = updateLabResultsInput;
-    const emergencyContacts = await this.emergencyContactsRepository.findOne({ where: { id } });
+    const emergencyContacts = await this.emergencyContactsRepository.findOne({ where: { uuid: id } });
     if (!emergencyContacts) {
       throw new NotFoundException(`Lab Result ID-${id}  not found.`);
     }
@@ -69,7 +69,7 @@ export class EmergencyContactsService {
     return this.emergencyContactsRepository.save(emergencyContacts);
   }
   async softDeleteEmergencyContacts(id: number): Promise<EmergencyContacts> {
-    const emergencyContacts = await this.emergencyContactsRepository.findOne({ where: { id } });
+    const emergencyContacts = await this.emergencyContactsRepository.findOne({ where: { uuid: id } });
     if (!emergencyContacts) {
       throw new NotFoundException(`Emergency Contacts ID-${id}  not found.`);
     }
