@@ -5,10 +5,11 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Allergies } from './entities/allergies.entity';
 import { Patients } from 'src/patients/entities/patients.entity';
 import { IdService } from 'services/uuid/id.service';
+import { PatientsService } from 'src/patients/patients.service';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Allergies, Patients])],
   controllers: [AllergiesController],
-  providers: [AllergiesService, IdService],
+  providers: [AllergiesService, IdService, PatientsService],
 })
 export class AllergiesModule { }

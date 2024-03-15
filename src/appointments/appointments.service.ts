@@ -6,12 +6,17 @@ import { IdService } from 'services/uuid/id.service';
 import { Repository } from 'typeorm';
 import { Appointments } from './entities/appointments.entity';
 import { Cron, CronExpression } from '@nestjs/schedule';
+import { Patients } from 'src/patients/entities/patients.entity';
 
 @Injectable()
 export class AppointmentsService {
   constructor(
     @InjectRepository(Appointments)
     private appointmentsRepository: Repository<Appointments>,
+
+    @InjectRepository(Patients)
+    private patientsRepository: Repository<Patients>,
+    
     private idService: IdService, // Inject the IdService
   ) { }
 
@@ -36,17 +41,22 @@ export class AppointmentsService {
     return this.appointmentsRepository.save(newAppointments);
   }
 
-  async getAllAppointmentsByPatient(patientId: string, page: number = 1, sortBy: string = 'appointmentDate', sortOrder: 'ASC' | 'DESC' = 'ASC', perPage: number = 5): Promise<{ data: Appointments[], totalPages: number, currentPage: number, totalCount }> {
+  async getAllAppointmentsByPatient(patientUuid: string, page: number = 1, sortBy: string = 'appointmentDate', sortOrder: 'ASC' | 'DESC' = 'ASC', perPage: number = 5): Promise<{ data: Appointments[], totalPages: number, currentPage: number, totalCount }> {
 
     const skip = (page - 1) * perPage;
+
+    const { id: patientId } = await this.patientsRepository.findOne({
+      select: ["id"],
+      where: { uuid: patientUuid }
+    }); 
     const totalPatientAppointments = await this.appointmentsRepository.count({
-      where: { uuid: patientId },
+      where: {  patientId },
       skip: skip,
       take: perPage,
     });
     const totalPages = Math.ceil(totalPatientAppointments / perPage);
     const appointmentsList = await this.appointmentsRepository.find({
-      where: { uuid: patientId },
+      where: { patientId },
       skip: skip,
       take: perPage,
     });

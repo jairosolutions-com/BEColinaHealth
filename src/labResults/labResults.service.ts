@@ -9,12 +9,17 @@ import { LabResults } from './entities/labResults.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { IdService } from 'services/uuid/id.service';
 import { Repository, ILike } from 'typeorm';
+import { Patients } from 'src/patients/entities/patients.entity';
 
 @Injectable()
 export class LabResultsService {
   constructor(
     @InjectRepository(LabResults)
     private labResultsRepository: Repository<LabResults>,
+    @InjectRepository(Patients)
+    private patientsRepository: Repository<Patients>,
+
+
     private idService: IdService, // Inject the IdService
   ) {}
   async createLabResults(input: CreateLabResultInput): Promise<LabResults> {
@@ -40,27 +45,22 @@ export class LabResultsService {
     return this.labResultsRepository.save(newLabResults);
   }
 
-  async getAllLabResultsByPatient(
-    patientId: string,
-    page: number = 1,
-    sortBy: string = 'medicationLogsDate',
-    sortOrder: 'ASC' | 'DESC' = 'ASC',
-    perPage: number = 5,
-  ): Promise<{
-    data: LabResults[];
-    totalPages: number;
-    currentPage: number;
-    totalCount;
-  }> {
+  async getAllLabResultsByPatient(patientUuid: string, page: number = 1, sortBy: string = 'medicationLogsDate', sortOrder: 'ASC' | 'DESC' = 'ASC', perPage: number = 5): Promise<{ data: LabResults[], totalPages: number, currentPage: number, totalCount }> {
+
     const skip = (page - 1) * perPage;
+    const { id: patientId } = await this.patientsRepository.findOne({
+      select: ["id"],
+      where: { uuid: patientUuid }
+    });
+
     const totalPatientLabResults = await this.labResultsRepository.count({
-      where: { uuid: patientId },
+      where: { patientId },
       skip: skip,
       take: perPage,
     });
     const totalPages = Math.ceil(totalPatientLabResults / perPage);
     const labResultsList = await this.labResultsRepository.find({
-      where: { uuid: patientId },
+      where: { patientId },
       skip: skip,
       take: perPage,
     });
@@ -90,9 +90,8 @@ export class LabResultsService {
     Object.assign(labResults, updateData);
     return this.labResultsRepository.save(labResults);
   }
-  async softDeleteLabResults(
-    id: string,
-  ): Promise<{ message: string; deletedLabResult: LabResults }> {
+  async softDeleteLabResults(id: string): Promise<{ message: string, deletedLabResult: LabResults }> {
+
     // Find the patient record by ID
     const labResults = await this.labResultsRepository.findOne({
       where: { uuid: id },

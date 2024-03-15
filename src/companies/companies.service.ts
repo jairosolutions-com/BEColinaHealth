@@ -98,7 +98,8 @@ export class CompaniesService {
   ): Promise<Companies> {
     const companies = await this.companyRepository.findOne({
       where: {
-        id: parseInt(id),
+        uuid: id,
+
       },
     });
     if (!companies) {

@@ -9,12 +9,15 @@ import { EmergencyContacts } from './entities/emergencyContacts.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { IdService } from 'services/uuid/id.service';
 import { ILike, Repository } from 'typeorm';
+import { Patients } from 'src/patients/entities/patients.entity';
 
 @Injectable()
 export class EmergencyContactsService {
   constructor(
     @InjectRepository(EmergencyContacts)
     private emergencyContactsRepository: Repository<EmergencyContacts>,
+    @InjectRepository(Patients)
+    private patientsRepository: Repository<Patients>,
     private idService: IdService, // Inject the IdService
   ) {}
   async createEmergencyContacts(
@@ -45,28 +48,23 @@ export class EmergencyContactsService {
   async getAllEmergencyContacts(): Promise<EmergencyContacts[]> {
     return this.emergencyContactsRepository.find();
   }
-  async getAllEmergencyContactsByPatient(
-    patientId: string,
-    page: number = 1,
-    sortBy: string = 'emergencyContactsDate',
-    sortOrder: 'ASC' | 'DESC' = 'ASC',
-    perPage: number = 5,
-  ): Promise<{
-    data: EmergencyContacts[];
-    totalPages: number;
-    currentPage: number;
-    totalCount;
-  }> {
+  async getAllEmergencyContactsByPatient(patientUuid: string, page: number = 1, sortBy: string = 'emergencyContactsDate', sortOrder: 'ASC' | 'DESC' = 'ASC', perPage: number = 5): Promise<{ data: EmergencyContacts[], totalPages: number, currentPage: number, totalCount }> {
     const skip = (page - 1) * perPage;
-    const totalPatientEmergencyContacts =
-      await this.emergencyContactsRepository.count({
-        where: { uuid: patientId },
-        skip: skip,
-        take: perPage,
-      });
+
+    const { id: patientId } = await this.patientsRepository.findOne({
+      select: ["id"],
+      where: { uuid: patientUuid }
+    }); 
+
+    const totalPatientEmergencyContacts = await this.emergencyContactsRepository.count({
+      where: { patientId },
+      skip: skip,
+      take: perPage,
+    });
+
     const totalPages = Math.ceil(totalPatientEmergencyContacts / perPage);
     const emergencyContactsList = await this.emergencyContactsRepository.find({
-      where: { uuid: patientId },
+      where: { patientId },
       skip: skip,
       take: perPage,
     });
@@ -93,9 +91,8 @@ export class EmergencyContactsService {
     return this.emergencyContactsRepository.save(emergencyContacts);
   }
   async softDeleteEmergencyContacts(id: string): Promise<EmergencyContacts> {
-    const emergencyContacts = await this.emergencyContactsRepository.findOne({
-      where: { uuid: id },
-    });
+    const emergencyContacts = await this.emergencyContactsRepository.findOne({ where: { uuid: id } });
+
     if (!emergencyContacts) {
       throw new NotFoundException(`Emergency Contacts ID-${id}  not found.`);
     }

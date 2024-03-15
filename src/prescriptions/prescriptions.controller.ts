@@ -20,9 +20,9 @@ export class PrescriptionsController {
     @Post(':id')
     findAllPatientPrescriptions(
         @Param('id') patientId: string,
-        @Query('page') page: number,
-        @Query('sortBy') sortBy: string,
-        @Query('sortOrder') sortOrder: 'ASC' | 'DESC',) {
+        @Body() body: { page: number, sortBy: string , sortOrder: 'ASC' | 'DESC' }
+    ) {
+      const { page, sortBy, sortOrder } = body;
         return this.prescriptionsService.getAllPrescriptionsByPatient(patientId, page, sortBy, sortOrder);
     }
     //onClick from prescriptions- get prescriptionsId for patch

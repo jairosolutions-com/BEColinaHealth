@@ -16,26 +16,20 @@ export class AppointmentsController {
   constructor(private readonly appointmentService: AppointmentsService) {}
   @Post()
   createAppointments(@Body() createAppointmentsInput: CreateAppointmentsInput) {
-    // this.appointmentService.handleCron();
     return this.appointmentService.createAppointments(createAppointmentsInput);
   }
   @Post('getAll')
   getAppointments() {
     return this.appointmentService.getAllAppointments();
   }
-  @Post('id')
+  @Post(':id')
   findAllAppointmentsByPatient(
-    @Param('id') patientId: string,
-    @Query('page') page: number,
-    @Query('sortBy') sortBy: string,
-    @Query('sortOrder') sortOrder: 'ASC' | 'DESC',
+      @Param('id') patientId: string,
+      @Body() body: { page: number, sortBy: string , sortOrder: 'ASC' | 'DESC' }
   ) {
-    return this.appointmentService.getAllAppointmentsByPatient(
-      patientId,
-      page,
-      sortBy,
-      sortOrder,
-    );
+    const { page, sortBy, sortOrder } = body;
+    return this.appointmentService.getAllAppointmentsByPatient(patientId, page, sortBy, sortOrder);
+
   }
   @Patch('update/:id')
   updateAppointments(
@@ -49,6 +43,7 @@ export class AppointmentsController {
   }
   @Patch(':id/mark-successful')
   async markAppointmentAsSuccessful(@Param('id') id: string) {
+
     await this.appointmentService.markAppointmentAsSuccessful(id);
     return { message: 'Appointment marked as successful' };
   }

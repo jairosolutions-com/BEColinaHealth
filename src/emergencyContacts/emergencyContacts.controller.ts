@@ -32,32 +32,23 @@ export class EmergencyContactsController {
     return this.emergencyContactService.getAllEmergencyContacts();
   }
 
-  @Post(':id')
-  findAllEmergencyContactsByPatient(
-    @Param('id') patientId: string,
-    @Query('page') page: number,
-    @Query('sortBy') sortBy: string,
-    @Query('sortOrder') sortOrder: 'ASC' | 'DESC',
-  ) {
-    return this.emergencyContactService.getAllEmergencyContactsByPatient(
-      patientId,
-      page,
-      sortBy,
-      sortOrder,
-    );
-  }
-  @Patch('update/:id')
-  updateEmergencyContacts(
-    @Param('id') id: string,
-    @Body() updateEmergencyContactsInput: UpdateEmergencyContactsInput,
-  ) {
-    return this.emergencyContactService.updateEmergencyContacts(
-      id,
-      updateEmergencyContactsInput,
-    );
-  }
-  @Patch('delete/:id')
-  softDeleteEmergencyContacts(@Param('id') id: string) {
-    return this.emergencyContactService.softDeleteEmergencyContacts(id);
-  }
+    @Post(':id')
+    findAllEmergencyContactsByPatient(
+        @Param('id') patientId: string,
+        @Body() body: { page: number, sortBy: string , sortOrder: 'ASC' | 'DESC' }
+    ) {
+      const { page, sortBy, sortOrder } = body;
+        return this.emergencyContactService.getAllEmergencyContactsByPatient(patientId, page, sortBy, sortOrder);
+    }
+    @Patch('update/:id')
+    updateEmergencyContacts(@Param('id') id: string, @Body() updateEmergencyContactsInput: UpdateEmergencyContactsInput) {
+        return this.emergencyContactService.updateEmergencyContacts(id, updateEmergencyContactsInput);
+    }
+    @Patch('delete/:id')
+    softDeleteEmergencyContacts(@Param('id') id: string) {
+        return this.emergencyContactService.softDeleteEmergencyContacts(id);
+    }
+
+
 }
+

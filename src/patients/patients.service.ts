@@ -85,6 +85,8 @@ export class PatientsService {
     return processedPatientList;
   }
   async getPatientFullInfoById(id: string): Promise<fullPatientInfo[]> {
+
+    
     const patientList = await this.patientsRepository.find({
       where: { uuid: id },
       relations: ['allergies'],
@@ -114,6 +116,7 @@ export class PatientsService {
   }> {
     const skip = (page - 1) * perPage;
     const totalPatients = await this.patientsRepository.count();
+
     const totalPages = Math.ceil(totalPatients / perPage);
 
     const patientList = await this.patientsRepository.find({
