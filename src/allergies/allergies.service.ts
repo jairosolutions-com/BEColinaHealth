@@ -53,13 +53,11 @@ export class AllergiesService {
     const skip = (page - 1) * perPage;
     const totalPatientAllergies = await this.allergiesRepository.count({
       where: { uuid: patientId },
-      where: { uuid: patientId },
       skip: skip,
       take: perPage,
     });
     const totalPages = Math.ceil(totalPatientAllergies / perPage);
     const AllergiesList = await this.allergiesRepository.find({
-      where: { uuid: patientId },
       where: { uuid: patientId },
       skip: skip,
       take: perPage,

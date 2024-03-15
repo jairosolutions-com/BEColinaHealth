@@ -83,14 +83,14 @@ export class PatientsController {
   // PATCH /patient-information/{id}
   @Patch('update/:id')
   updatePatientInfo(
-    @Param('id') id: number,
+    @Param('id') id: string,
     @Body() updatePatientsInput: UpdatePatientsInput,
   ) {
     return this.patientsService.updatePatients(id, updatePatientsInput);
   }
 
   @Patch('delete/:id')
-  softDeletePatient(@Param('id') id: number) {
+  softDeletePatient(@Param('id') id: string) {
     return this.patientsService.softDeletePatient(id);
   }
 }

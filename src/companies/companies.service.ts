@@ -18,7 +18,7 @@ export class CompaniesService {
     @InjectRepository(Companies)
     private readonly companyRepository: Repository<Companies>,
     private readonly idService: IdService,
-  ) { }
+  ) {}
 
   async getAllCompanies(
     @Query('page') page: number = 1, // Default to page 1 if not provided
@@ -43,7 +43,8 @@ export class CompaniesService {
       skip: (page - 1) * limit,
     };
 
-    const [companies, total] = await this.companyRepository.findAndCount(options);
+    const [companies, total] =
+      await this.companyRepository.findAndCount(options);
 
     return { companies, total };
   }
@@ -97,7 +98,7 @@ export class CompaniesService {
   ): Promise<Companies> {
     const companies = await this.companyRepository.findOne({
       where: {
-        id,
+        id: parseInt(id),
       },
     });
     if (!companies) {
