@@ -27,6 +27,9 @@ export class Surgeries {
   @Column({ type: 'text', nullable: true })
   notes: string;
 
+  @Column()
+  patientId: number;
+
   @CreateDateColumn({ name: 'createdAt', nullable: true })
   createdAt: string;
 

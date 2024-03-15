@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Param, Patch, Post, Query } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Patch,
+  Post,
+  Query,
+} from '@nestjs/common';
 import { LabResultsService } from './labResults.service';
 import { CreateLabResultInput } from './dto/create-labResults.input';
 import { UpdateLabResultInput } from './dto/update-labResults.input';
@@ -17,17 +25,17 @@ export class LabResultsController {
     @Post(':id')
     findAllLabResultsByPatient(
         @Param('id') patientId: string,
-        @Query('page') page: number,
-        @Query('sortBy') sortBy: string,
-        @Query('sortOrder') sortOrder: 'ASC' | 'DESC',) {
+        @Body() body: { page: number, sortBy: string , sortOrder: 'ASC' | 'DESC' }
+    ) {
+      const { page, sortBy, sortOrder } = body;
         return this.labResultsService.getAllLabResultsByPatient(patientId, page, sortBy, sortOrder);
     }
     @Patch('update/:id')
-    updateLabResults(@Param('id') id: number, @Body() updateLabResultInput: UpdateLabResultInput) {
+    updateLabResults(@Param('id') id: string, @Body() updateLabResultInput: UpdateLabResultInput) {
         return this.labResultsService.updateLabResults(id, updateLabResultInput);
     }
     @Patch('delete/:id')
-    softDeletePrescriptions(@Param('id') id: number) {
+    softDeletePrescriptions(@Param('id') id: string) {
         return this.labResultsService.softDeleteLabResults(id);
     }
-}
+

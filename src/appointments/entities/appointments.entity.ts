@@ -26,19 +26,19 @@ export class Appointments {
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   dateCreated: Date;
 
-  @Column()
+  @Column({nullable:true})
   appointmentDate: string;
 
-  @Column()
+  @Column({nullable:true})
   appointmentTime: string;
 
-  @Column()
+  @Column({nullable:true})
   appointmentEndTime: string;
 
-  @Column()
+  @Column({nullable:true})
   details: string;
 
-  @Column()
+  @Column({nullable:true})
   appointmentStatus: string;
 
   @Column()

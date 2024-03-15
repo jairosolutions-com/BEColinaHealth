@@ -20,19 +20,19 @@ export class PrescriptionsController {
     @Post(':id')
     findAllPatientPrescriptions(
         @Param('id') patientId: string,
-        @Query('page') page: number,
-        @Query('sortBy') sortBy: string,
-        @Query('sortOrder') sortOrder: 'ASC' | 'DESC',) {
+        @Body() body: { page: number, sortBy: string , sortOrder: 'ASC' | 'DESC' }
+    ) {
+      const { page, sortBy, sortOrder } = body;
         return this.prescriptionsService.getAllPrescriptionsByPatient(patientId, page, sortBy, sortOrder);
     }
     //onClick from prescriptions- get prescriptionsId for patch
     @Patch('update/:id')
-    updatePrescriptions(@Param('id') id: number, @Body() updatePrescriptionsInput: UpdatePrescriptionsInput) {
+    updatePrescriptions(@Param('id') id: string, @Body() updatePrescriptionsInput: UpdatePrescriptionsInput) {
         return this.prescriptionsService.updatePrescriptions(id, updatePrescriptionsInput);
     }
 
     @Patch('delete/:id')
-    softDeletePrescriptions(@Param('id') id: number) {
+    softDeletePrescriptions(@Param('id') id: string) {
         return this.prescriptionsService.softDeletePrescriptions(id);
     }
 }
