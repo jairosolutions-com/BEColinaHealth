@@ -8,29 +8,27 @@
 // export class CountryResolver {
 //   constructor(private readonly countriesService: CountryService) { }
 
-  // @Mutation(() => Countries)
-  // createCountry(@Args('createCountryInput') createCountryInput: CreateCountryInput) {
-  //   return this.countriesService.create(createCountryInput);
-  // }
+// @Mutation(() => Countries)
+// createCountry(@Args('createCountryInput') createCountryInput: CreateCountryInput) {
+//   return this.countriesService.create(createCountryInput);
+// }
 
-  // // @Query(() => [Countries], { name: 'countries' })
-  // // findAll() {
-  // //   return this.countriesService.findAll();
-  // // }
+// // @Query(() => [Countries], { name: 'countries' })
+// // findAll() {
+// //   return this.countriesService.findAll();
+// // }
 
-  // @Query(() => Countries, { name: 'countries' })
-  // findOne(@Args('id', { type: () => Int }) id: number) {
-  //   return this.countriesService.findOne(id);
-  // }
+// @Query(() => Countries, { name: 'countries' })
+// findOne(@Args('id', { type: () => Int }) id: number) {
+//   return this.countriesService.findOne(id);
+// }
 
-  // @Mutation(() => Countries)
-  // updateCountry(@Args('updateCountryInput') updateCountryInput: UpdateCountryInput) {
-  //   return this.countriesService.update(updateCountryInput.id, updateCountryInput);
-  // }
+// @Mutation(() => Countries)
+// updateCountry(@Args('updateCountryInput') updateCountryInput: UpdateCountryInput) {
+//   return this.countriesService.update(updateCountryInput.id, updateCountryInput);
+// }
 
-  // @Mutation(() => Countries)
-  // removeCountry(@Args('id', { type: () => Int }) id: number) {
-  //   return this.countriesService.remove(id);
-  // }
-}
-
+// @Mutation(() => Countries)
+// removeCountry(@Args('id', { type: () => Int }) id: number) {
+//   return this.countriesService.remove(id);
+// }

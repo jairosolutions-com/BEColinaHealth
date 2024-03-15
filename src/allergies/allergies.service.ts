@@ -2,6 +2,7 @@ import {
   All,
   ConflictException,
   Injectable,
+  InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
 import { CreateAllergiesInput } from './dto/create-allergies.dto';
@@ -41,31 +42,134 @@ export class AllergiesService {
     return this.allergiesRepository.save(newAllergies);
   }
 
-  async getAllAllergiesByPatient(patientUuid: string, page: number = 1, sortBy: string = 'type', sortOrder: 'ASC' | 'DESC' = 'ASC', perPage: number = 5): Promise<{ data: Allergies[], totalPages: number, currentPage: number, totalCount }> {
+  async getAllAllergiesByPatient(
+    patientUuid: string,
+    page: number = 1,
+    sortBy: string = 'type',
+    sortOrder: 'ASC' | 'DESC' = 'ASC',
+    perPage: number = 5,
+  ): Promise<{
+    data: Allergies[];
+    totalPages: number;
+    currentPage: number;
+    totalCount;
+  }> {
+    try {
+      const skip = (page - 1) * perPage;
 
-    const skip = (page - 1) * perPage;
-   
-    const { id: patientId } = await this.patientsRepository.findOne({
-      select: ["id"],
-      where: { uuid: patientUuid }
-    }); 
-    
-    const totalPatientAllergies = await this.allergiesRepository.count({
-      where: { patientId },
-    });
-    const totalPages = Math.ceil(totalPatientAllergies / perPage);
+      const patient = await this.patientsRepository.findOne({
+        where: { uuid: patientUuid },
+      });
 
-    const AllergiesList = await this.allergiesRepository.find({
-      where: { patientId: patientId },
-      skip: skip,
-      take: perPage,
-    });
-    return {
-      data: AllergiesList,
-      totalPages: totalPages,
-      currentPage: page,
-      totalCount: totalPatientAllergies,
-    };
+      console.log('pp', patient);
+
+      if (!patient) {
+        throw new NotFoundException('Patient does not exist.');
+      }
+
+      const totalPatientAllergies = await this.allergiesRepository.count({
+        where: { patientId: patient.id },
+      });
+
+      const totalPages = Math.ceil(totalPatientAllergies / perPage);
+
+      console.log('tt', totalPages);
+
+      const AllergiesList = await this.allergiesRepository.find({
+        select: ['uuid', 'allergen', 'reaction', 'severity', 'createdAt'],
+        where: { patientId: patient.id },
+        skip: skip,
+        take: perPage,
+        order: { [sortBy]: sortOrder },
+      });
+      console.log('al', AllergiesList);
+      return {
+        data: AllergiesList,
+        totalPages: totalPages,
+        currentPage: page,
+        totalCount: totalPatientAllergies,
+      };
+    } catch (error) {
+      // Handle the error here
+      throw new NotFoundException(
+        'An error occurred while fetching allergies.',
+        "Patient with the provided ID doesn't exist.",
+      );
+    }
+  }
+
+  async searchPatientAllergiesByTerm(
+    patientUuid: string,
+    term: string,
+    page: number = 1,
+    sortBy: string = 'allergen',
+    sortOrder: 'ASC' | 'DESC' = 'ASC',
+    perPage: number = 5,
+  ): Promise<{
+    data: Allergies[];
+    totalPages: number;
+    currentPage: number;
+    totalCount;
+  }> {
+    //Check if patient exist before searching for allergies
+    try {
+      const patient = await this.patientsRepository.findOne({
+        where: {
+          uuid: patientUuid,
+        },
+      });
+      if (!patient) {
+        throw new NotFoundException('Patient does not exist.');
+      }
+
+      const searchTerm = `%${term}%`; // Add wildcards to the search term
+      const skip = (page - 1) * perPage;
+
+      //count the total rows searched
+      const totalAllergies = await this.allergiesRepository.count({
+        where: [
+          {
+            allergen: ILike(searchTerm),
+            patientId: patient.id, // Filter by patientId
+          },
+          {
+            uuid: ILike(`%${searchTerm}%`),
+            patientId: patient.id, // Filter by patientId
+          },
+        ],
+      });
+      //total number of pages
+      const totalPages = Math.ceil(totalAllergies / perPage);
+      console.log('sss', totalAllergies);
+      //find the data
+      const AllergiesList = await this.allergiesRepository.find({
+        select: ['uuid', 'allergen', 'reaction', 'severity', 'createdAt'],
+        where: [
+          {
+            allergen: ILike(searchTerm),
+            patientId: patient.id, // Filter by patientId
+          },
+          {
+            uuid: ILike(`%${searchTerm}%`),
+            patientId: patient.id, // Filter by patientId
+          },
+        ],
+        skip: skip,
+        take: perPage,
+        order: { [sortBy]: sortOrder },
+      });
+      return {
+        data: AllergiesList,
+        totalPages: totalPages,
+        currentPage: page,
+        totalCount: totalAllergies,
+      };
+    } catch (error) {
+      throw new NotFoundException(
+        'An error occurred while fetching allergies.',
+        "Patient with the provided ID doesn't exist.",
+      );
+    }
   }
 
   async getAllAllergies(): Promise<Allergies[]> {

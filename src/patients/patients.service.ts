@@ -24,6 +24,7 @@ export class PatientsService {
     private patientsRepository: Repository<Patients>,
     private idService: IdService, // Inject the IdService
   ) {}
+
   //CREATE PATIENT INFO
   async createPatients(input: CreatePatientsInput): Promise<Patients> {
     // Check if a patient with similar information already exists
@@ -85,8 +86,6 @@ export class PatientsService {
     return processedPatientList;
   }
   async getPatientFullInfoById(id: string): Promise<fullPatientInfo[]> {
-
-    
     const patientList = await this.patientsRepository.find({
       where: { uuid: id },
       relations: ['allergies'],
@@ -125,7 +124,7 @@ export class PatientsService {
       take: perPage,
       order: { [sortBy]: sortOrder },
     });
-
+    console.log;
     return {
       data: patientList,
       totalPages: totalPages,
@@ -161,6 +160,7 @@ export class PatientsService {
 
     //find the data
     const patientList = await this.patientsRepository.find({
+      select: ['uuid', 'firstName', 'lastName', 'age', 'gender', 'codeStatus'],
       where: [
         { firstName: ILike(searchTerm) },
         { lastName: ILike(searchTerm) },

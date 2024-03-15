@@ -34,13 +34,4 @@ export class CreateMedicationLogsInput {
 
   @Field()
   medicationLogStatus: string;
-
-  @Field()
-  updatedAt: string;
-
-  @Field()
-  createdAt: string;
-
-  @Field()
-  deletedAt: string;
 }
