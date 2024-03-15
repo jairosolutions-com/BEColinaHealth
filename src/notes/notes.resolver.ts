@@ -32,5 +32,4 @@
   // removeNotes(@Args('id', { type: () => Int }) id: number) {
   //   return this.notesService.remove(id);
   // }
-}
 

@@ -21,7 +21,7 @@ export class LabResultsService {
 
 
     private idService: IdService, // Inject the IdService
-  ) {}
+  ) { }
   async createLabResults(input: CreateLabResultInput): Promise<LabResults> {
     const existingLowercaseboth = await this.labResultsRepository.findOne({
       where: {
@@ -45,25 +45,77 @@ export class LabResultsService {
     return this.labResultsRepository.save(newLabResults);
   }
 
-  async getAllLabResultsByPatient(patientUuid: string, page: number = 1, sortBy: string = 'medicationLogsDate', sortOrder: 'ASC' | 'DESC' = 'ASC', perPage: number = 5): Promise<{ data: LabResults[], totalPages: number, currentPage: number, totalCount }> {
+  //  async getAllLabResultsByPatient(patientUuid: string, page: number = 1, sortBy: string = 'medicationLogsDate', sortOrder: 'ASC' | 'DESC' = 'ASC', perPage: number = 5): Promise<{ data: LabResults[], totalPages: number, currentPage: number, totalCount }> {
+  //   const skip = (page - 1) * perPage;
+  //   const { id: patientId } = await this.patientsRepository.findOne({
+  //     select: ["id"],
+  //     where: { uuid: patientUuid }
+  //   });
 
+  //   const totalPatientLabResults = await this.labResultsRepository.count({
+  //     where: { patientId },
+  //     skip: skip,
+  //     take: perPage,
+  //   });
+  //   const totalPages = Math.ceil(totalPatientLabResults / perPage);
+  //   const labResultsList = await this.labResultsRepository.find({
+  //     where: { patientId },
+  //     skip: skip,
+  //     take: perPage,
+  //   });
+  //   return {
+  //     data: labResultsList,
+  //     totalPages: totalPages,
+  //     currentPage: page,
+  //     totalCount: totalPatientLabResults
+  //   };
+  // }
+  async getAllLabResultsWithPatients(): Promise<LabResults[]> {
+    return this.labResultsRepository
+      .createQueryBuilder('labResults')
+      .leftJoinAndSelect('labResults.patient', 'patient') // Left join with Patients table
+      .getMany();
+  }
+  async getAllLabResultsByPatient(
+    patientUuid: string,
+    page: number = 1,
+    sortBy: string = 'date',
+    sortOrder: 'ASC' | 'DESC' = 'ASC',
+    perPage: number = 5,
+  ): Promise<{ data: LabResults[], totalPages: number, currentPage: number, totalCount }> {
     const skip = (page - 1) * perPage;
-    const { id: patientId } = await this.patientsRepository.findOne({
-      select: ["id"],
-      where: { uuid: patientUuid }
-    });
 
-    const totalPatientLabResults = await this.labResultsRepository.count({
-      where: { patientId },
-      skip: skip,
-      take: perPage,
-    });
+    const labResultsQueryBuilder = this.labResultsRepository
+      .createQueryBuilder('labResults')
+      .leftJoinAndSelect('labResults.patient', 'patient')
+      .select([
+        'labResults.uuid',
+        'labResults.date',
+        'labResults.hemoglobinA1c',
+        'labResults.fastingBloodGlucose',
+        'labResults.totalCholesterol',
+        'labResults.ldlCholesterol',
+        'labResults.hdlCholesterol',
+        'labResults.triglycerides',
+      ])
+      .where('patient.uuid = :uuid', { uuid: patientUuid })
+      .orderBy(`labResults.${sortBy}`, sortOrder)
+      .skip(skip)
+      .take(perPage);
+
+    // Get lab results
+    const labResultsList = await labResultsQueryBuilder.getRawMany();
+
+    // Query to get total count of lab results
+    const countQueryBuilder = this.labResultsRepository
+      .createQueryBuilder('labResults')
+      .leftJoin('labResults.patient', 'patient')
+      .where('patient.uuid = :uuid', { uuid: patientUuid })
+      .andWhere('labResults.deletedAt IS NULL'); // Ensure you include any necessary conditions
+
+    const totalPatientLabResults = await countQueryBuilder.getCount();
     const totalPages = Math.ceil(totalPatientLabResults / perPage);
-    const labResultsList = await this.labResultsRepository.find({
-      where: { patientId },
-      skip: skip,
-      take: perPage,
-    });
+
     return {
       data: labResultsList,
       totalPages: totalPages,

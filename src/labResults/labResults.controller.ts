@@ -39,3 +39,4 @@ export class LabResultsController {
         return this.labResultsService.softDeleteLabResults(id);
     }
 
+}
