@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Param, Patch, Post, Query } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Patch,
+  Post,
+  Query,
+} from '@nestjs/common';
 import { Field, Int } from '@nestjs/graphql';
 import { CreateEmergencyContactsInput } from './dto/create-emergencyContacts.input';
 import { EmergencyContactsService } from './emergencyContacts.service';
@@ -6,17 +14,23 @@ import { UpdateEmergencyContactsInput } from './dto/update-emergencyContacts.inp
 
 @Controller('emergency-contacts')
 export class EmergencyContactsController {
-    constructor(private readonly emergencyContactService: EmergencyContactsService) { }
+  constructor(
+    private readonly emergencyContactService: EmergencyContactsService,
+  ) {}
 
-    @Post()
-    createEmergencyContacts(@Body() createEmergencyContactsInput: CreateEmergencyContactsInput) {
-        return this.emergencyContactService.createEmergencyContacts(createEmergencyContactsInput);
-    }
+  @Post()
+  createEmergencyContacts(
+    @Body() createEmergencyContactsInput: CreateEmergencyContactsInput,
+  ) {
+    return this.emergencyContactService.createEmergencyContacts(
+      createEmergencyContactsInput,
+    );
+  }
 
-    @Post('getAll')
-    getEmergencyContacts() {
-        return this.emergencyContactService.getAllEmergencyContacts();
-    }
+  @Post('getAll')
+  getEmergencyContacts() {
+    return this.emergencyContactService.getAllEmergencyContacts();
+  }
 
     @Post(':id')
     findAllEmergencyContactsByPatient(
@@ -37,3 +51,4 @@ export class EmergencyContactsController {
 
 
 }
+

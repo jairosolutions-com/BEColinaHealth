@@ -1,15 +1,22 @@
-import { Body, Controller, Get, Param, Patch, Post, Query } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Patch,
+  Post,
+  Query,
+} from '@nestjs/common';
 import { AppointmentsService } from './appointments.service';
 import { CreateAppointmentsInput } from './dto/create-appointments.input';
 import { UpdateAppointmentsInput } from './dto/update-appointments.input';
 
 @Controller('appointments')
 export class AppointmentsController {
-  constructor(private readonly appointmentService: AppointmentsService) { }
+  constructor(private readonly appointmentService: AppointmentsService) {}
   @Post()
   createAppointments(@Body() createAppointmentsInput: CreateAppointmentsInput) {
     return this.appointmentService.createAppointments(createAppointmentsInput);
-
   }
   @Post('getAll')
   getAppointments() {
@@ -22,10 +29,17 @@ export class AppointmentsController {
   ) {
     const { page, sortBy, sortOrder } = body;
     return this.appointmentService.getAllAppointmentsByPatient(patientId, page, sortBy, sortOrder);
+
   }
   @Patch('update/:id')
-  updateAppointments(@Param('id') id: string, @Body() updateAppointmentsInput: UpdateAppointmentsInput) {
-    return this.appointmentService.updateAppointment(id, updateAppointmentsInput);
+  updateAppointments(
+    @Param('id') id: string,
+    @Body() updateAppointmentsInput: UpdateAppointmentsInput,
+  ) {
+    return this.appointmentService.updateAppointment(
+      id,
+      updateAppointmentsInput,
+    );
   }
   @Patch(':id/mark-successful')
   async markAppointmentAsSuccessful(@Param('id') id: string) {

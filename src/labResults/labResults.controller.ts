@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Param, Patch, Post, Query } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Patch,
+  Post,
+  Query,
+} from '@nestjs/common';
 import { LabResultsService } from './labResults.service';
 import { CreateLabResultInput } from './dto/create-labResults.input';
 import { UpdateLabResultInput } from './dto/update-labResults.input';
@@ -30,4 +38,4 @@ export class LabResultsController {
     softDeletePrescriptions(@Param('id') id: string) {
         return this.labResultsService.softDeleteLabResults(id);
     }
-}
+

@@ -1,4 +1,8 @@
-import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateEmergencyContactsInput } from './dto/create-emergencyContacts.input';
 import { UpdateEmergencyContactsInput } from './dto/update-emergencyContacts.input';
 import { EmergencyContacts } from './entities/emergencyContacts.entity';
@@ -15,18 +19,23 @@ export class EmergencyContactsService {
     @InjectRepository(Patients)
     private patientsRepository: Repository<Patients>,
     private idService: IdService, // Inject the IdService
-  ) { }
-  async createEmergencyContacts(input: CreateEmergencyContactsInput): Promise<EmergencyContacts> {
-    const existingLowercaseboth = await this.emergencyContactsRepository.findOne({
-      where: {
-        firstName: ILike(`%${input.firstName}%`),
-        lastName: ILike(`%${input.lastName}%`),
-        phoneNumber: ILike(`%${input.phoneNumber}%`),
-        patientId: (input.patientId)
-      }
-    });
+  ) {}
+  async createEmergencyContacts(
+    input: CreateEmergencyContactsInput,
+  ): Promise<EmergencyContacts> {
+    const existingLowercaseboth =
+      await this.emergencyContactsRepository.findOne({
+        where: {
+          firstName: ILike(`%${input.firstName}%`),
+          lastName: ILike(`%${input.lastName}%`),
+          phoneNumber: ILike(`%${input.phoneNumber}%`),
+          patientId: input.patientId,
+        },
+      });
     if (existingLowercaseboth) {
-      throw new ConflictException(`Emergency Contact already exists for patientId ${input.patientId}`);
+      throw new ConflictException(
+        `Emergency Contact already exists for patientId ${input.patientId}`,
+      );
     }
     const newEmergencyContacts = new EmergencyContacts();
     const uuidPrefix = 'ECC-'; // Customize prefix as needed
@@ -52,6 +61,7 @@ export class EmergencyContactsService {
       skip: skip,
       take: perPage,
     });
+
     const totalPages = Math.ceil(totalPatientEmergencyContacts / perPage);
     const emergencyContactsList = await this.emergencyContactsRepository.find({
       where: { patientId },
@@ -62,15 +72,18 @@ export class EmergencyContactsService {
       data: emergencyContactsList,
       totalPages: totalPages,
       currentPage: page,
-      totalCount: totalPatientEmergencyContacts
+      totalCount: totalPatientEmergencyContacts,
     };
   }
 
-  async updateEmergencyContacts(id: string,
+  async updateEmergencyContacts(
+    id: string,
     updateLabResultsInput: UpdateEmergencyContactsInput,
   ): Promise<EmergencyContacts> {
     const { ...updateData } = updateLabResultsInput;
-    const emergencyContacts = await this.emergencyContactsRepository.findOne({ where: { uuid: id } });
+    const emergencyContacts = await this.emergencyContactsRepository.findOne({
+      where: { uuid: id },
+    });
     if (!emergencyContacts) {
       throw new NotFoundException(`Lab Result ID-${id}  not found.`);
     }
@@ -79,6 +92,7 @@ export class EmergencyContactsService {
   }
   async softDeleteEmergencyContacts(id: string): Promise<EmergencyContacts> {
     const emergencyContacts = await this.emergencyContactsRepository.findOne({ where: { uuid: id } });
+
     if (!emergencyContacts) {
       throw new NotFoundException(`Emergency Contacts ID-${id}  not found.`);
     }

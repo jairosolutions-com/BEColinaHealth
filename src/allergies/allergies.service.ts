@@ -1,4 +1,9 @@
-import { All, ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  All,
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateAllergiesInput } from './dto/create-allergies.dto';
 import { UpdateAllergiesInput } from './dto/update-allergies.dto';
 import { Allergies } from './entities/allergies.entity';
@@ -15,14 +20,13 @@ export class AllergiesService {
     @InjectRepository(Patients)
     private patientsRepository: Repository<Patients>,
     private idService: IdService, // Inject the IdService
-  ) { }
-  async createAllergies(input: CreateAllergiesInput):
-    Promise<Allergies> {
+  ) {}
+
+  async createAllergies(input: CreateAllergiesInput): Promise<Allergies> {
     const existingLowercaseboth = await this.allergiesRepository.findOne({
       where: {
-        type: ILike(`%${input.type}%`),
-        reaction: ILike(`%${input.reaction}%`),
-        patientId: (input.patientId)
+        allergen: ILike(`%${input.allergen}%`),
+        patientId: input.patientId,
       },
     });
     if (existingLowercaseboth) {
@@ -35,10 +39,10 @@ export class AllergiesService {
 
     Object.assign(newAllergies, input);
     return this.allergiesRepository.save(newAllergies);
-
   }
 
   async getAllAllergiesByPatient(patientUuid: string, page: number = 1, sortBy: string = 'type', sortOrder: 'ASC' | 'DESC' = 'ASC', perPage: number = 5): Promise<{ data: Allergies[], totalPages: number, currentPage: number, totalCount }> {
+
     const skip = (page - 1) * perPage;
    
     const { id: patientId } = await this.patientsRepository.findOne({
@@ -60,7 +64,7 @@ export class AllergiesService {
       data: AllergiesList,
       totalPages: totalPages,
       currentPage: page,
-      totalCount: totalPatientAllergies
+      totalCount: totalPatientAllergies,
     };
   }
 
@@ -68,20 +72,27 @@ export class AllergiesService {
     const allergies = await this.allergiesRepository.find();
     return allergies;
   }
-  async updateAllergies(id: string,
+  async updateAllergies(
+    id: string,
     updateAllergiesInput: UpdateAllergiesInput,
   ): Promise<Allergies> {
     const { ...updateData } = updateAllergiesInput;
-    const allergies = await this.allergiesRepository.findOne({ where: { uuid: id } });
+    const allergies = await this.allergiesRepository.findOne({
+      where: { uuid: id },
+    });
     if (!allergies) {
       throw new NotFoundException(`Allergy ID-${id}  not found.`);
     }
     Object.assign(allergies, updateData);
     return this.allergiesRepository.save(allergies);
   }
-  async softDeleteAllergies(id: string): Promise<{ message: string, deletedAllergies: Allergies }> {
+  async softDeleteAllergies(
+    id: string,
+  ): Promise<{ message: string; deletedAllergies: Allergies }> {
     // Find the patient record by ID
-    const allergies = await this.allergiesRepository.findOne({ where: { uuid: id } });
+    const allergies = await this.allergiesRepository.findOne({
+      where: { uuid: id },
+    });
 
     if (!allergies) {
       throw new NotFoundException(`Allergy ID-${id} does not exist.`);
@@ -93,7 +104,9 @@ export class AllergiesService {
     // Save and return the updated patient record
     const deletedAllergies = await this.allergiesRepository.save(allergies);
 
-    return { message: `Allergies with ID ${id} has been soft-deleted.`, deletedAllergies };
-
+    return {
+      message: `Allergies with ID ${id} has been soft-deleted.`,
+      deletedAllergies,
+    };
   }
 }

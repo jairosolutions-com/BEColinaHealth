@@ -1,12 +1,12 @@
-import { Resolver, Query, Mutation, Args, Int } from '@nestjs/graphql';
-import { NotesService } from './notes.service';
-import { Notes } from './entities/notes.entity';
-import { CreateNotesInput } from './dto/create-notes.input';
-import { UpdateNotesInput } from './dto/update-notes.input';
+// import { Resolver, Query, Mutation, Args, Int } from '@nestjs/graphql';
+// import { NotesService } from './notes.service';
+// import { Notes } from './entities/notes.entity';
+// import { CreateNotesInput } from './dto/create-notes.input';
+// import { UpdateNotesInput } from './dto/update-notes.input';
 
-@Resolver(() => Notes)
-export class NotesResolver {
-  constructor(private readonly notesService: NotesService) { }
+// @Resolver(() => Notes)
+// export class NotesResolver {
+//   constructor(private readonly notesService: NotesService) { }
 
   // @Mutation(() => Notes)
   // createNotes(@Args('createNotesInput') createNotesInput: CreateNotesInput) {
@@ -33,3 +33,4 @@ export class NotesResolver {
   //   return this.notesService.remove(id);
   // }
 }
+

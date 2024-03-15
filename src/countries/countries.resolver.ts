@@ -1,12 +1,12 @@
-import { Resolver, Query, Mutation, Args, Int } from '@nestjs/graphql';
-import { CountryService } from './countries.service';
-import { Countries } from './entities/countries.entity';
-import { CreateCountryInput } from './dto/create-countries.input';
-import { UpdateCountryInput } from './dto/update-countries.input';
+// import { Resolver, Query, Mutation, Args, Int } from '@nestjs/graphql';
+// import { CountryService } from './countries.service';
+// import { Countries } from './entities/countries.entity';
+// import { CreateCountryInput } from './dto/create-countries.input';
+// import { UpdateCountryInput } from './dto/update-countries.input';
 
-@Resolver(() => Countries)
-export class CountryResolver {
-  constructor(private readonly countriesService: CountryService) { }
+// @Resolver(() => Countries)
+// export class CountryResolver {
+//   constructor(private readonly countriesService: CountryService) { }
 
   // @Mutation(() => Countries)
   // createCountry(@Args('createCountryInput') createCountryInput: CreateCountryInput) {
@@ -33,3 +33,4 @@ export class CountryResolver {
   //   return this.countriesService.remove(id);
   // }
 }
+

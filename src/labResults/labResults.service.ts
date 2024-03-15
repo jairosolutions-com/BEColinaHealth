@@ -1,4 +1,8 @@
-import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateLabResultInput } from './dto/create-labResults.input';
 import { UpdateLabResultInput } from './dto/update-labResults.input';
 import { LabResults } from './entities/labResults.entity';
@@ -17,9 +21,8 @@ export class LabResultsService {
 
 
     private idService: IdService, // Inject the IdService
-  ) { }
-  async createLabResults(input: CreateLabResultInput):
-    Promise<LabResults> {
+  ) {}
+  async createLabResults(input: CreateLabResultInput): Promise<LabResults> {
     const existingLowercaseboth = await this.labResultsRepository.findOne({
       where: {
         hemoglobinA1c: ILike(`%${input.hemoglobinA1c}%`),
@@ -27,7 +30,7 @@ export class LabResultsService {
         date: ILike(`%${input.date}%`),
         totalCholesterol: ILike(`%${input.ldlCholesterol}%`),
         triglycerides: ILike(`%${input.triglycerides}%`),
-        patientId: (input.patientId)
+        patientId: input.patientId,
       },
     });
     if (existingLowercaseboth) {
@@ -40,10 +43,10 @@ export class LabResultsService {
 
     Object.assign(newLabResults, input);
     return this.labResultsRepository.save(newLabResults);
-
   }
 
   async getAllLabResultsByPatient(patientUuid: string, page: number = 1, sortBy: string = 'medicationLogsDate', sortOrder: 'ASC' | 'DESC' = 'ASC', perPage: number = 5): Promise<{ data: LabResults[], totalPages: number, currentPage: number, totalCount }> {
+
     const skip = (page - 1) * perPage;
     const { id: patientId } = await this.patientsRepository.findOne({
       select: ["id"],
@@ -65,7 +68,7 @@ export class LabResultsService {
       data: labResultsList,
       totalPages: totalPages,
       currentPage: page,
-      totalCount: totalPatientLabResults
+      totalCount: totalPatientLabResults,
     };
   }
 
@@ -73,11 +76,14 @@ export class LabResultsService {
     const medicationLogs = await this.labResultsRepository.find();
     return medicationLogs;
   }
-  async updateLabResults(id: string,
+  async updateLabResults(
+    id: string,
     updateLabResultsInput: UpdateLabResultInput,
   ): Promise<LabResults> {
     const { ...updateData } = updateLabResultsInput;
-    const labResults = await this.labResultsRepository.findOne({ where: { uuid: id } });
+    const labResults = await this.labResultsRepository.findOne({
+      where: { uuid: id },
+    });
     if (!labResults) {
       throw new NotFoundException(`Lab Result ID-${id}  not found.`);
     }
@@ -85,8 +91,11 @@ export class LabResultsService {
     return this.labResultsRepository.save(labResults);
   }
   async softDeleteLabResults(id: string): Promise<{ message: string, deletedLabResult: LabResults }> {
+
     // Find the patient record by ID
-    const labResults = await this.labResultsRepository.findOne({ where: { uuid: id } });
+    const labResults = await this.labResultsRepository.findOne({
+      where: { uuid: id },
+    });
 
     if (!labResults) {
       throw new NotFoundException(`Lab Result ID-${id} does not exist.`);
@@ -98,7 +107,9 @@ export class LabResultsService {
     // Save and return the updated patient record
     const deletedLabResult = await this.labResultsRepository.save(labResults);
 
-    return { message: `Lab Result with ID ${id} has been soft-deleted.`, deletedLabResult };
-
+    return {
+      message: `Lab Result with ID ${id} has been soft-deleted.`,
+      deletedLabResult,
+    };
   }
 }

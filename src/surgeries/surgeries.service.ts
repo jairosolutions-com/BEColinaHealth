@@ -1,9 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import { ConflictException, Injectable } from '@nestjs/common';
 import { CreateSurgeriesDto } from './dto/create-surgeries.dto';
 import { UpdateSurgeriesDto } from './dto/update-surgeries.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Surgeries } from './entities/surgeries.entity';
-import { Repository } from 'typeorm';
+import { ILike, Repository } from 'typeorm';
 import { Patients } from 'src/patients/entities/patients.entity';
 import { IdService } from 'services/uuid/id.service';
 
@@ -15,36 +15,26 @@ export class SurgeriesService {
     @InjectRepository(Patients)
     private readonly patientRepository: Repository<Patients>,
     private idService: IdService,
-  ) { }
+  ) {}
 
-  async createSurgeries(createSurgeriesDto: CreateSurgeriesDto): Promise<Surgeries> {
-    const existingSurgeries = await this.surgeriesRepository.findOne({
-      where: { typeOfSurgeries: createSurgeriesDto.typeOfSurgeries },
+  async createAllergies(input: CreateSurgeriesDto): Promise<Surgeries> {
+    const existingLowercaseboth = await this.surgeriesRepository.findOne({
+      where: {
+        typeOfSurgeries: ILike(`%${input.typeOfSurgeries}%`),
+        uuid: input.uuid,
+      },
     });
-
-    const newSurgeries = new Surgeries();
-
-    newSurgeries.uuid = this.idService.generateRandomUUID('SGY-');
-
-    // Fetch Patients entity based on patientId
-    const patient = await this.patientRepository.findOne({
-      where: { id: createSurgeriesDto.patientId },
-    });
-
-    if (!patient) {
-      throw new Error('Patient not found');
+    if (existingLowercaseboth) {
+      throw new ConflictException(
+        'A Surgeries with the same type of Surgeries already exists',
+      );
     }
+    const newAllergies = new Surgeries();
+    const uuidPrefix = 'SGY-'; // Customize prefix as needed
+    const uuid = this.idService.generateRandomUUID(uuidPrefix);
+    newAllergies.uuid = uuid;
 
-    if (existingSurgeries) {
-      throw new Error('A Surgeries with the same type of Surgeries already exists');
-    }
-
-    // Assign patient to the allergies
-    newSurgeries.patient = patient;
-
-    // Assign other properties
-    Object.assign(newSurgeries, createSurgeriesDto);
-
-    return this.surgeriesRepository.save(newSurgeries);
+    Object.assign(newAllergies, input);
+    return this.surgeriesRepository.save(newAllergies);
   }
 }
