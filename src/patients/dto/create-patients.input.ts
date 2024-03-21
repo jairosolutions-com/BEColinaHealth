@@ -20,6 +20,9 @@ export class CreatePatientsInput {
   @Field((type) => Int)
   age: number;
 
+  @Field()
+  email: string;
+
   @IsNotEmpty()
   @Field()
   dateOfBirth: Date;

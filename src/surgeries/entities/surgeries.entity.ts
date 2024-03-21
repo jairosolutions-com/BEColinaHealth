@@ -18,11 +18,14 @@ export class Surgeries {
   @Column()
   uuid: string;
 
-  @Column({ type: 'date', nullable: true })
-  dateOfSurgeries: Date;
+  @Column()
+  dateOfSurgeries: string;
 
   @Column()
   typeOfSurgeries: string;
+
+  @Column()
+  surgery: string;
 
   @Column({ type: 'text', nullable: true })
   notes: string;

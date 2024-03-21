@@ -50,4 +50,6 @@ export class Allergies {
     name: 'patientId',
   })
   patient: Patients;
+
+
 }

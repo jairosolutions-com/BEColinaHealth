@@ -35,7 +35,7 @@ export class Patients {
   @Column()
   uuid: string;
 
-  @Column()
+  @Column({ nullable: true })
   firstName: string;
 
   @Column()
@@ -44,6 +44,9 @@ export class Patients {
   @Column({ nullable: true })
   @Field((type) => Int)
   age: number;
+
+  @Column({nullable: true})
+  email: string;
 
   @Column({ type: 'date', nullable: true })
   dateOfBirth: Date;
@@ -66,6 +69,12 @@ export class Patients {
   @Column()
   @Field()
   country: string;
+
+  @Column({nullable: true})
+  address1: string;
+
+  @Column({nullable: true})
+  address2: string;
 
   @Column()
   phoneNo: string;

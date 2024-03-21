@@ -10,7 +10,7 @@ import { UpdateAllergiesInput } from './dto/update-allergies.dto';
 import { Allergies } from './entities/allergies.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { IdService } from 'services/uuid/id.service';
-import { Repository, ILike } from 'typeorm';
+import { Repository, ILike, createQueryBuilder } from 'typeorm';
 import { Patients } from 'src/patients/entities/patients.entity';
 
 @Injectable()
@@ -23,23 +23,32 @@ export class AllergiesService {
     private idService: IdService, // Inject the IdService
   ) {}
 
+
   async createAllergies(input: CreateAllergiesInput): Promise<Allergies> {
+    const patient = await this.patientsRepository.findOne({
+      where: { uuid: input.patientUuid },
+    });
+
     const existingLowercaseboth = await this.allergiesRepository.findOne({
       where: {
         allergen: ILike(`%${input.allergen}%`),
-        patientId: input.patientId,
+        patientId: patient.id,
       },
     });
     if (existingLowercaseboth) {
-      throw new ConflictException('Allergy  already exists.');
+      throw new ConflictException('Allergy already exists.');
     }
     const newAllergies = new Allergies();
     const uuidPrefix = 'ALG-'; // Customize prefix as needed
     const uuid = this.idService.generateRandomUUID(uuidPrefix);
     newAllergies.uuid = uuid;
+    newAllergies.patientId = patient.id;
 
     Object.assign(newAllergies, input);
-    return this.allergiesRepository.save(newAllergies);
+    const createdAllergies = await this.allergiesRepository.save(newAllergies);
+    delete createdAllergies.id;
+    delete createdAllergies.patientId;
+    return createdAllergies;
   }
 
   async getAllAllergiesByPatient(
@@ -54,6 +63,9 @@ export class AllergiesService {
     currentPage: number;
     totalCount;
   }> {
+
+    
+
     try {
       const skip = (page - 1) * perPage;
 

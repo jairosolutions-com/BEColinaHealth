@@ -7,5 +7,9 @@ export class CreateSurgeriesDto {
   typeOfSurgeries: string;
   @IsNotEmpty()
   dateOfSurgeries: Date;
+  @IsNotEmpty()
+  surgery: string;
   notes: string;
+  @IsNotEmpty()
+  patientUuid: string;
 }

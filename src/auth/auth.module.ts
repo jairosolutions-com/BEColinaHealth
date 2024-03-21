@@ -20,7 +20,12 @@ import { AuthGuard } from './auth.guard';
     JwtModule.register({
       global: true,
       secret: jwtConstants.secret, // Replace with your own secret key
-      signOptions: { expiresIn: '10hr' }, // Optional: Set expiration time for tokens
+      signOptions: { expiresIn: '10s' }, // Optional: Set expiration time for tokens
+    }),
+    JwtModule.register({
+      global: true,
+      secret: jwtConstants.secret, // Replace with your own secret key
+      signOptions: { expiresIn: '720h' }, // Optional: Set expiration time for tokens
     }),
     TypeOrmModule.forFeature([Users, Roles, UserAccessLevels]),
   ],
@@ -36,4 +41,4 @@ import { AuthGuard } from './auth.guard';
   ],
   controllers: [AuthController],
 })
-export class AuthModule { }
+export class AuthModule {}

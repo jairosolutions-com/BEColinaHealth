@@ -18,13 +18,10 @@ export class AllergiesController {
   constructor(private readonly allergiesService: AllergiesService) {}
 
   @Post()
-  createAllergies(@Body() createAllergiesInput: CreateAllergiesInput) {
+  createAllergies(
+    @Body() createAllergiesInput: CreateAllergiesInput,
+  ): Promise<Allergies> {
     return this.allergiesService.createAllergies(createAllergiesInput);
-  }
-
-  @Post('getAll')
-  getAllAllergies() {
-    return this.allergiesService.getAllAllergies();
   }
   //onClick from prescriptions- get prescriptionsId for patch
 

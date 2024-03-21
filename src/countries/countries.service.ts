@@ -21,16 +21,4 @@ export class CountryService {
     return countries;
   }
 
-
-  findOne(id: number) {
-    return `This action returns a #${id} countries`;
-  }
-
-  update(id: string, updateCountryInput: UpdateCountryInput) {
-    return `This action updates a #${id} countries`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} countries`;
-  }
 }
