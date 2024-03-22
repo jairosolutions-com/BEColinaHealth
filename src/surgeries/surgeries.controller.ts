@@ -20,7 +20,6 @@ import { AuthGuard } from 'src/auth/auth.guard';
 @UseGuards(AuthGuard)
 export class SurgeriesController {
   constructor(private readonly surgeriesService: SurgeriesService) { }
-
   @Post(':id')
   async createSurgeries(@Param('id') patientId: string,
     @Body() createSurgeriesDto: CreateSurgeriesDto) {
@@ -42,5 +41,21 @@ export class SurgeriesController {
         );
       }
     }
+  }
+  @Post('list/:id')
+  findAllSurgeriesByPatient(
+    @Param('id') patientId: string,
+    @Body() body: { term: string, page: number, sortBy: string, sortOrder: 'ASC' | 'DESC' }
+  ) {
+    const { term = "", page, sortBy, sortOrder } = body;
+    return this.surgeriesService.getAllSurgeryByPatient(patientId, term, page, sortBy, sortOrder);
+  }
+  @Patch('update/:id')
+  updateSurgery(@Param('id') id: string, @Body() updateSurgeriesDto: UpdateSurgeriesDto) {
+    return this.surgeriesService.updateSurgery(id, updateSurgeriesDto);
+  }
+  @Patch('delete/:id')
+  softDeleteSurgeries(@Param('id') id: string) {
+    return this.surgeriesService.softDeleteSurgery(id);
   }
 }

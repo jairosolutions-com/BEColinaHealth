@@ -18,7 +18,7 @@ export class EmergencyContactsController {
     private readonly emergencyContactService: EmergencyContactsService,
   ) { }
 
-  @Post()
+  @Post(':id')
   createEmergencyContacts(@Param('id') patientId: string,
     @Body() createEmergencyContactsInput: CreateEmergencyContactsInput,
   ) {
