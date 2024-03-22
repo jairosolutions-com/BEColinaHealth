@@ -93,7 +93,7 @@ export class PatientsService {
   }
 
   
-  async getPatientFullInfoById(id: string): Promise<Patients[]> {
+  async getPatientFullInfoById(id: string): Promise<fullPatientInfo[]> {
     const patientList = await this.patientsRepository.find({
       where: { uuid: id },
       relations: ['allergies'],
