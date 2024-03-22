@@ -54,7 +54,7 @@ export class EmergencyContacts {
 
   @Column()
   @Field()
-  countries: string;
+  country: string;
 
   @Column()
   @Field((type) => Int)
@@ -74,7 +74,7 @@ export class EmergencyContacts {
 
 
   //Emergency Contact Table with FK patientId from Patients table
-  @ManyToOne(() => Patients, (patient) => patient.emergencyContacts)
+  @ManyToOne(() => Patients, (patient) => patient.contact)
   @JoinColumn({
     name: 'patientId',
   })

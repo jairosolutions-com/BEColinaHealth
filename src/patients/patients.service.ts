@@ -23,7 +23,7 @@ export class PatientsService {
     @InjectRepository(Patients)
     private patientsRepository: Repository<Patients>,
     private idService: IdService, // Inject the IdService
-  ) {}
+  ) { }
 
   //CREATE PATIENT INFO
   async createPatients(input: CreatePatientsInput): Promise<Patients> {
@@ -77,10 +77,17 @@ export class PatientsService {
     });
 
     const processedPatientList = patientList.map((patient) => {
-      const allergies = patient.allergies
-        .map((allergies) => allergies.type)
-        .join(', ');
-      return { ...patient, allergies };
+      // const allergies = patient.allergies
+      //   .map((allergies) => allergies.type)
+      //   .join(', ');
+      // return { ...patient, allergies };
+      const uniqueAllergyTypes = [...new Set(patient.allergies.map((allergy) => allergy.type))];
+
+      return {
+        ...patient,
+        allergies: uniqueAllergyTypes.join(', '), // Join unique allergy types into a single string
+      };
+
     });
     return processedPatientList;
   }
@@ -91,44 +98,22 @@ export class PatientsService {
       where: { uuid: id },
       relations: ['allergies'],
     });
-    return patientList;
+
+    const processedPatientList = patientList.map((patient) => {
+      const uniqueAllergyTypes = [...new Set(patient.allergies.map((allergy) => allergy.type))];
+
+      return {
+        ...patient,
+        allergies: uniqueAllergyTypes.join(', '), // Join unique allergy types into a single string
+      };
+
+    });
+    return processedPatientList;
   }
   
 
   //GET PAGED PATIENT LIST basic info for patient list with return to pages
-
   async getAllPatientsBasicInfo(
-    page: number = 1,
-    sortBy: string = 'lastName',
-    sortOrder: 'ASC' | 'DESC' = 'DESC',
-    perPage: number = 5,
-  ): Promise<{
-    data: Patients[];
-    totalPages: number;
-    currentPage: number;
-    totalCount;
-  }> {
-    const skip = (page - 1) * perPage;
-    const totalPatients = await this.patientsRepository.count();
-
-    const totalPages = Math.ceil(totalPatients / perPage);
-
-    const patientList = await this.patientsRepository.find({
-      select: ['uuid', 'firstName', 'lastName', 'age', 'gender', 'codeStatus'],
-      skip: skip,
-      take: perPage,
-      order: { [sortBy]: sortOrder },
-    });
-    console.log;
-    return {
-      data: patientList,
-      totalPages: totalPages,
-      currentPage: page,
-      totalCount: totalPatients,
-    };
-  }
-
-  async searchAllPatientInfoByTerm(
     term: string,
     page: number = 1,
     sortBy: string = 'lastName',
@@ -234,8 +219,4 @@ export class PatientsService {
       deletedPatient,
     };
   }
-
-  // async restore(id: number): Promise<void> {
-  //   await this.prescriptionsRepository.restore(id);
-  // }
 }

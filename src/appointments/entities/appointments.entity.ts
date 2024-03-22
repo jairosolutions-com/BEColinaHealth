@@ -55,9 +55,9 @@ export class Appointments {
   deletedAt: string;
 
   //Appointments Table with FK patientId from Patients table
-  @ManyToOne(() => Patients, (patients) => patients.appointments)
+  @ManyToOne(() => Patients, (patient) => patient.appointments)
   @JoinColumn({
     name: 'patientId',
   })
-  patients: Patients;
+  patient: Patients;
 }

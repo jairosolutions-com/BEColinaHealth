@@ -23,10 +23,16 @@
 //   return this.notesService.findOne(id);
 // }
 
-// @Mutation(() => Notes)
-// updateNotes(@Args('updateNotesInput') updateNotesInput: UpdateNotesInput) {
-//   return this.notesService.update(updateNotesInput.id, updateNotesInput);
-// }
+  // @Mutation(() => Notes)
+  // updateNotes(@Args('updateNotesInput') updateNotesInput: UpdateNotesInput) {
+  //   return this.notesService.update(updateNotesInput.id, updateNotesInput);
+  // }
+
+  // @Mutation(() => Notes)
+  // removeNotes(@Args('id', { type: () => Int }) id: number) {
+  //   return this.notesService.remove(id);
+  // }
+
 
 // @Mutation(() => Notes)
 // removeNotes(@Args('id', { type: () => Int }) id: number) {

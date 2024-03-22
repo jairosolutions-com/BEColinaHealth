@@ -12,6 +12,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { IdService } from 'services/uuid/id.service';
 import { Repository, ILike, createQueryBuilder } from 'typeorm';
 import { Patients } from 'src/patients/entities/patients.entity';
+import { Brackets } from 'typeorm';
 
 @Injectable()
 export class AllergiesService {
@@ -21,185 +22,95 @@ export class AllergiesService {
     @InjectRepository(Patients)
     private patientsRepository: Repository<Patients>,
     private idService: IdService, // Inject the IdService
-  ) {}
+  ) { }
 
-  async createAllergies(input: CreateAllergiesInput): Promise<Allergies> {
-    const patient = await this.patientsRepository.findOne({
-      where: { uuid: input.patientUuid },
+  async createAllergies(patientUuid: string, allergiesData: CreateAllergiesInput): Promise<Allergies> {
+    const { id: patientId } = await this.patientsRepository.findOne({
+      select: ["id"],
+      where: { uuid: patientUuid }
     });
-
-    const existingLowercaseboth = await this.allergiesRepository.findOne({
+    const existingAllergy = await this.allergiesRepository.findOne({
       where: {
-        allergen: ILike(`%${input.allergen}%`),
-        patientId: patient.id,
+        allergen: ILike(`%${allergiesData.allergen}%`),
+        patientId: allergiesData.patientId,
       },
     });
-    if (existingLowercaseboth) {
-      throw new ConflictException('Allergy already exists.');
+    if (existingAllergy) {
+      throw new ConflictException('Allergy  already exists.');
+
     }
+
     const newAllergies = new Allergies();
     const uuidPrefix = 'ALG-'; // Customize prefix as needed
     const uuid = this.idService.generateRandomUUID(uuidPrefix);
     newAllergies.uuid = uuid;
-    newAllergies.patientId = patient.id;
+    newAllergies.patientId = patientId;
+    Object.assign(newAllergies, allergiesData);
+    const savedAllergies = await this.allergiesRepository.save(newAllergies);
+    const result = { ...savedAllergies };
+    delete result.patientId;
+    delete result.deletedAt;
+    delete result.updatedAt;
+    delete result.id;
+    return (result)
 
-    Object.assign(newAllergies, input);
-    const createdAllergies = await this.allergiesRepository.save(newAllergies);
-    delete createdAllergies.id;
-    delete createdAllergies.patientId;
-    return createdAllergies;
   }
 
   async getAllAllergiesByPatient(
     patientUuid: string,
+    term: string,
     page: number = 1,
     sortBy: string = 'type',
     sortOrder: 'ASC' | 'DESC' = 'ASC',
-    perPage: number = 5,
-  ): Promise<{
-    data: Allergies[];
-    totalPages: number;
-    currentPage: number;
-    totalCount;
-  }> {
-    try {
-      const skip = (page - 1) * perPage;
-
-      const patient = await this.patientsRepository.findOne({
-        where: { uuid: patientUuid },
-      });
-
-      console.log('pp', patient);
-
-      if (!patient) {
-        throw new NotFoundException('Patient does not exist.');
-      }
-
-      const totalPatientAllergies = await this.allergiesRepository.count({
-        where: { patientId: patient.id },
-      });
-
-      const totalPages = Math.ceil(totalPatientAllergies / perPage);
-
-      console.log('tt', totalPages);
-
-      const AllergiesList = await this.allergiesRepository.find({
-        select: [
-          'uuid',
-          'type',
-          'allergen',
-          'reaction',
-          'severity',
-          'notes',
-          'createdAt',
-        ],
-        where: { patientId: patient.id },
-        skip: skip,
-        take: perPage,
-        order: { [sortBy]: sortOrder },
-      });
-      console.log('al', AllergiesList);
-      return {
-        data: AllergiesList,
-        totalPages: totalPages,
-        currentPage: page,
-        totalCount: totalPatientAllergies,
-      };
-    } catch (error) {
-      // Handle the error here
-      throw new NotFoundException(
-        'An error occurred while fetching allergies.',
-        "Patient with the provided ID doesn't exist.",
-      );
+    perPage: number = 5
+  ): Promise<{ data: Allergies[]; totalPages: number; currentPage: number; totalCount: number }> {
+    const searchTerm = `%${term}%`; // Add wildcards to the search term
+    const skip = (page - 1) * perPage;
+    const patientExists = await this.patientsRepository.findOne({ where: { uuid: patientUuid } });
+    if (!patientExists) {
+      throw new NotFoundException('Patient not found');
     }
-  }
+    const allergiesQueryBuilder = this.allergiesRepository
+      .createQueryBuilder('allergies')
+      .innerJoinAndSelect('allergies.patient', 'patient')
+      .select([
+        'allergies.uuid',
+        'allergies.type',
+        'allergies.allergen',
+        'allergies.severity',
+        'allergies.reaction',
+        'allergies.notes',
+        'allergies.createdAt',
+        'patient.uuid',
+      ])
+      .where('patient.uuid = :uuid', { uuid: patientUuid })
+      .orderBy(`allergies.${sortBy}`, sortOrder)
+      .offset(skip)
+      .limit(perPage);
+    if (term !== "") {
+      console.log("term", term);
+      allergiesQueryBuilder
+        .where(new Brackets((qb) => {
+          qb.andWhere('patient.uuid = :uuid', { uuid: patientUuid })
 
-  async searchPatientAllergiesByTerm(
-    patientUuid: string,
-    term: string,
-    page: number = 1,
-    sortBy: string = 'allergen',
-    sortOrder: 'ASC' | 'DESC' = 'ASC',
-    perPage: number = 5,
-  ): Promise<{
-    data: Allergies[];
-    totalPages: number;
-    currentPage: number;
-    totalCount;
-  }> {
-    //Check if patient exist before searching for allergies
-    try {
-      const patient = await this.patientsRepository.findOne({
-        where: {
-          uuid: patientUuid,
-        },
-      });
-      if (!patient) {
-        throw new NotFoundException('Patient does not exist.');
-      }
-
-      const searchTerm = `%${term}%`; // Add wildcards to the search term
-      const skip = (page - 1) * perPage;
-
-      //count the total rows searched
-      const totalAllergies = await this.allergiesRepository.count({
-        where: [
-          {
-            allergen: ILike(searchTerm),
-            patientId: patient.id, // Filter by patientId
-          },
-          {
-            uuid: ILike(`%${searchTerm}%`),
-            patientId: patient.id, // Filter by patientId
-          },
-        ],
-      });
-      //total number of pages
-      const totalPages = Math.ceil(totalAllergies / perPage);
-      console.log('sss', totalAllergies);
-      //find the data
-      const AllergiesList = await this.allergiesRepository.find({
-        select: [
-          'uuid',
-          'type',
-          'allergen',
-          'reaction',
-          'severity',
-          'notes',
-          'createdAt',
-        ],
-        where: [
-          {
-            allergen: ILike(searchTerm),
-            patientId: patient.id, // Filter by patientId
-          },
-          {
-            uuid: ILike(`%${searchTerm}%`),
-            patientId: patient.id, // Filter by patientId
-          },
-        ],
-        skip: skip,
-        take: perPage,
-        order: { [sortBy]: sortOrder },
-      });
-      // // Convert createdAt to ISO string without time
-      // AllergiesList.forEach((allergy) => {
-      //   allergy.createdAt = allergy.createdAt.toString().split('T')[0];
-      // });
-      return {
-        data: AllergiesList,
-        totalPages: totalPages,
-        currentPage: page,
-        totalCount: totalAllergies,
-      };
-    } catch (error) {
-      throw new NotFoundException(
-        'An error occurred while fetching allergies.',
-        "Patient with the provided ID doesn't exist.",
-      );
+        }))
+        .andWhere(new Brackets((qb) => {
+          qb.andWhere("allergies.allergen ILIKE :searchTerm", { searchTerm })
+            .orWhere("allergies.type ILIKE :searchTerm", { searchTerm })
+            .orWhere("allergies.uuid ILIKE :searchTerm", { searchTerm });
+        }))
+        ;
     }
+    const allergiesList = await allergiesQueryBuilder.getRawMany();
+    const totalPatientAllergies = await allergiesQueryBuilder.getCount();
+    const totalPages = Math.ceil(totalPatientAllergies / perPage);
+    return {
+      data: allergiesList,
+      totalPages: totalPages,
+      currentPage: page,
+      totalCount: totalPatientAllergies,
+    };
   }
-
   async getAllAllergies(): Promise<Allergies[]> {
     const allergies = await this.allergiesRepository.find();
     return allergies;
@@ -225,17 +136,11 @@ export class AllergiesService {
     const allergies = await this.allergiesRepository.findOne({
       where: { uuid: id },
     });
-
     if (!allergies) {
       throw new NotFoundException(`Allergy ID-${id} does not exist.`);
     }
-
-    // Set the deletedAt property to mark as soft deleted
     allergies.deletedAt = new Date().toISOString();
-
-    // Save and return the updated patient record
     const deletedAllergies = await this.allergiesRepository.save(allergies);
-
     return {
       message: `Allergies with ID ${id} has been soft-deleted.`,
       deletedAllergies,

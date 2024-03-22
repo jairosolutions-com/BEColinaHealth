@@ -3,31 +3,39 @@ import { CreatePrescriptionsInput } from './dto/create-prescriptions.input';
 import { UpdatePrescriptionsInput } from './dto/update-prescriptions.input';
 import { InjectRepository } from '@nestjs/typeorm';
 import { create } from 'domain';
-import { ILike, Repository } from 'typeorm';
+import { Brackets, ILike, Repository } from 'typeorm';
 import { Prescriptions } from './entities/prescriptions.entity';
 import { IdService } from 'services/uuid/id.service'; // 
+import { Patients } from 'src/patients/entities/patients.entity';
 
 @Injectable()
 export class PrescriptionsService {
   constructor(
     @InjectRepository(Prescriptions)
     private prescriptionsRepository: Repository<Prescriptions>,
+    @InjectRepository(Patients)
+    private patientsRepository: Repository<Patients>,
+
     private idService: IdService, // Inject the IdService
   ) { }
   //CREATE Prescriptions INFO
-  async createPrescriptions(input: CreatePrescriptionsInput): Promise<Prescriptions> {
-    const existingLowercaseboth = await this.prescriptionsRepository.findOne({
+  async createPrescriptions(patientUuid: string,prescriptionData: CreatePrescriptionsInput): Promise<Prescriptions> {
+    const { id: patientId } = await this.patientsRepository.findOne({
+      select: ["id"],
+      where: { uuid: patientUuid }
+    });
+    const existingPrescriptions = await this.prescriptionsRepository.findOne({
       where: {
-        name: ILike(`%${input.name}%`),
-        dosage: ILike(`%${input.dosage}%`),
-        interval: ILike(`%${input.interval}%`),
-        status: ILike(`%${input.status}%`),
-        patientId: (input.patientId)
+        name: ILike(`%${prescriptionData.name}%`),
+        dosage: ILike(`%${prescriptionData.dosage}%`),
+        interval: ILike(`%${prescriptionData.interval}%`),
+        status: ILike(`%${prescriptionData.status}%`),
+        patientId: (prescriptionData.patientId)
       },
-
     });
 
-    if (existingLowercaseboth) {
+
+    if (existingPrescriptions) {
       throw new ConflictException('Prescriptions already exists.');
     }
 
@@ -37,36 +45,66 @@ export class PrescriptionsService {
     const uuid = this.idService.generateRandomUUID(uuidPrefix);
 
     newPrescriptions.uuid = uuid;
-
-    // Copy the properties from the input object to the new patient information
-    Object.assign(newPrescriptions, input);
-
-    return this.prescriptionsRepository.save(newPrescriptions);
+    newPrescriptions.patientId = patientId; // Assign patientId
+    Object.assign(newPrescriptions, prescriptionData);
+    const savedLabResult = await this.prescriptionsRepository.save(newPrescriptions);
+    const result = { ...savedLabResult };
+    delete result.patientId;
+    delete result.deletedAt;
+    delete result.updatedAt;
+    delete result.id;
+    return (result)
   }
 
   //PAGED Prescriptions list PER PATIENT
-  async getAllPrescriptionsByPatient(patientId: string, page: number = 1, sortBy: string = 'lastName', sortOrder: 'ASC' | 'DESC' = 'ASC', perPage: number = 5): Promise<{ data: Prescriptions[], totalPages: number, currentPage: number, totalCount }> {
+  async getAllPrescriptionsByPatient(patientUuid: string, term: string,
+    page: number = 1, sortBy: string = 'status', sortOrder: 'ASC' | 'DESC' = 'ASC', perPage: number = 5): Promise<{ data: Prescriptions[], totalPages: number, currentPage: number, totalCount }> {
     const skip = (page - 1) * perPage;
-    const totalPatientPrescriptions = await this.prescriptionsRepository.count({
-      where: { uuid: patientId },
-      skip: skip,
-      take: perPage,
-    });
-    const totalPages = Math.ceil(totalPatientPrescriptions / perPage);
-    const prescriptionsList = await this.prescriptionsRepository.find({
-      where: { uuid: patientId },
-      skip: skip,
-      take: perPage,
-    });
+    const searchTerm = `%${term}%`; // Add wildcards to the search term
+    const patientExists = await this.patientsRepository.findOne({ where: { uuid: patientUuid } });
+
+    if (!patientExists) {
+      throw new NotFoundException('Patient not found');
+    }
+    const prescriptionsQueryBuilder = this.prescriptionsRepository
+      .createQueryBuilder('prescriptions')
+      .leftJoinAndSelect('prescriptions.patient', 'patient')
+      .select([
+        'prescriptions.uuid',
+        'prescriptions.name',
+        'prescriptions.status',
+        'prescriptions.dosage',
+        'prescriptions.frequency',
+        'prescriptions.interval',
+        'patient.uuid',
+      ])
+      .where('patient.uuid = :uuid', { uuid: patientUuid })
+      .orderBy(`prescriptions.${sortBy}`, sortOrder)
+      .skip(skip)
+      .take(perPage);
+    if (term !== "") {
+      console.log("term", term);
+      prescriptionsQueryBuilder
+        .where(new Brackets((qb) => {
+          qb.andWhere('patient.uuid = :uuid', { uuid: patientUuid })
+        }))
+        .andWhere(new Brackets((qb) => {
+          qb.andWhere("prescriptions.uuid ILIKE :searchTerm", { searchTerm })
+            .orWhere("prescriptions.name ILIKE :searchTerm", { searchTerm })
+        }));
+    }
+    // Get lab results
+    const prescriptionResultList = await prescriptionsQueryBuilder.getRawMany();
+    const totalPatientLabResults = await prescriptionsQueryBuilder.getCount();
+    const totalPages = Math.ceil(totalPatientLabResults / perPage);
+
     return {
-      data: prescriptionsList,
+      data: prescriptionResultList,
       totalPages: totalPages,
       currentPage: page,
-      totalCount: totalPatientPrescriptions
+      totalCount: totalPatientLabResults,
     };
   }
-
-
   //LIST Prescriptions NAMES Dropdown  PER PATIENT
   async getPrescriptionsDropDownByPatient(patientId: string): Promise<Prescriptions[]> {
 

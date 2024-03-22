@@ -16,30 +16,8 @@ import { Patients } from './entities/patients.entity';
 export class PatientsController {
   constructor(private readonly patientsService: PatientsService) {}
 
-  // @Post('getAll')
-  // findAllPatientsAllInfo() {
-  //   return this.patientsService.getAllPatientsFullInfo();
-  // }
-
   @Post('list')
-  async findAllPatientsBasicInfo(
-    @Body()
-    requestData: {
-      page: number;
-      sortBy: string;
-      sortOrder: 'ASC' | 'DESC';
-    },
-  ) {
-    const { page, sortBy, sortOrder } = requestData;
-    return this.patientsService.getAllPatientsBasicInfo(
-      page,
-      sortBy,
-      sortOrder,
-    );
-  }
-
-  @Post('search')
-  getPatientsByName(
+  getPatientsByTerm(
     @Body()
     requestData: {
       term: string;
@@ -47,9 +25,15 @@ export class PatientsController {
       sortBy: string;
       sortOrder: 'ASC' | 'DESC';
     },
-  ) {
-    const { term, page, sortBy, sortOrder } = requestData;
-    return this.patientsService.searchAllPatientInfoByTerm(
+
+  ): Promise<{
+    data: Patients[];
+    totalPages: number;
+    currentPage: number;
+    totalCount;
+  }> {
+    const { term = "", page, sortBy, sortOrder } = requestData;
+    return this.patientsService.getAllPatientsBasicInfo(
       term,
       page,
       sortBy,
