@@ -58,11 +58,11 @@ export class MedicationLogs {
   deletedAt: string;
 
   //MedicationLogs Table with FK patientId from Patients table
-  @ManyToOne(() => Patients, (patient) => patient.medicationLogs)
+  @ManyToOne(() => Patients, (patient) => patient.medicationlogs)
   @JoinColumn({
     name: 'patientId',
   })
-  patients: Patients;
+  patient: Patients;
   // // Foreign key reference to the Prescriptions entity
   // @ManyToOne(() => Prescriptions)
   // @JoinColumn({ name: 'prescriptionsId', referencedColumnName: 'id' }) // FK attribute

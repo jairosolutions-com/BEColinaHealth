@@ -23,10 +23,16 @@
 //   return this.countriesService.findOne(id);
 // }
 
-// @Mutation(() => Countries)
-// updateCountry(@Args('updateCountryInput') updateCountryInput: UpdateCountryInput) {
-//   return this.countriesService.update(updateCountryInput.id, updateCountryInput);
-// }
+  // @Mutation(() => Countries)
+  // updateCountry(@Args('updateCountryInput') updateCountryInput: UpdateCountryInput) {
+  //   return this.countriesService.update(updateCountryInput.id, updateCountryInput);
+  // }
+
+  // @Mutation(() => Countries)
+  // removeCountry(@Args('id', { type: () => Int }) id: number) {
+  //   return this.countriesService.remove(id);
+  // }
+
 
 // @Mutation(() => Countries)
 // removeCountry(@Args('id', { type: () => Int }) id: number) {

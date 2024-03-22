@@ -101,39 +101,7 @@ export class PatientsService {
   }
 
   //GET PAGED PATIENT LIST basic info for patient list with return to pages
-
   async getAllPatientsBasicInfo(
-    page: number = 1,
-    sortBy: string = 'lastName',
-    sortOrder: 'ASC' | 'DESC' = 'DESC',
-    perPage: number = 5,
-  ): Promise<{
-    data: Patients[];
-    totalPages: number;
-    currentPage: number;
-    totalCount;
-  }> {
-    const skip = (page - 1) * perPage;
-    const totalPatients = await this.patientsRepository.count();
-
-    const totalPages = Math.ceil(totalPatients / perPage);
-
-    const patientList = await this.patientsRepository.find({
-      select: ['uuid', 'firstName', 'lastName', 'age', 'gender', 'codeStatus'],
-      skip: skip,
-      take: perPage,
-      order: { [sortBy]: sortOrder },
-    });
-    console.log;
-    return {
-      data: patientList,
-      totalPages: totalPages,
-      currentPage: page,
-      totalCount: totalPatients,
-    };
-  }
-
-  async searchAllPatientInfoByTerm(
     term: string,
     page: number = 1,
     sortBy: string = 'lastName',
@@ -239,8 +207,4 @@ export class PatientsService {
       deletedPatient,
     };
   }
-
-  // async restore(id: number): Promise<void> {
-  //   await this.prescriptionsRepository.restore(id);
-  // }
 }

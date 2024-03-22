@@ -9,21 +9,23 @@ export class PrescriptionsController {
 
     constructor(private readonly prescriptionsService: PrescriptionsService) { }
 
-    @Post()
-    createPrescriptions(@Body() createPrescriptionsInput: CreatePrescriptionsInput) {
-        return this.prescriptionsService.createPrescriptions(createPrescriptionsInput);
+    @Post(':id')
+    createPrescriptions(
+        @Param('id') patientId: string,
+        @Body() createPrescriptionsInput: CreatePrescriptionsInput) {
+        return this.prescriptionsService.createPrescriptions(patientId,createPrescriptionsInput);
     }
     @Post('getAll')
     getAllPrescriptions() {
         return this.prescriptionsService.getAllPrescriptions();
     }
-    @Post(':id')
+    @Post('list/:id')
     findAllPatientPrescriptions(
         @Param('id') patientId: string,
-        @Body() body: { page: number, sortBy: string , sortOrder: 'ASC' | 'DESC' }
+        @Body() body: { term: string, page: number, sortBy: string, sortOrder: 'ASC' | 'DESC' }
     ) {
-      const { page, sortBy, sortOrder } = body;
-        return this.prescriptionsService.getAllPrescriptionsByPatient(patientId, page, sortBy, sortOrder);
+        const { term = "", page, sortBy, sortOrder } = body;
+        return this.prescriptionsService.getAllPrescriptionsByPatient(patientId, term, page, sortBy, sortOrder);
     }
     //onClick from prescriptions- get prescriptionsId for patch
     @Patch('update/:id')

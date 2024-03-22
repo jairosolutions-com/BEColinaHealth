@@ -56,7 +56,7 @@ export class VitalSigns {
 
 
   //vitalSigns Table with FK patientId from Patients table
-  @ManyToOne(() => Patients, (patient) => patient.vitalSigns)
+  @ManyToOne(() => Patients, (patient) => patient.vitalsign)
   @JoinColumn({
     name: 'patientId',
   })
