@@ -25,6 +25,7 @@ import { PatientsModule } from './patients/patients.module';
 import { VitalSignsModule } from './vitalSigns/vitalSigns.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { CronjobsModule } from '../services/cronjobs/cronjobs.module';
+import { CountryModule } from './countries/countries.module';
 
 
 @Module({
@@ -54,6 +55,7 @@ import { CronjobsModule } from '../services/cronjobs/cronjobs.module';
     AppointmentsModule,
     EmergencyContactsModule,
     CompaniesModule,
+    CountryModule,
     AuthModule,
     PrescriptionsModule,
     AllergiesModule,

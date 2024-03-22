@@ -1,10 +1,19 @@
 import { ObjectType, Field, Int } from '@nestjs/graphql';
 import { Patients } from 'src/patients/entities/patients.entity';
-import { ManyToOne, JoinColumn, Column, PrimaryGeneratedColumn, Entity, UpdateDateColumn, CreateDateColumn, DeleteDateColumn, Index, OneToMany } from 'typeorm';
+import {
+  ManyToOne,
+  JoinColumn,
+  Column,
+  PrimaryGeneratedColumn,
+  Entity,
+  UpdateDateColumn,
+  CreateDateColumn,
+  DeleteDateColumn,
+  Index,
+  OneToMany,
+} from 'typeorm';
 @Entity()
 @ObjectType()
-
-
 export class Prescriptions {
   @PrimaryGeneratedColumn()
   @Field((type) => Int)
@@ -28,13 +37,15 @@ export class Prescriptions {
   @Column()
   interval: string;
 
+  @Column()
+  type: string;
+
   // @Column()
   // maintenance: boolean;
 
   @Column({ nullable: true })
   @Field(() => Int)
   patientId: number;
-
 
   @UpdateDateColumn({ name: 'updatedAt', nullable: true })
   @Field()
@@ -49,11 +60,11 @@ export class Prescriptions {
   deletedAt: string;
 
   @ManyToOne(() => Patients, patient => patient.prescriptions)
+
   @JoinColumn({ name: 'patientId' }) // FK attribute
   patient: Patients;
 
   // @OneToMany(() => MedicationLogs, medicationLogs => medicationLogs.prescriptions)
   // @Field(() => [MedicationLogs], { nullable: true })
   // medicationLogs: MedicationLogs[];
-
-} 
+}

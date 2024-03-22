@@ -2,6 +2,7 @@ import {
   All,
   ConflictException,
   Injectable,
+  InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
 import { CreateAllergiesInput } from './dto/create-allergies.dto';
@@ -9,7 +10,7 @@ import { UpdateAllergiesInput } from './dto/update-allergies.dto';
 import { Allergies } from './entities/allergies.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { IdService } from 'services/uuid/id.service';
-import { Repository, ILike } from 'typeorm';
+import { Repository, ILike, createQueryBuilder } from 'typeorm';
 import { Patients } from 'src/patients/entities/patients.entity';
 import { Brackets } from 'typeorm';
 
@@ -36,6 +37,7 @@ export class AllergiesService {
     });
     if (existingAllergy) {
       throw new ConflictException('Allergy  already exists.');
+
     }
 
     const newAllergies = new Allergies();
@@ -52,6 +54,7 @@ export class AllergiesService {
     delete result.updatedAt;
     delete result.id;
     return (result)
+
   }
 
   async getAllAllergiesByPatient(

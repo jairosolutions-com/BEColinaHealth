@@ -26,6 +26,7 @@ export class SurgeriesService {
       where: {
         typeOfSurgeries: ILike(`%${surgeryData.typeOfSurgeries}%`),
         uuid: surgeryData.uuid,
+
       },
     });
     if (existingSurgery) {

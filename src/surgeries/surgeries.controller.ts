@@ -15,6 +15,7 @@ import { SurgeriesService } from './surgeries.service';
 import { CreateSurgeriesDto } from './dto/create-surgeries.dto';
 import { UpdateSurgeriesDto } from './dto/update-surgeries.dto';
 import { AuthGuard } from 'src/auth/auth.guard';
+import { Surgeries } from './entities/surgeries.entity';
 
 @Controller('surgeries')
 @UseGuards(AuthGuard)
@@ -26,6 +27,7 @@ export class SurgeriesController {
     try {
       const surgeries =
         await this.surgeriesService.createSurgeries(patientId, createSurgeriesDto);
+
       return surgeries;
     } catch (error) {
       if (
@@ -57,5 +59,6 @@ export class SurgeriesController {
   @Patch('delete/:id')
   softDeleteSurgeries(@Param('id') id: string) {
     return this.surgeriesService.softDeleteSurgery(id);
+
   }
 }

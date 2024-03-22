@@ -9,7 +9,7 @@ export class AuthService {
     private readonly jwtService: JwtService,
   ) {}
 
-  async signIn(username: string, password: string) {
+  async signIn(username: string, password: string, tokenExpiresIn: string) {
     const user = await this.usersService.getUserByEmail(username);
     if (!user) {
       throw new UnauthorizedException('Invalid username or password');
@@ -23,11 +23,14 @@ export class AuthService {
     if (!passwordMatch) {
       throw new UnauthorizedException('Invalid username or password');
     }
-
+    const expiryPayload = {
+      email: user.email,
+      sub: user.uuid,
+    };
+    const expiryToken = this.jwtService.sign(expiryPayload, {
+      expiresIn: tokenExpiresIn,
+    });
     // Generate JWT token
-    const payload = { email: user.email, sub: user.uuid };
-    const accessToken = this.jwtService.sign(payload);
-
-    return { accessToken };
+    return { expiryToken };
   }
 }

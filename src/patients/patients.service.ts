@@ -24,6 +24,7 @@ export class PatientsService {
     private patientsRepository: Repository<Patients>,
     private idService: IdService, // Inject the IdService
   ) {}
+
   //CREATE PATIENT INFO
   async createPatients(input: CreatePatientsInput): Promise<Patients> {
     // Check if a patient with similar information already exists
@@ -85,8 +86,6 @@ export class PatientsService {
     return processedPatientList;
   }
   async getPatientFullInfoById(id: string): Promise<fullPatientInfo[]> {
-
-    
     const patientList = await this.patientsRepository.find({
       where: { uuid: id },
       relations: ['allergies'],
@@ -102,38 +101,6 @@ export class PatientsService {
   }
 
   //GET PAGED PATIENT LIST basic info for patient list with return to pages
-
-  // async getAllPatientsBasicInfo(
-  //   page: number = 1,
-  //   sortBy: string = 'lastName',
-  //   sortOrder: 'ASC' | 'DESC' = 'DESC',
-  //   perPage: number = 5,
-  // ): Promise<{
-  //   data: Patients[];
-  //   totalPages: number;
-  //   currentPage: number;
-  //   totalCount;
-  // }> {
-  //   const skip = (page - 1) * perPage;
-  //   const totalPatients = await this.patientsRepository.count();
-
-  //   const totalPages = Math.ceil(totalPatients / perPage);
-
-  //   const patientList = await this.patientsRepository.find({
-  //     select: ['uuid', 'firstName', 'lastName', 'age', 'gender', 'codeStatus'],
-  //     skip: skip,
-  //     take: perPage,
-  //     order: { [sortBy]: sortOrder },
-  //   });
-
-  //   return {
-  //     data: patientList,
-  //     totalPages: totalPages,
-  //     currentPage: page,
-  //     totalCount: totalPatients,
-  //   };
-  // }
-
   async getAllPatientsBasicInfo(
     term: string,
     page: number = 1,
@@ -161,6 +128,7 @@ export class PatientsService {
 
     //find the data
     const patientList = await this.patientsRepository.find({
+      select: ['uuid', 'firstName', 'lastName', 'age', 'gender', 'codeStatus'],
       where: [
         { firstName: ILike(searchTerm) },
         { lastName: ILike(searchTerm) },
@@ -239,8 +207,4 @@ export class PatientsService {
       deletedPatient,
     };
   }
-
-  // async restore(id: number): Promise<void> {
-  //   await this.prescriptionsRepository.restore(id);
-  // }
 }

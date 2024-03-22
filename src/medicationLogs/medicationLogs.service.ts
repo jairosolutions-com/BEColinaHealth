@@ -1,4 +1,8 @@
-import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateMedicationLogsInput } from './dto/create-medicationLogs.input';
 import { UpdateMedicationLogsInput } from './dto/update-medicationLogs.input';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -11,15 +15,13 @@ import { Patients } from 'src/patients/entities/patients.entity';
 @Injectable()
 export class MedicationLogsService {
   constructor(
-
     @InjectRepository(MedicationLogs)
     private medicationLogsRepository: Repository<MedicationLogs>,
     @InjectRepository(Patients)
     private patientsRepository: Repository<Patients>,
 
-
     private idService: IdService, // Inject the IdService
-  ) { }
+  ) {}
 
   async createMedicationLogs(patientUuid: string,medicationLogData: CreateMedicationLogsInput):
     Promise<MedicationLogs> {
@@ -107,6 +109,7 @@ export class MedicationLogsService {
     const aschMedicationList = await aschMedicationQueryBuilder.getRawMany();
     const totalPatientASCHMedication = aschMedicationList.length;
     const totalPages = Math.ceil(totalPatientASCHMedication / perPage);
+
     return {
       data: aschMedicationList,
       totalPages: totalPages,
@@ -205,20 +208,26 @@ export class MedicationLogsService {
     const medicationLogs = await this.medicationLogsRepository.find();
     return medicationLogs;
   }
-  async updateMedicationLogs(id: string,
+  async updateMedicationLogs(
+    id: string,
     updateMedicationLogsInput: UpdateMedicationLogsInput,
   ): Promise<MedicationLogs> {
     const { ...updateData } = updateMedicationLogsInput;
-    const medicationLogs = await this.medicationLogsRepository.findOne({ where: { uuid: id } });
+    const medicationLogs = await this.medicationLogsRepository.findOne({
+      where: { uuid: id },
+    });
     if (!medicationLogs) {
       throw new NotFoundException(`MedicationLogs ID-${id}  not found.`);
     }
     Object.assign(medicationLogs, updateData);
     return this.medicationLogsRepository.save(medicationLogs);
   }
-  async softDeleteMedicationLogs(id: string): Promise<{ message: string, deletedMedicationLogs: MedicationLogs }> {
+  async softDeleteMedicationLogs(
+    id: string,
+  ): Promise<{ message: string; deletedMedicationLogs: MedicationLogs }> {
     // Find the patient record by ID
     const medicationLogs = await this.medicationLogsRepository.findOne({ where: { uuid: id } });
+
     if (!medicationLogs) {
       throw new NotFoundException(`MedicationLogs ID-${id} does not exist.`);
     }
@@ -226,5 +235,9 @@ export class MedicationLogsService {
     const deletedMedicationLogs = await this.medicationLogsRepository.save(medicationLogs);
     return { message: `MedicationLogs with ID ${id} has been soft-deleted.`, deletedMedicationLogs };
 
+    return {
+      message: `MedicationLogs with ID ${id} has been soft-deleted.`,
+      deletedMedicationLogs,
+    };
   }
 }

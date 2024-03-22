@@ -3,7 +3,9 @@ import { CreateMedicationLogsInput } from './create-medicationLogs.input';
 import { InputType, Field, Int, PartialType } from '@nestjs/graphql';
 
 @InputType()
-export class UpdateMedicationLogsInput extends PartialType(CreateMedicationLogsInput) {
+export class UpdateMedicationLogsInput extends PartialType(
+  CreateMedicationLogsInput,
+) {
   @Field((type) => Int)
   id: number;
 
@@ -45,4 +47,3 @@ export class UpdateMedicationLogsInput extends PartialType(CreateMedicationLogsI
   @Field()
   deletedAt: string;
 }
-

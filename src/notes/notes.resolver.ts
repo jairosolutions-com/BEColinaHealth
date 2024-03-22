@@ -8,20 +8,20 @@
 // export class NotesResolver {
 //   constructor(private readonly notesService: NotesService) { }
 
-  // @Mutation(() => Notes)
-  // createNotes(@Args('createNotesInput') createNotesInput: CreateNotesInput) {
-  //   return this.notesService.create(createNotesInput);
-  // }
+// @Mutation(() => Notes)
+// createNotes(@Args('createNotesInput') createNotesInput: CreateNotesInput) {
+//   return this.notesService.create(createNotesInput);
+// }
 
-  // @Query(() => [Notes], { name: 'notes' })
-  // findAll() {
-  //   return this.notesService.findAll();
-  // }
+// @Query(() => [Notes], { name: 'notes' })
+// findAll() {
+//   return this.notesService.findAll();
+// }
 
-  // @Query(() => Notes, { name: 'notes' })
-  // findOne(@Args('id', { type: () => Int }) id: number) {
-  //   return this.notesService.findOne(id);
-  // }
+// @Query(() => Notes, { name: 'notes' })
+// findOne(@Args('id', { type: () => Int }) id: number) {
+//   return this.notesService.findOne(id);
+// }
 
   // @Mutation(() => Notes)
   // updateNotes(@Args('updateNotesInput') updateNotesInput: UpdateNotesInput) {
@@ -33,3 +33,8 @@
   //   return this.notesService.remove(id);
   // }
 
+
+// @Mutation(() => Notes)
+// removeNotes(@Args('id', { type: () => Int }) id: number) {
+//   return this.notesService.remove(id);
+// }
