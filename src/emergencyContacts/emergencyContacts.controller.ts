@@ -16,13 +16,13 @@ import { UpdateEmergencyContactsInput } from './dto/update-emergencyContacts.inp
 export class EmergencyContactsController {
   constructor(
     private readonly emergencyContactService: EmergencyContactsService,
-  ) {}
+  ) { }
 
   @Post()
-  createEmergencyContacts(
+  createEmergencyContacts(@Param('id') patientId: string,
     @Body() createEmergencyContactsInput: CreateEmergencyContactsInput,
   ) {
-    return this.emergencyContactService.createEmergencyContacts(
+    return this.emergencyContactService.createEmergencyContacts(patientId,
       createEmergencyContactsInput,
     );
   }
@@ -32,22 +32,22 @@ export class EmergencyContactsController {
     return this.emergencyContactService.getAllEmergencyContacts();
   }
 
-    @Post(':id')
-    findAllEmergencyContactsByPatient(
-        @Param('id') patientId: string,
-        @Body() body: { page: number, sortBy: string , sortOrder: 'ASC' | 'DESC' }
-    ) {
-      const { page, sortBy, sortOrder } = body;
-        return this.emergencyContactService.getAllEmergencyContactsByPatient(patientId, page, sortBy, sortOrder);
-    }
-    @Patch('update/:id')
-    updateEmergencyContacts(@Param('id') id: string, @Body() updateEmergencyContactsInput: UpdateEmergencyContactsInput) {
-        return this.emergencyContactService.updateEmergencyContacts(id, updateEmergencyContactsInput);
-    }
-    @Patch('delete/:id')
-    softDeleteEmergencyContacts(@Param('id') id: string) {
-        return this.emergencyContactService.softDeleteEmergencyContacts(id);
-    }
+  @Post('list/:id')
+  findAllEmergencyContactsByPatient(
+    @Param('id') patientId: string,
+    @Body() body: { term: string, page: number, sortBy: string, sortOrder: 'ASC' | 'DESC' }
+  ) {
+    const { term = "", page, sortBy, sortOrder } = body;
+    return this.emergencyContactService.getAllEmergencyContactsByPatient(patientId, term, page, sortBy, sortOrder);
+  }
+  @Patch('update/:id')
+  updateEmergencyContacts(@Param('id') id: string, @Body() updateEmergencyContactsInput: UpdateEmergencyContactsInput) {
+    return this.emergencyContactService.updateEmergencyContacts(id, updateEmergencyContactsInput);
+  }
+  @Patch('delete/:id')
+  softDeleteEmergencyContacts(@Param('id') id: string) {
+    return this.emergencyContactService.softDeleteEmergencyContacts(id);
+  }
 
 
 }

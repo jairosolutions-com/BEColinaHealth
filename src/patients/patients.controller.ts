@@ -21,30 +21,30 @@ export class PatientsController {
     return this.patientsService.getAllPatientsFullInfo();
   }
 
-  @Post('list')
-  async findAllPatientsBasicInfo(
-    @Body()
-    requestData: {
-      page: number;
-      sortBy: string;
-      sortOrder: 'ASC' | 'DESC';
-    },
-  ): Promise<{
-    data: Patients[];
-    totalPages: number;
-    currentPage: number;
-    totalCount;
-  }> {
-    const { page, sortBy, sortOrder } = requestData;
-    return this.patientsService.getAllPatientsBasicInfo(
-      page,
-      sortBy,
-      sortOrder,
-    );
-  }
+  // @Post('list')
+  // async findAllPatientsBasicInfo(
+  //   @Body()
+  //   requestData: {
+  //     page: number;
+  //     sortBy: string;
+  //     sortOrder: 'ASC' | 'DESC';
+  //   },
+  // ): Promise<{
+  //   data: Patients[];
+  //   totalPages: number;
+  //   currentPage: number;
+  //   totalCount;
+  // }> {
+  //   const { page, sortBy, sortOrder } = requestData;
+  //   return this.patientsService.getAllPatientsBasicInfo(
+  //     page,
+  //     sortBy,
+  //     sortOrder,
+  //   );
+  // }
 
-  @Post('search')
-  getPatientsByName(
+  @Post('list')
+  getPatientsByTerm(
     @Body()
     requestData: {
       term: string;
@@ -58,8 +58,8 @@ export class PatientsController {
     currentPage: number;
     totalCount;
   }> {
-    const { term, page, sortBy, sortOrder } = requestData;
-    return this.patientsService.searchAllPatientInfoByTerm(
+    const { term = "", page, sortBy, sortOrder } = requestData;
+    return this.patientsService.getAllPatientsBasicInfo(
       term,
       page,
       sortBy,

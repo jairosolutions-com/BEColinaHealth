@@ -8,20 +8,17 @@ export class VitalSignsController {
     constructor(private readonly vitalSignService: VitalSignsService) { }
 
     @Post()
-    createVitalSign(@Body() createVitalSignInput: CreateVitalSignInput) {
-        return this.vitalSignService.createVitalSign(createVitalSignInput);
+    createVitalSign(@Param('id') patientId: string,
+        @Body() createVitalSignInput: CreateVitalSignInput) {
+        return this.vitalSignService.createVitalSign(patientId,createVitalSignInput);
     }
-    @Post('getAll')
-    getAllVitalSigns() {
-        return this.vitalSignService.getAllVitalSign();
-    }
-    @Post(':id')
+    @Post('list/:id')
     findAllPatientVitalSigns(
         @Param('id') patientId: string,
-        @Body() body: { page: number, sortBy: string , sortOrder: 'ASC' | 'DESC' }
+        @Body() body: { term: string, page: number, sortBy: string, sortOrder: 'ASC' | 'DESC' }
     ) {
-      const { page, sortBy, sortOrder } = body;
-        return this.vitalSignService.getAllVitalSignsByPatient(patientId, page, sortBy, sortOrder);
+        const { term = "", page, sortBy, sortOrder } = body;
+        return this.vitalSignService.getAllVitalSignsByPatient(patientId, term, page, sortBy, sortOrder);
     }
     //onClick from prescriptions- get prescriptionsId for patch
     @Patch('update/:id')

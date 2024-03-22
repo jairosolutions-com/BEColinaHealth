@@ -48,9 +48,9 @@ export class Prescriptions {
   @Field()
   deletedAt: string;
 
-  @ManyToOne(() => Patients, patients => patients.prescriptions)
+  @ManyToOne(() => Patients, patient => patient.prescriptions)
   @JoinColumn({ name: 'patientId' }) // FK attribute
-  patients: Patients;
+  patient: Patients;
 
   // @OneToMany(() => MedicationLogs, medicationLogs => medicationLogs.prescriptions)
   // @Field(() => [MedicationLogs], { nullable: true })

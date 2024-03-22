@@ -14,74 +14,68 @@ import { UpdateAllergiesInput } from './dto/update-allergies.dto';
 
 @Controller('allergies')
 export class AllergiesController {
-//   constructor(private readonly allergiesService: AllergiesService) {}
+  constructor(private readonly allergiesService: AllergiesService) { }
+
+  @Post(':id')
+  createAllergies(@Param('id') patientId: string, @Body() createAllergiesInput: CreateAllergiesInput) {
+    return this.allergiesService.createAllergies(patientId, createAllergiesInput);
+  }
+  @Post('getAll')
+  getAllAllergies() {
+    return this.allergiesService.getAllAllergies();
+  }
+  @Post('list/:id')
+  findAllergiesByPatient(
+    @Param('id') patientId: string,
+    @Body() body: { term: string, page: number, sortBy: string, sortOrder: 'ASC' | 'DESC' }
+  ) {
+    const { term ="", page, sortBy, sortOrder } = body;
+    return this.allergiesService.getAllAllergiesByPatient(patientId, term, page, sortBy, sortOrder);
+  }
+
+  @Patch('update/:id')
+  updateAllergies(@Param('id') id: string, @Body() updateAllergiesInput: UpdateAllergiesInput) {
+    return this.allergiesService.updateAllergies(id, updateAllergiesInput);
+  }
+
+
+  @Patch('delete/:id')
+  softDeleteAllergies(@Param('id') id: string) {
+    return this.allergiesService.softDeleteAllergies(id);
+  }
+}
+// //onClick from prescriptions- get prescriptionsId for patch
+// @Patch('update/:id')
+// updateAllergies(
+//   @Param('id') id: string,
+//   @Body() updateAllergiesInput: UpdateAllergiesInput,
+// ) {
+//   return this.allergiesService.updateAllergies(id, updateAllergiesInput);
+// }
 
 //   @Post()
 //   createAllergies(@Body() createAllergiesInput: CreateAllergiesInput) {
-//     return this.allergiesService.createAllergies(createAllergiesInput);
+//       return this.allergiesService.createAllergies(createAllergiesInput);
 //   }
 //   @Post('getAll')
 //   getAllAllergies() {
-//     return this.allergiesService.getAllAllergies();
+//       return this.allergiesService.getAllAllergies();
 //   }
 //   @Post(':id')
 //   findAllPatientAllergies(
+//       @Param('id') patientId: string,
+//       @Body() body: { page: number, sortBy: string , sortOrder: 'ASC' | 'DESC' }
+//   ) {
+//       const { page, sortBy, sortOrder } = body;
+//       return this.allergiesService.getAllAllergiesByPatient(patientId, page, sortBy, sortOrder);
+// }
+// @Post(':id')
+// findAllPatientAllergies(
 //     @Param('id') patientId: string,
 //     @Query('page') page: number,
 //     @Query('sortBy') sortBy: string,
-//     @Query('sortOrder') sortOrder: 'ASC' | 'DESC',
-//   ) {
-//     return this.allergiesService.getAllAllergiesByPatient(
-//       patientId,
-//       page,
-//       sortBy,
-//       sortOrder,
-//     );
-//   }
-//   //onClick from prescriptions- get prescriptionsId for patch
-//   @Patch('update/:id')
-//   updateAllergies(
-//     @Param('id') id: string,
-//     @Body() updateAllergiesInput: UpdateAllergiesInput,
-//   ) {
-//     return this.allergiesService.updateAllergies(id, updateAllergiesInput);
-//   }
-
-//     @Post()
-//     createAllergies(@Body() createAllergiesInput: CreateAllergiesInput) {
-//         return this.allergiesService.createAllergies(createAllergiesInput);
-//     }
-//     @Post('getAll')
-//     getAllAllergies() {
-//         return this.allergiesService.getAllAllergies();
-//     }
-//     @Post(':id')
-//     findAllPatientAllergies(
-//         @Param('id') patientId: string,
-//         @Body() body: { page: number, sortBy: string , sortOrder: 'ASC' | 'DESC' }
-//     ) {
-//         const { page, sortBy, sortOrder } = body;
-//         return this.allergiesService.getAllAllergiesByPatient(patientId, page, sortBy, sortOrder);
-//     }
-//     // @Post(':id')
-//     // findAllPatientAllergies(
-//     //     @Param('id') patientId: string,
-//     //     @Query('page') page: number,
-//     //     @Query('sortBy') sortBy: string,
-//     //     @Query('sortOrder') sortOrder: 'ASC' | 'DESC',) {
-//     //     return this.allergiesService.getAllAllergiesByPatient(patientId, page, sortBy, sortOrder);
-//     // }
-//     //onClick from prescriptions- get prescriptionsId for patch
-//     @Patch('update/:id')
-//     updateAllergies(@Param('id') id: string, @Body() updateAllergiesInput: UpdateAllergiesInput) {
-//         return this.allergiesService.updateAllergies(id, updateAllergiesInput);
-//     }
-    
-
-//     @Patch('delete/:id')
-//     softDeleteAllergies(@Param('id') id: string) {
-//         return this.allergiesService.softDeleteAllergies(id);
-//     }
+//     @Query('sortOrder') sortOrder: 'ASC' | 'DESC',) {
+//     return this.allergiesService.getAllAllergiesByPatient(patientId, page, sortBy, sortOrder);
 // }
-}
+//onClick from prescriptions- get prescriptionsId for patch
 

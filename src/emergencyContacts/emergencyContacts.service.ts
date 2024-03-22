@@ -8,7 +8,7 @@ import { UpdateEmergencyContactsInput } from './dto/update-emergencyContacts.inp
 import { EmergencyContacts } from './entities/emergencyContacts.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { IdService } from 'services/uuid/id.service';
-import { ILike, Repository } from 'typeorm';
+import { Brackets, ILike, Repository } from 'typeorm';
 import { Patients } from 'src/patients/entities/patients.entity';
 
 @Injectable()
@@ -19,22 +19,26 @@ export class EmergencyContactsService {
     @InjectRepository(Patients)
     private patientsRepository: Repository<Patients>,
     private idService: IdService, // Inject the IdService
-  ) {}
-  async createEmergencyContacts(
-    input: CreateEmergencyContactsInput,
+  ) { }
+  async createEmergencyContacts(patientUuid: string,
+    emergencyContactData: CreateEmergencyContactsInput,
   ): Promise<EmergencyContacts> {
-    const existingLowercaseboth =
+    const { id: patientId } = await this.patientsRepository.findOne({
+      select: ["id"],
+      where: { uuid: patientUuid }
+    });
+    const existingEmergencyContact =
       await this.emergencyContactsRepository.findOne({
         where: {
-          firstName: ILike(`%${input.firstName}%`),
-          lastName: ILike(`%${input.lastName}%`),
-          phoneNumber: ILike(`%${input.phoneNumber}%`),
-          patientId: input.patientId,
+          firstName: ILike(`%${emergencyContactData.firstName}%`),
+          lastName: ILike(`%${emergencyContactData.lastName}%`),
+          phoneNumber: ILike(`%${emergencyContactData.phoneNumber}%`),
+          patientId: emergencyContactData.patientId,
         },
       });
-    if (existingLowercaseboth) {
+    if (existingEmergencyContact) {
       throw new ConflictException(
-        `Emergency Contact already exists for patientId ${input.patientId}`,
+        `Emergency Contact already exists for patientId ${emergencyContactData.patientId}`,
       );
     }
     const newEmergencyContacts = new EmergencyContacts();
@@ -42,32 +46,60 @@ export class EmergencyContactsService {
     const uuid = this.idService.generateRandomUUID(uuidPrefix);
     newEmergencyContacts.uuid = uuid;
 
-    Object.assign(newEmergencyContacts, input);
-    return this.emergencyContactsRepository.save(newEmergencyContacts);
+    newEmergencyContacts.uuid = uuid;
+    newEmergencyContacts.patientId = patientId;
+    Object.assign(newEmergencyContacts, emergencyContactData);
+    this.emergencyContactsRepository.save(newEmergencyContacts);
+    const savedAllergies = await this.emergencyContactsRepository.save(newEmergencyContacts);
+    const result = { ...savedAllergies };
+    delete result.patientId;
+    delete result.deletedAt;
+    delete result.updatedAt;
+    delete result.id;
+    return (result)
   }
   async getAllEmergencyContacts(): Promise<EmergencyContacts[]> {
     return this.emergencyContactsRepository.find();
   }
-  async getAllEmergencyContactsByPatient(patientUuid: string, page: number = 1, sortBy: string = 'emergencyContactsDate', sortOrder: 'ASC' | 'DESC' = 'ASC', perPage: number = 5): Promise<{ data: EmergencyContacts[], totalPages: number, currentPage: number, totalCount }> {
+  async getAllEmergencyContactsByPatient(patientUuid: string, term: string, page: number = 1, sortBy: string = 'lastName', sortOrder: 'ASC' | 'DESC' = 'ASC', perPage: number = 5): Promise<{ data: EmergencyContacts[], totalPages: number, currentPage: number, totalCount: number }> {
+    const searchTerm = `%${term}%`; // Add wildcards to the search term
+
     const skip = (page - 1) * perPage;
 
-    const { id: patientId } = await this.patientsRepository.findOne({
-      select: ["id"],
-      where: { uuid: patientUuid }
-    }); 
-
-    const totalPatientEmergencyContacts = await this.emergencyContactsRepository.count({
-      where: { patientId },
-      skip: skip,
-      take: perPage,
-    });
-
+    const emergencyContactsQueryBuilder = this.emergencyContactsRepository
+      .createQueryBuilder('contact')
+      .innerJoinAndSelect('contact.patient', 'patient')
+      .select([
+        'contact.uuid',
+        'contact.firstName',
+        'contact.lastName',
+        'contact.phoneNumber',
+        'contact.patientRelationship',
+        'contact.city',
+        'contact.zip',
+        'contact.country',
+        'patient.uuid',
+      ])
+      .where('patient.uuid = :uuid', { uuid: patientUuid })
+      .orderBy(`contact.${sortBy}`, sortOrder)
+      .skip(skip)
+      .take(perPage);
+    if (term !== "") {
+      console.log("term", term);
+      emergencyContactsQueryBuilder
+        .where(new Brackets((qb) => {
+          qb.andWhere('patient.uuid = :uuid', { uuid: patientUuid })
+        }))
+        .andWhere(new Brackets((qb) => {
+          qb.andWhere("contact.firstName ILIKE :searchTerm", { searchTerm })
+            .orWhere("contact.lastName ILIKE :searchTerm", { searchTerm })
+            .orWhere("contact.patientRelationship ILIKE :searchTerm", { searchTerm });
+        }));
+    }
+    const emergencyContactsList = await emergencyContactsQueryBuilder.getRawMany();
+    const totalPatientEmergencyContacts = await emergencyContactsQueryBuilder.getCount();
     const totalPages = Math.ceil(totalPatientEmergencyContacts / perPage);
-    const emergencyContactsList = await this.emergencyContactsRepository.find({
-      where: { patientId },
-      skip: skip,
-      take: perPage,
-    });
+
     return {
       data: emergencyContactsList,
       totalPages: totalPages,
@@ -75,6 +107,7 @@ export class EmergencyContactsService {
       totalCount: totalPatientEmergencyContacts,
     };
   }
+
 
   async updateEmergencyContacts(
     id: string,

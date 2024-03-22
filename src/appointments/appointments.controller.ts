@@ -13,22 +13,22 @@ import { UpdateAppointmentsInput } from './dto/update-appointments.input';
 
 @Controller('appointments')
 export class AppointmentsController {
-  constructor(private readonly appointmentService: AppointmentsService) {}
-  @Post()
-  createAppointments(@Body() createAppointmentsInput: CreateAppointmentsInput) {
-    return this.appointmentService.createAppointments(createAppointmentsInput);
+  constructor(private readonly appointmentService: AppointmentsService) { }
+  @Post(':id')
+  createAppointments(@Param('id') patientId: string, @Body() createAppointmentsInput: CreateAppointmentsInput) {
+    return this.appointmentService.createAppointments(patientId, createAppointmentsInput);
   }
   @Post('getAll')
   getAppointments() {
     return this.appointmentService.getAllAppointments();
   }
-  @Post(':id')
+  @Post('list/:id')
   findAllAppointmentsByPatient(
-      @Param('id') patientId: string,
-      @Body() body: { page: number, sortBy: string , sortOrder: 'ASC' | 'DESC' }
+    @Param('id') patientId: string,
+    @Body() body: { term: string, page: number, sortBy: string, sortOrder: 'ASC' | 'DESC' }
   ) {
-    const { page, sortBy, sortOrder } = body;
-    return this.appointmentService.getAllAppointmentsByPatient(patientId, page, sortBy, sortOrder);
+    const { term = "", page, sortBy, sortOrder } = body;
+    return this.appointmentService.getAllAppointmentsByPatient(patientId, term, page, sortBy, sortOrder);
 
   }
   @Patch('update/:id')
