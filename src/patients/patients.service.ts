@@ -71,7 +71,6 @@ export class PatientsService {
         'age',
         'gender',
         'codeStatus',
-        'medicalCondition',
       ],
       where: { uuid: id },
       relations: ['allergies'],
@@ -92,6 +91,8 @@ export class PatientsService {
     });
     return processedPatientList;
   }
+
+  
   async getPatientFullInfoById(id: string): Promise<fullPatientInfo[]> {
     const patientList = await this.patientsRepository.find({
       where: { uuid: id },
@@ -109,6 +110,7 @@ export class PatientsService {
     });
     return processedPatientList;
   }
+  
 
   //GET PAGED PATIENT LIST basic info for patient list with return to pages
   async getAllPatientsBasicInfo(
