@@ -71,7 +71,6 @@ export class PatientsService {
         'age',
         'gender',
         'codeStatus',
-        'medicalCondition',
       ],
       where: { uuid: id },
       relations: ['allergies'],
@@ -85,20 +84,16 @@ export class PatientsService {
     });
     return processedPatientList;
   }
-  async getPatientFullInfoById(id: string): Promise<fullPatientInfo[]> {
+
+  
+  async getPatientFullInfoById(id: string): Promise<Patients[]> {
     const patientList = await this.patientsRepository.find({
       where: { uuid: id },
       relations: ['allergies'],
     });
-
-    const processedPatientList = patientList.map((patient) => {
-      const allergies = patient.allergies
-        .map((allergies) => allergies.type)
-        .join(', ');
-      return { ...patient, allergies };
-    });
-    return processedPatientList;
+    return patientList;
   }
+  
 
   //GET PAGED PATIENT LIST basic info for patient list with return to pages
 

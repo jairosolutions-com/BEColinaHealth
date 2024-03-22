@@ -38,6 +38,9 @@ export class CreatePatientsInput {
   @Field()
   city: string;
 
+  address1: string;
+  address2: string;
+
   @Field()
   state: string;
 
