@@ -23,7 +23,7 @@ export class PatientsService {
     @InjectRepository(Patients)
     private patientsRepository: Repository<Patients>,
     private idService: IdService, // Inject the IdService
-  ) {}
+  ) { }
 
   //CREATE PATIENT INFO
   async createPatients(input: CreatePatientsInput): Promise<Patients> {
@@ -78,10 +78,17 @@ export class PatientsService {
     });
 
     const processedPatientList = patientList.map((patient) => {
-      const allergies = patient.allergies
-        .map((allergies) => allergies.type)
-        .join(', ');
-      return { ...patient, allergies };
+      // const allergies = patient.allergies
+      //   .map((allergies) => allergies.type)
+      //   .join(', ');
+      // return { ...patient, allergies };
+      const uniqueAllergyTypes = [...new Set(patient.allergies.map((allergy) => allergy.type))];
+
+      return {
+        ...patient,
+        allergies: uniqueAllergyTypes.join(', '), // Join unique allergy types into a single string
+      };
+
     });
     return processedPatientList;
   }
@@ -92,10 +99,13 @@ export class PatientsService {
     });
 
     const processedPatientList = patientList.map((patient) => {
-      const allergies = patient.allergies
-        .map((allergies) => allergies.type)
-        .join(', ');
-      return { ...patient, allergies };
+      const uniqueAllergyTypes = [...new Set(patient.allergies.map((allergy) => allergy.type))];
+
+      return {
+        ...patient,
+        allergies: uniqueAllergyTypes.join(', '), // Join unique allergy types into a single string
+      };
+
     });
     return processedPatientList;
   }

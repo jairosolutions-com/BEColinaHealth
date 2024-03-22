@@ -27,5 +27,5 @@ export class CreateAllergiesInput {
 
   @IsNotEmpty()
   @Field()
-  patientUuid: string;
+  patientId: number;
 }

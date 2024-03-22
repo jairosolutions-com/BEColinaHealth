@@ -62,8 +62,8 @@ export class VitalSignsService {
       ])
       .where('patient.uuid = :uuid', { uuid: patientUuid })
       .orderBy(`vitalsign.${sortBy}`, sortOrder)
-      .skip(skip)
-      .take(perPage);
+      .offset(skip)
+      .limit(perPage);
     if (term !== "") {
       console.log("term", term);
       vitalSignsQueryBuilder

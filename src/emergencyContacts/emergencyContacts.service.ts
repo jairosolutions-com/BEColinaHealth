@@ -82,8 +82,8 @@ export class EmergencyContactsService {
       ])
       .where('patient.uuid = :uuid', { uuid: patientUuid })
       .orderBy(`contact.${sortBy}`, sortOrder)
-      .skip(skip)
-      .take(perPage);
+      .offset(skip)
+      .limit(perPage);
     if (term !== "") {
       console.log("term", term);
       emergencyContactsQueryBuilder

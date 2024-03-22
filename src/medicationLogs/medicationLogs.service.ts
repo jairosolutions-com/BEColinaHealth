@@ -87,8 +87,8 @@ export class MedicationLogsService {
         'patient.uuid'
       ])
       .orderBy(`medicationlogs.${sortBy}`, sortOrder)
-      .skip(skip)
-      .take(perPage);
+      .offset(skip)
+      .limit(perPage);
     if (term !== "") {
       console.log("term", term);
       aschMedicationQueryBuilder
@@ -175,8 +175,8 @@ export class MedicationLogsService {
         'patient.uuid'
       ])
       .orderBy(`medicationlogs.${sortBy}`, sortOrder)
-      .skip(skip)
-      .take(perPage);
+      .offset(skip)
+      .limit(perPage);
     if (term !== "") {
       console.log("term", term);
       prnMedicationQueryBuilder

@@ -83,8 +83,8 @@ export class AppointmentsService {
           .orWhere('appointments.appointmentStatus ILIKE :searchTerm', { searchTerm });
       })
       .orderBy(`appointments.${sortBy}`, sortOrder)
-      .skip(skip)
-      .take(perPage);
+      .offset(skip)
+      .limit(perPage);
     console.log('PATIENT ID:', patientUuid);
 
     if (term !== "") {

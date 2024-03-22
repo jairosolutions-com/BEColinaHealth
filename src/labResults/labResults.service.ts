@@ -97,8 +97,8 @@ export class LabResultsService {
       ])
       .where('patient.uuid = :uuid', { uuid: patientUuid })
       .orderBy(`labResults.${sortBy}`, sortOrder)
-      .skip(skip)
-      .take(perPage);
+      .offset(skip)
+      .limit(perPage);
       if (term !== "") {
         console.log("term", term);
         labResultsQueryBuilder

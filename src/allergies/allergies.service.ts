@@ -81,24 +81,27 @@ export class AllergiesService {
         'allergies.severity',
         'allergies.reaction',
         'allergies.notes',
+        'allergies.createdAt',
         'patient.uuid',
       ])
       .where('patient.uuid = :uuid', { uuid: patientUuid })
       .orderBy(`allergies.${sortBy}`, sortOrder)
-      .skip(skip)
-      .take(perPage);
+      .offset(skip)
+      .limit(perPage);
     if (term !== "") {
       console.log("term", term);
       allergiesQueryBuilder
         .where(new Brackets((qb) => {
           qb.andWhere('patient.uuid = :uuid', { uuid: patientUuid })
+
         }))
         .andWhere(new Brackets((qb) => {
           qb.andWhere("allergies.allergen ILIKE :searchTerm", { searchTerm })
-            .orWhere("allergies.type ILIKE :searchTerm", { searchTerm})
-            .orWhere("allergies.uuid ILIKE :searchTerm", { searchTerm});
-        }));
-    } 
+            .orWhere("allergies.type ILIKE :searchTerm", { searchTerm })
+            .orWhere("allergies.uuid ILIKE :searchTerm", { searchTerm });
+        }))
+        ;
+    }
     const allergiesList = await allergiesQueryBuilder.getRawMany();
     const totalPatientAllergies = await allergiesQueryBuilder.getCount();
     const totalPages = Math.ceil(totalPatientAllergies / perPage);

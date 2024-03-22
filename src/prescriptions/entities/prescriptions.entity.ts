@@ -37,9 +37,6 @@ export class Prescriptions {
   @Column()
   interval: string;
 
-  @Column()
-  type: string;
-
   // @Column()
   // maintenance: boolean;
 

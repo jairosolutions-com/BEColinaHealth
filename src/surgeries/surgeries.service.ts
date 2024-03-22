@@ -22,18 +22,7 @@ export class SurgeriesService {
       select: ["id"],
       where: { uuid: patientUuid }
     });
-    const existingSurgery = await this.surgeriesRepository.findOne({
-      where: {
-        typeOfSurgeries: ILike(`%${surgeryData.typeOfSurgeries}%`),
-        uuid: surgeryData.uuid,
-
-      },
-    });
-    if (existingSurgery) {
-      throw new ConflictException(
-        'A Surgeries with the same type of Surgeries already exists',
-      );
-    }
+ 
     const newSurgeries = new Surgeries();
     const uuidPrefix = 'SGY-'; // Customize prefix as needed
     const uuid = this.idService.generateRandomUUID(uuidPrefix);
@@ -76,8 +65,8 @@ export class SurgeriesService {
       ])
       .where('patient.uuid = :uuid', { uuid: patientUuid })
       .orderBy(`surgeries.${sortBy}`, sortOrder)
-      .skip(skip)
-      .take(perPage);
+      .offset(skip)
+      .limit(perPage);
     if (term !== "") {
       console.log("term", term);
       surgeriesQueryBuilder
