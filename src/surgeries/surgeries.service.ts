@@ -22,7 +22,7 @@ export class SurgeriesService {
       select: ["id"],
       where: { uuid: patientUuid }
     });
- 
+
     const newSurgeries = new Surgeries();
     const uuidPrefix = 'SGY-'; // Customize prefix as needed
     const uuid = this.idService.generateRandomUUID(uuidPrefix);
@@ -41,7 +41,7 @@ export class SurgeriesService {
     patientUuid: string,
     term: string,
     page: number = 1,
-    sortBy: string = 'typeOfSurgeries',
+    sortBy: string = 'typeOfSurgery',
     sortOrder: 'ASC' | 'DESC' = 'ASC',
     perPage: number = 5
   ): Promise<{ data: Surgeries[]; totalPages: number; currentPage: number; totalCount: number }> {
@@ -57,9 +57,11 @@ export class SurgeriesService {
       .innerJoinAndSelect('surgeries.patient', 'patient')
       .select([
         'surgeries.uuid',
-        'surgeries.typeOfSurgeries',
-        'surgeries.dateOfSurgeries',
+        'surgeries.typeOfSurgery',
+        'surgeries.dateOfSurgery',
+        'surgeries.surgery',
         'surgeries.notes',
+
         'patient.uuid',
       ])
       .where('patient.uuid = :uuid', { uuid: patientUuid })
@@ -73,7 +75,7 @@ export class SurgeriesService {
           qb.andWhere('patient.uuid = :uuid', { uuid: patientUuid })
         }))
         .andWhere(new Brackets((qb) => {
-          qb.andWhere("surgeries.typeOfSurgeries ILIKE :searchTerm", { searchTerm })
+          qb.andWhere("surgeries.typeOfSurgery ILIKE :searchTerm", { searchTerm })
         }));
     }
     const surgeriesResultList = await surgeriesQueryBuilder.getRawMany();
