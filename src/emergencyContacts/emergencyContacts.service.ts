@@ -49,7 +49,6 @@ export class EmergencyContactsService {
     newEmergencyContacts.uuid = uuid;
     newEmergencyContacts.patientId = patientId;
     Object.assign(newEmergencyContacts, emergencyContactData);
-    this.emergencyContactsRepository.save(newEmergencyContacts);
     const savedAllergies = await this.emergencyContactsRepository.save(newEmergencyContacts);
     const result = { ...savedAllergies };
     delete result.patientId;

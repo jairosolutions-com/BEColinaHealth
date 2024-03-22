@@ -29,7 +29,6 @@ export class VitalSignsService {
     newVitalSign.uuid = uuid;
     newVitalSign.patientId = patientId;
     Object.assign(newVitalSign, vitalSignData);
-    this.vitalSignsRepository.save(newVitalSign);
     const savedVitalSign = await this.vitalSignsRepository.save(newVitalSign);
     const result = { ...savedVitalSign };
     delete result.patientId;

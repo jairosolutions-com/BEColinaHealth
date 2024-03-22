@@ -46,7 +46,6 @@ export class AllergiesService {
     newAllergies.uuid = uuid;
     newAllergies.patientId = patientId;
     Object.assign(newAllergies, allergiesData);
-    this.allergiesRepository.save(newAllergies);
     const savedAllergies = await this.allergiesRepository.save(newAllergies);
     const result = { ...savedAllergies };
     delete result.patientId;

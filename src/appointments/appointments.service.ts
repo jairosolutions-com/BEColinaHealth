@@ -43,7 +43,6 @@ export class AppointmentsService {
     newAppointments.uuid = uuid;
     newAppointments.patientId = patientId;
     Object.assign(newAppointments, input);
-    this.appointmentsRepository.save(newAppointments);
     const savedAppointments = await this.appointmentsRepository.save(newAppointments);
     const result = { ...savedAppointments };
     delete result.patientId;

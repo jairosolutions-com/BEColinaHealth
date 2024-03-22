@@ -50,7 +50,6 @@ export class MedicationLogsService {
     newMedicationLogs.uuid = uuid;
     newMedicationLogs.patientId = patientId;
     Object.assign(newMedicationLogs, medicationLogData);
-    this.medicationLogsRepository.save(newMedicationLogs);
     const savedVitalSign = await this.medicationLogsRepository.save(newMedicationLogs);
     const result = { ...savedVitalSign };
     delete result.patientId;

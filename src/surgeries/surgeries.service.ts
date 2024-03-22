@@ -29,7 +29,6 @@ export class SurgeriesService {
     newSurgeries.uuid = uuid;
     newSurgeries.patientId = patientId;
     Object.assign(newSurgeries, surgeryData);
-    this.surgeriesRepository.save(newSurgeries);
     const savedSurgeries = await this.surgeriesRepository.save(newSurgeries);
     const result = { ...savedSurgeries };
     delete result.patientId;
