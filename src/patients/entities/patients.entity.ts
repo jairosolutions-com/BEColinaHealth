@@ -41,6 +41,9 @@ export class Patients {
   @Column()
   lastName: string;
 
+  @Column({nullable: true})
+  middleName: string;
+
   @Column({ nullable: true })
   @Field((type) => Int)
   age: number;

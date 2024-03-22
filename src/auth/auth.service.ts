@@ -9,7 +9,7 @@ export class AuthService {
     private readonly jwtService: JwtService,
   ) {}
 
-  async signIn(username: string, password: string) {
+  async signIn(username: string, password: string, tokenExpiresIn: string) {
     const user = await this.usersService.getUserByEmail(username);
     if (!user) {
       throw new UnauthorizedException('Invalid username or password');
@@ -23,26 +23,14 @@ export class AuthService {
     if (!passwordMatch) {
       throw new UnauthorizedException('Invalid username or password');
     }
-
-    // Generate JWT token with 10-hour expiration
-    const shortExpiryPayload = {
+    const expiryPayload = {
       email: user.email,
       sub: user.uuid,
-      expType: 'short',
     };
-    const shortExpiryToken = this.jwtService.sign(shortExpiryPayload, {
-      expiresIn: '10s',
-    });
-
-    const longExpiryPayload = {
-      email: user.email,
-      sub: user.uuid,
-      expType: 'long',
-    };
-    const longExpiryToken = this.jwtService.sign(longExpiryPayload, {
-      expiresIn: '1hr',
+    const expiryToken = this.jwtService.sign(expiryPayload, {
+      expiresIn: tokenExpiresIn,
     });
     // Generate JWT token
-    return { shortExpiryToken, longExpiryToken };
+    return { expiryToken };
   }
 }

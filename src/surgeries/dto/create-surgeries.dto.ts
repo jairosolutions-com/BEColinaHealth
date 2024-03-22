@@ -4,9 +4,9 @@ export class CreateSurgeriesDto {
   @IsNotEmpty()
   uuid: string;
   @IsNotEmpty()
-  typeOfSurgeries: string;
+  typeOfSurgery: string;
   @IsNotEmpty()
-  dateOfSurgeries: Date;
+  dateOfSurgery: Date;
   @IsNotEmpty()
   surgery: string;
   notes: string;

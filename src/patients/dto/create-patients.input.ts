@@ -17,6 +17,10 @@ export class CreatePatientsInput {
   @Field()
   lastName: string;
 
+  @IsNotEmpty()
+  @Field()
+  middleName: string;
+
   @Field((type) => Int)
   age: number;
 
@@ -27,8 +31,6 @@ export class CreatePatientsInput {
   @Field()
   dateOfBirth: Date;
 
-  @Field()
-  medicalCondition: string;
 
   @Field()
   gender: string;

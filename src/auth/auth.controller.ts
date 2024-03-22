@@ -21,14 +21,11 @@ export class AuthController {
   @Post('login')
   async signIn(@Body() signInDto: SignInDto) {
     // Use SignInDto here
-    const { shortExpiryToken, longExpiryToken } = await this.authService.signIn(
+    const expiryToken = await this.authService.signIn(
       signInDto.username,
       signInDto.password,
+      signInDto.tokenExpiresIn,
     );
-    return {
-      shortExpiryToken,
-      longExpiryToken,
-    };
+    return expiryToken;
   }
 }
-  

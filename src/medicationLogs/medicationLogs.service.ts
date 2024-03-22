@@ -52,8 +52,11 @@ export class MedicationLogsService {
     newMedicationLogs.uuid = uuid;
 
     Object.assign(newMedicationLogs, input);
-    this.medicationLogsRepository.save(newMedicationLogs);
-    return newMedicationLogs;
+    const createdMedicationLogs =
+      await this.medicationLogsRepository.save(newMedicationLogs);
+    delete createdMedicationLogs.id;
+    delete createdMedicationLogs.patientId;
+    return createdMedicationLogs;
   }
 
   async getAllASCHMedicationLogsByPatient(
@@ -85,6 +88,13 @@ export class MedicationLogsService {
     const totalPages = Math.ceil(totalPatientASCHMedicationLogs / perPage);
 
     const medicationLogsList = await this.medicationLogsRepository.find({
+      select: [
+        'uuid',
+        'medicationLogsDate',
+        'medicationLogsName',
+        'notes',
+        'medicationLogStatus',
+      ],
       where: {
         patientId,
         medicationType: 'ASCH',

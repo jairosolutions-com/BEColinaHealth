@@ -21,14 +21,14 @@ export class SurgeriesService {
     private idService: IdService,
   ) {}
 
-  async createAllergies(input: CreateSurgeriesDto): Promise<Surgeries> {
+  async createSurgeries(input: CreateSurgeriesDto): Promise<Surgeries> {
     const patient = await this.patientRepository.findOne({
       where: { uuid: input.patientUuid },
     });
 
     const existingLowercaseboth = await this.surgeriesRepository.findOne({
       where: {
-        typeOfSurgeries: ILike(`%${input.typeOfSurgeries}%`),
+        typeOfSurgery: ILike(`%${input.typeOfSurgery}%`),
         patientId: patient.id,
       },
     });
@@ -52,8 +52,9 @@ export class SurgeriesService {
 
   async getAllSurgeriesByPatient(
     patientUuid: string,
+    term: string,
     page: number = 1,
-    sortBy: string = 'dateOfSurgeries',
+    sortBy: string = 'dateOfSurgery',
     sortOrder: 'ASC' | 'DESC' = 'ASC',
     perPage: number = 5,
   ): Promise<{
@@ -74,10 +75,23 @@ export class SurgeriesService {
         throw new ConflictException('Patient not found');
       }
 
+      const searchTerm = `%${term}%`; // Add wildcards to the search term
+
       const totalPatientSurgeries = await this.surgeriesRepository.count({
-        where: {
-          patientId: patient.id,
-        },
+        where: [
+          {
+            typeOfSurgery: ILike(searchTerm),
+            patientId: patient.id, // Filter by patientId
+          },
+          {
+            surgery: ILike(searchTerm),
+            patientId: patient.id, // Filter by patientId
+          },
+          {
+            uuid: ILike(`%${searchTerm}%`),
+            patientId: patient.id, // Filter by patientId
+          },
+        ],
       });
 
       console.log(totalPatientSurgeries, 'tt', patient.id);
@@ -87,8 +101,8 @@ export class SurgeriesService {
       const surgeryList = await this.surgeriesRepository.find({
         select: [
           'uuid',
-          'dateOfSurgeries',
-          'typeOfSurgeries',
+          'dateOfSurgery',
+          'typeOfSurgery',
           'surgery',
           'notes',
         ],

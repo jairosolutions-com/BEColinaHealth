@@ -23,10 +23,12 @@ export class SurgeriesController {
   constructor(private readonly surgeriesService: SurgeriesService) {}
 
   @Post()
-  async createSurgeries(@Body() createSurgeriesDto: CreateSurgeriesDto):Promise<Surgeries> {
+  async createSurgeries(
+    @Body() createSurgeriesDto: CreateSurgeriesDto,
+  ): Promise<Surgeries> {
     try {
       const surgeries =
-        await this.surgeriesService.createAllergies(createSurgeriesDto);
+        await this.surgeriesService.createSurgeries(createSurgeriesDto);
       return surgeries;
     } catch (error) {
       if (
@@ -44,19 +46,26 @@ export class SurgeriesController {
     }
   }
 
-  @Post(':id')
+  @Post('/search/:id')
   findAllPatientSurgeries(
     @Param('id') patientId: string,
-    @Body() body: { page: number; sortBy: string; sortOrder: 'ASC' | 'DESC' },
+    @Body()
+    body: {
+      term: string;
+      page: number;
+      sortBy: string;
+      sortOrder: 'ASC' | 'DESC';
+    },
   ): Promise<{
     data: Surgeries[];
     totalPages: number;
     currentPage: number;
     totalCount;
   }> {
-    const { page, sortBy, sortOrder } = body;
+    const { term, page, sortBy, sortOrder } = body;
     return this.surgeriesService.getAllSurgeriesByPatient(
       patientId,
+      term,
       page,
       sortBy,
       sortOrder,

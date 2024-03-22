@@ -23,7 +23,6 @@ export class AllergiesService {
     private idService: IdService, // Inject the IdService
   ) {}
 
-
   async createAllergies(input: CreateAllergiesInput): Promise<Allergies> {
     const patient = await this.patientsRepository.findOne({
       where: { uuid: input.patientUuid },
@@ -63,9 +62,6 @@ export class AllergiesService {
     currentPage: number;
     totalCount;
   }> {
-
-    
-
     try {
       const skip = (page - 1) * perPage;
 
@@ -88,7 +84,15 @@ export class AllergiesService {
       console.log('tt', totalPages);
 
       const AllergiesList = await this.allergiesRepository.find({
-        select: ['uuid', 'allergen', 'reaction', 'severity', 'createdAt'],
+        select: [
+          'uuid',
+          'type',
+          'allergen',
+          'reaction',
+          'severity',
+          'notes',
+          'createdAt',
+        ],
         where: { patientId: patient.id },
         skip: skip,
         take: perPage,
@@ -155,7 +159,15 @@ export class AllergiesService {
       console.log('sss', totalAllergies);
       //find the data
       const AllergiesList = await this.allergiesRepository.find({
-        select: ['uuid', 'allergen', 'reaction', 'severity', 'createdAt'],
+        select: [
+          'uuid',
+          'type',
+          'allergen',
+          'reaction',
+          'severity',
+          'notes',
+          'createdAt',
+        ],
         where: [
           {
             allergen: ILike(searchTerm),
@@ -170,6 +182,10 @@ export class AllergiesService {
         take: perPage,
         order: { [sortBy]: sortOrder },
       });
+      // // Convert createdAt to ISO string without time
+      // AllergiesList.forEach((allergy) => {
+      //   allergy.createdAt = allergy.createdAt.toString().split('T')[0];
+      // });
       return {
         data: AllergiesList,
         totalPages: totalPages,

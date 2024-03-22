@@ -19,10 +19,10 @@ export class Surgeries {
   uuid: string;
 
   @Column()
-  dateOfSurgeries: string;
+  dateOfSurgery: string;
 
   @Column()
-  typeOfSurgeries: string;
+  typeOfSurgery: string;
 
   @Column()
   surgery: string;
