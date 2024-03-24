@@ -22,7 +22,7 @@ export class SurgeriesService {
       select: ["id"],
       where: { uuid: patientUuid }
     });
- 
+
     const newSurgeries = new Surgeries();
     const uuidPrefix = 'SGY-'; // Customize prefix as needed
     const uuid = this.idService.generateRandomUUID(uuidPrefix);
@@ -60,7 +60,11 @@ export class SurgeriesService {
         'surgeries.typeOfSurgery',
         'surgeries.dateOfSurgery',
         'surgeries.surgery',
+        'surgeries.typeOfSurgery',
+        'surgeries.dateOfSurgery',
+        'surgeries.surgery',
         'surgeries.notes',
+
         'patient.uuid',
       ])
       .where('patient.uuid = :uuid', { uuid: patientUuid })
