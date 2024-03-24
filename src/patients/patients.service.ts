@@ -23,7 +23,7 @@ export class PatientsService {
     @InjectRepository(Patients)
     private patientsRepository: Repository<Patients>,
     private idService: IdService, // Inject the IdService
-  ) { }
+  ) {}
 
   //CREATE PATIENT INFO
   async createPatients(input: CreatePatientsInput): Promise<Patients> {
@@ -64,14 +64,7 @@ export class PatientsService {
   //GET ONE  PATIENT INFORMATION VIA ID
   async getPatientOverviewById(id: string): Promise<ProcessedPatient[]> {
     const patientList = await this.patientsRepository.find({
-      select: [
-        'uuid',
-        'firstName',
-        'lastName',
-        'age',
-        'gender',
-        'codeStatus',
-      ],
+      select: ['uuid', 'firstName', 'lastName', 'age', 'gender', 'codeStatus'],
       where: { uuid: id },
       relations: ['allergies'],
     });
@@ -81,18 +74,18 @@ export class PatientsService {
       //   .map((allergies) => allergies.type)
       //   .join(', ');
       // return { ...patient, allergies };
-      const uniqueAllergyTypes = [...new Set(patient.allergies.map((allergy) => allergy.type))];
+      const uniqueAllergyTypes = [
+        ...new Set(patient.allergies.map((allergy) => allergy.type)),
+      ];
 
       return {
         ...patient,
         allergies: uniqueAllergyTypes.join(', '), // Join unique allergy types into a single string
       };
-
     });
     return processedPatientList;
   }
 
-  
   async getPatientFullInfoById(id: string): Promise<fullPatientInfo[]> {
     const patientList = await this.patientsRepository.find({
       where: { uuid: id },
@@ -100,17 +93,24 @@ export class PatientsService {
     });
 
     const processedPatientList = patientList.map((patient) => {
-      const uniqueAllergyTypes = [...new Set(patient.allergies.map((allergy) => allergy.type))];
+      const uniqueAllergyTypes = [
+        ...new Set(patient.allergies.map((allergy) => allergy.type)),
+      ];
 
+      
+    // Creating a copy of patient object to avoid mutating original data
+    const processedPatient = { ...patient };
+    
+    // Deleting the uuid property from the copied object
+    delete processedPatient.id;
       return {
-        ...patient,
+        ...processedPatient,
         allergies: uniqueAllergyTypes.join(', '), // Join unique allergy types into a single string
       };
-
     });
+    console.log(processedPatientList,"pp")
     return processedPatientList;
   }
-  
 
   //GET PAGED PATIENT LIST basic info for patient list with return to pages
   async getAllPatientsBasicInfo(
@@ -118,7 +118,7 @@ export class PatientsService {
     page: number = 1,
     sortBy: string = 'lastName',
     sortOrder: 'ASC' | 'DESC' = 'DESC',
-    perPage: number = 5,
+    perPage: number = 8,
   ): Promise<{
     data: Patients[];
     totalPages: number;

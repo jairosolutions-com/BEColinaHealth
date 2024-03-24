@@ -97,7 +97,11 @@ export class AllergiesService {
         .andWhere(new Brackets((qb) => {
           qb.andWhere("allergies.allergen ILIKE :searchTerm", { searchTerm })
             .orWhere("allergies.type ILIKE :searchTerm", { searchTerm })
-            .orWhere("allergies.uuid ILIKE :searchTerm", { searchTerm });
+            .orWhere("allergies.uuid ILIKE :searchTerm", { searchTerm })
+            .orWhere("allergies.severity ILIKE :searchTerm", { searchTerm })
+            .orWhere("allergies.reaction ILIKE :searchTerm", { searchTerm })
+            .orWhere("allergies.notes ILIKE :searchTerm", { searchTerm })
+            .orWhere("allergies.allergen ILIKE :searchTerm", { searchTerm });
         }))
         ;
     }
