@@ -13,35 +13,35 @@ import { UpdateMedicationLogsInput } from './dto/update-medicationLogs.input';
 
 @Controller('medication-logs')
 export class MedicationLogsController {
-  constructor(private readonly medicationLogsService: MedicationLogsService) {}
+  constructor(private readonly medicationLogsService: MedicationLogsService) { }
 
-    @Post(':id')
-    createMedicationLogs(@Param('id') patientId: string,
-        @Body() createMedicationLogsInput: CreateMedicationLogsInput) {
-        return this.medicationLogsService.createMedicationLogs(patientId,createMedicationLogsInput);
-    }
-    @Post('getAll')
-    getAllMedicationLogs() {
-        return this.medicationLogsService.getAllMedicationLogs();
-    }
+  @Post(':id')
+  createMedicationLogs(@Param('id') patientId: string,
+    @Body() createMedicationLogsInput: CreateMedicationLogsInput) {
+    return this.medicationLogsService.createMedicationLogs(patientId, createMedicationLogsInput);
+  }
+  @Post('get/all')
+  getAllMedicationLogs() {
+    return this.medicationLogsService.getAllMedicationLogs();
+  }
 
-    @Post(':id/asch')
-    findAllPatientASSMedicationLogs(
-        @Param('id') patientId: string,
-        @Body() body: { term: string, page: number, sortBy: string, sortOrder: 'ASC' | 'DESC' }
-    ) {
-        const { term = "", page, sortBy, sortOrder } = body;
-        return this.medicationLogsService.getAllASCHMedicationLogsByPatient(patientId, term, page, sortBy, sortOrder);
-    }
+  @Post(':id/asch')
+  findAllPatientASSMedicationLogs(
+    @Param('id') patientId: string,
+    @Body() body: { term: string, page: number, sortBy: string, sortOrder: 'ASC' | 'DESC' }
+  ) {
+    const { term = "", page, sortBy, sortOrder } = body;
+    return this.medicationLogsService.getAllASCHMedicationLogsByPatient(patientId, term, page, sortBy, sortOrder);
+  }
 
-    @Post(':id/prn')
-    findAllPatientPRNMedicationLogs(
-        @Param('id') patientId: string,
-        @Body() body: { term: string, page: number, sortBy: string, sortOrder: 'ASC' | 'DESC' }
-    ) {
-        const { term = "", page, sortBy, sortOrder } = body;
-        return this.medicationLogsService.getAllPRNMedicationLogsByPatient(patientId, term, page, sortBy, sortOrder);
-    }
+  @Post(':id/prn')
+  findAllPatientPRNMedicationLogs(
+    @Param('id') patientId: string,
+    @Body() body: { term: string, page: number, sortBy: string, sortOrder: 'ASC' | 'DESC' }
+  ) {
+    const { term = "", page, sortBy, sortOrder } = body;
+    return this.medicationLogsService.getAllPRNMedicationLogsByPatient(patientId, term, page, sortBy, sortOrder);
+  }
 
 
   //can delete both asch and prn

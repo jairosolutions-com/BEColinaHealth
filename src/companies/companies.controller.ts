@@ -30,7 +30,7 @@ export class CompaniesController {
     return this.companyService.searchCompanies(keyword, page, limit);
   }
 
-  @Post('getAll')
+  @Post('get/all')
   async getAllCompanies(
     @Query('page') page: number = 1,
     @Query('limit') limit: number = 10,

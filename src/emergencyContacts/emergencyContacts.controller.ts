@@ -27,7 +27,7 @@ export class EmergencyContactsController {
     );
   }
 
-  @Post('getAll')
+  @Post('get/all')
   getEmergencyContacts() {
     return this.emergencyContactService.getAllEmergencyContacts();
   }

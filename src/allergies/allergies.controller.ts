@@ -21,7 +21,7 @@ export class AllergiesController {
   createAllergies(@Param('id') patientId: string, @Body() createAllergiesInput: CreateAllergiesInput) {
     return this.allergiesService.createAllergies(patientId, createAllergiesInput);
   }
-  @Post('getAll')
+  @Post('get/all')
   getAllAllergies() {
     return this.allergiesService.getAllAllergies();
   }
@@ -30,7 +30,7 @@ export class AllergiesController {
     @Param('id') patientId: string,
     @Body() body: { term: string, page: number, sortBy: string, sortOrder: 'ASC' | 'DESC' }
   ) {
-    const { term ="", page, sortBy, sortOrder } = body;
+    const { term = "", page, sortBy, sortOrder } = body;
     return this.allergiesService.getAllAllergiesByPatient(patientId, term, page, sortBy, sortOrder);
   }
 

@@ -19,17 +19,17 @@ export class LabResultsController {
         @Body() createLabResultInput: CreateLabResultInput) {
         return this.labResultsService.createLabResults(patientId, createLabResultInput);
     }
-    @Post('getAll')
+    @Post('get/all')
     getLabResults() {
         return this.labResultsService.getAllLabResults();
     }
     @Post('list/:id')
     findAllLabResultsByPatient(
         @Param('id') patientId: string,
-        @Body() body: {term: string, page: number, sortBy: string, sortOrder: 'ASC' | 'DESC' }
+        @Body() body: { term: string, page: number, sortBy: string, sortOrder: 'ASC' | 'DESC' }
     ) {
-        const { term ="", page, sortBy, sortOrder } = body;
-        return this.labResultsService.getAllLabResultsByPatient( term, patientId, page, sortBy, sortOrder);
+        const { term = "", page, sortBy, sortOrder } = body;
+        return this.labResultsService.getAllLabResultsByPatient(term, patientId, page, sortBy, sortOrder);
     }
     @Patch('update/:id')
     updateLabResults(@Param('id') id: string, @Body() updateLabResultInput: UpdateLabResultInput) {
@@ -41,4 +41,4 @@ export class LabResultsController {
     }
 
 }
- 
+

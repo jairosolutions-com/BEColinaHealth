@@ -13,11 +13,17 @@ export class PrescriptionsController {
     createPrescriptions(
         @Param('id') patientId: string,
         @Body() createPrescriptionsInput: CreatePrescriptionsInput) {
-        return this.prescriptionsService.createPrescriptions(patientId,createPrescriptionsInput);
+        return this.prescriptionsService.createPrescriptions(patientId, createPrescriptionsInput);
     }
-    @Post('getAll')
-    getAllPrescriptions() {
-        return this.prescriptionsService.getAllPrescriptions();
+    @Post('get/all')
+    async getAllPrescriptions() {
+        try {
+            const prescriptions = await this.prescriptionsService.getAllPrescriptions();
+            return { success: true, data: prescriptions };
+        } catch (error) {
+            // Handle any errors that occur during the operation
+            return { success: false, message: error.message };
+        }
     }
     @Post('list/:id')
     findAllPatientPrescriptions(

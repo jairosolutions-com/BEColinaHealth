@@ -19,7 +19,7 @@ export class PrescriptionsService {
     private idService: IdService, // Inject the IdService
   ) { }
   //CREATE Prescriptions INFO
-  async createPrescriptions(patientUuid: string,prescriptionData: CreatePrescriptionsInput): Promise<Prescriptions> {
+  async createPrescriptions(patientUuid: string, prescriptionData: CreatePrescriptionsInput): Promise<Prescriptions> {
     const { id: patientId } = await this.patientsRepository.findOne({
       select: ["id"],
       where: { uuid: patientUuid }
@@ -79,9 +79,9 @@ export class PrescriptionsService {
         'patient.uuid',
       ])
       .where('patient.uuid = :uuid', { uuid: patientUuid })
-      .orderBy(`prescriptions.${sortBy}`, sortOrder)
-      .skip(skip)
-      .take(perPage);
+      .orderBy(`${sortBy}`, sortOrder)
+      .offset(skip)
+      .limit(perPage);
     if (term !== "") {
       console.log("term", term);
       prescriptionsQueryBuilder
@@ -117,6 +117,7 @@ export class PrescriptionsService {
       ;
   }
   async getAllPrescriptions(): Promise<Prescriptions[]> {
+
     const prescriptions = await this.prescriptionsRepository.find();
     return prescriptions;
   }

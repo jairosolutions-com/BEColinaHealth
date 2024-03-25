@@ -18,7 +18,7 @@ export class AppointmentsController {
   createAppointments(@Param('id') patientId: string, @Body() createAppointmentsInput: CreateAppointmentsInput) {
     return this.appointmentService.createAppointments(patientId, createAppointmentsInput);
   }
-  @Post('getAll')
+  @Post('get/all')
   getAppointments() {
     return this.appointmentService.getAllAppointments();
   }
