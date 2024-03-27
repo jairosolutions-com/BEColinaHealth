@@ -142,7 +142,7 @@ export class NotesService {
       delete deletedNotes.patientId;
       delete deletedNotes.id;
     return {
-      message: `Notes with ID ${id} has been soft-deleted.`,
+      message: `Note with ID ${id} has been soft-deleted.`,
       deletedNotes,
     };
   }
