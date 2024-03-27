@@ -10,7 +10,7 @@ import { UpdateAllergiesInput } from './dto/update-allergies.dto';
 import { Allergies } from './entities/allergies.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { IdService } from 'services/uuid/id.service';
-import { Repository, ILike, createQueryBuilder } from 'typeorm';
+import { Repository, ILike, createQueryBuilder, Like } from 'typeorm';
 import { Patients } from 'src/patients/entities/patients.entity';
 import { Brackets } from 'typeorm';
 
@@ -31,12 +31,14 @@ export class AllergiesService {
     });
     const existingAllergy = await this.allergiesRepository.findOne({
       where: {
-        allergen: ILike(`%${allergiesData.allergen}%`),
-        patientId: allergiesData.patientId,
+        allergen: Like(`%${allergiesData.allergen}%`),
+        type: Like(`%${allergiesData.type}%`),
+        patientId: patientId,
       },
     });
+    console.log(allergiesData.patientId,'patientId')
     if (existingAllergy) {
-      throw new ConflictException('Allergy  already exists.');
+      throw new ConflictException('Allergy with the same type already exists.');
 
     }
 
@@ -115,10 +117,12 @@ export class AllergiesService {
       totalCount: totalPatientAllergies,
     };
   }
+
   async getAllAllergies(): Promise<Allergies[]> {
     const allergies = await this.allergiesRepository.find();
     return allergies;
   }
+
   async updateAllergies(
     id: string,
     updateAllergiesInput: UpdateAllergiesInput,
@@ -133,6 +137,7 @@ export class AllergiesService {
     Object.assign(allergies, updateData);
     return this.allergiesRepository.save(allergies);
   }
+  
   async softDeleteAllergies(
     id: string,
   ): Promise<{ message: string; deletedAllergies: Allergies }> {

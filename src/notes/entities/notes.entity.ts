@@ -3,11 +3,14 @@ import { Patients } from 'src/patients/entities/patients.entity';
 
 import {
   Column,
+  CreateDateColumn,
+  DeleteDateColumn,
   Entity,
   JoinColumn,
   ManyToOne,
   PrimaryColumn,
   PrimaryGeneratedColumn,
+  UpdateDateColumn,
 } from 'typeorm';
 
 @Entity()
@@ -21,23 +24,27 @@ export class Notes {
   @Field()
   uuid: string;
 
-  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+  @Column()
   @Field()
-  date: Date;
+  subject: string;
 
   @Column()
   @Field()
   notes: string;
 
   @Column({ nullable: true })
+  @Field(() => Int)
+  patientId: number;
+
+  @UpdateDateColumn({ nullable: true })
   @Field()
   updatedAt: string;
 
-  @Column({ nullable: true })
+  @CreateDateColumn({ nullable: true })
   @Field()
   createdAt: string;
 
-  @Column({ nullable: true })
+  @DeleteDateColumn({ nullable: true })
   @Field()
   deletedAt: string;
 
