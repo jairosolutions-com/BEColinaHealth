@@ -35,7 +35,7 @@ export class Patients {
   @Column()
   uuid: string;
 
-  @Column({ nullable: true })
+  @Column()
   firstName: string;
 
   @Column()
@@ -79,7 +79,7 @@ export class Patients {
   @Column({nullable: true})
   address2: string;
 
-  @Column()
+  @Column({ nullable: true })
   phoneNo: string;
 
 

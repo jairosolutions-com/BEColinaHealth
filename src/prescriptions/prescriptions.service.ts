@@ -3,7 +3,7 @@ import { CreatePrescriptionsInput } from './dto/create-prescriptions.input';
 import { UpdatePrescriptionsInput } from './dto/update-prescriptions.input';
 import { InjectRepository } from '@nestjs/typeorm';
 import { create } from 'domain';
-import { Brackets, ILike, Repository } from 'typeorm';
+import { Brackets, ILike, Like, Repository } from 'typeorm';
 import { Prescriptions } from './entities/prescriptions.entity';
 import { IdService } from 'services/uuid/id.service'; // 
 import { Patients } from 'src/patients/entities/patients.entity';
@@ -26,11 +26,8 @@ export class PrescriptionsService {
     });
     const existingPrescriptions = await this.prescriptionsRepository.findOne({
       where: {
-        name: ILike(`%${prescriptionData.name}%`),
-        dosage: ILike(`%${prescriptionData.dosage}%`),
-        interval: ILike(`%${prescriptionData.interval}%`),
-        status: ILike(`%${prescriptionData.status}%`),
-        patientId: (prescriptionData.patientId)
+        name: Like(`%${prescriptionData.name}%`),
+        patientId: patientId
       },
     });
 
