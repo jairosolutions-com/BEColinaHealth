@@ -148,4 +148,31 @@ export class PrescriptionsService {
     return { message: `Prescriptions with ID ${id} has been soft-deleted.`, deletedPrescriptions };
 
   }
+
+
+  //for medical history logs scheduled
+
+  async getAllPrescriptionsByPatientForSchedMed(patientUuid: string): Promise<{ data: Prescriptions[]}> {
+    
+    const prescriptionsQueryBuilder = this.prescriptionsRepository
+      .createQueryBuilder('prescriptions')
+      .leftJoinAndSelect('prescriptions.patient', 'patient')
+      .select([
+        'prescriptions.uuid',
+        'prescriptions.name',
+        'prescriptions.status',
+        'prescriptions.dosage',
+        'prescriptions.frequency',
+        'prescriptions.interval',
+        'patient.uuid',
+      ])
+      .where('patient.uuid = :uuid', { uuid: patientUuid })
+      .orderBy('prescriptions.name', 'ASC');
+  
+    // Get lab results
+    const prescriptionResultList = await prescriptionsQueryBuilder.getRawMany();
+    return {
+      data: prescriptionResultList,
+    };
+  }
 }

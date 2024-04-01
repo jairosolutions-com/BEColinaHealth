@@ -20,20 +20,23 @@ import { Surgeries } from './entities/surgeries.entity';
 @Controller('surgeries')
 @UseGuards(AuthGuard)
 export class SurgeriesController {
-  constructor(private readonly surgeriesService: SurgeriesService) { }
+  constructor(private readonly surgeriesService: SurgeriesService) {}
   @Post(':id')
-  async createSurgeries(@Param('id') patientId: string,
-    @Body() createSurgeriesDto: CreateSurgeriesDto) {
+  async createSurgeries(
+    @Param('id') patientId: string,
+    @Body() createSurgeriesDto: CreateSurgeriesDto,
+  ) {
     try {
-      const surgeries =
-        await this.surgeriesService.createSurgeries(patientId, createSurgeriesDto);
+      const surgeries = await this.surgeriesService.createSurgeries(
+        patientId,
+        createSurgeriesDto,
+      );
 
       return surgeries;
     } catch (error) {
       if (
         error.message === 'Patient not found' ||
-        error.message ===
-        'A Surgeries with the same type of Surgeries already exists'
+        error.message === 'Surgery with the same type already exists.'
       ) {
         throw new ConflictException(error.message);
       } else {
@@ -47,18 +50,32 @@ export class SurgeriesController {
   @Post('list/:id')
   findAllSurgeriesByPatient(
     @Param('id') patientId: string,
-    @Body() body: { term: string, page: number, sortBy: string, sortOrder: 'ASC' | 'DESC' }
+    @Body()
+    body: {
+      term: string;
+      page: number;
+      sortBy: string;
+      sortOrder: 'ASC' | 'DESC';
+    },
   ) {
-    const { term = "", page, sortBy, sortOrder } = body;
-    return this.surgeriesService.getAllSurgeryByPatient(patientId, term, page, sortBy, sortOrder);
+    const { term = '', page, sortBy, sortOrder } = body;
+    return this.surgeriesService.getAllSurgeryByPatient(
+      patientId,
+      term,
+      page,
+      sortBy,
+      sortOrder,
+    );
   }
   @Patch('update/:id')
-  updateSurgery(@Param('id') id: string, @Body() updateSurgeriesDto: UpdateSurgeriesDto) {
+  updateSurgery(
+    @Param('id') id: string,
+    @Body() updateSurgeriesDto: UpdateSurgeriesDto,
+  ) {
     return this.surgeriesService.updateSurgery(id, updateSurgeriesDto);
   }
   @Patch('delete/:id')
   softDeleteSurgeries(@Param('id') id: string) {
     return this.surgeriesService.softDeleteSurgery(id);
-
   }
 }

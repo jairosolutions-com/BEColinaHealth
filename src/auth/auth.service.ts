@@ -12,10 +12,9 @@ export class AuthService {
   async signIn(username: string, password: string, tokenExpiresIn: string) {
     const user = await this.usersService.getUserByEmail(username);
     if (!user) {
+      
       throw new UnauthorizedException('Invalid username or password');
     }
-
-    // Verify password
     const passwordMatch = await this.usersService.verifyPassword(
       user,
       password,
@@ -23,6 +22,9 @@ export class AuthService {
     if (!passwordMatch) {
       throw new UnauthorizedException('Invalid username or password');
     }
+
+    // Verify password
+   
     const expiryPayload = {
       email: user.email,
       sub: user.uuid,

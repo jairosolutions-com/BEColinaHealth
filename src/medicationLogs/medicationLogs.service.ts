@@ -85,6 +85,7 @@ export class MedicationLogsService {
         'medicationlogs.medicationLogStatus',
         'patient.uuid'
       ])
+      .where('patient.uuid = :uuid', { uuid: patientUuid })
       .orderBy(`medicationlogs.${sortBy}`, sortOrder)
       .offset(skip)
       .limit(perPage);
@@ -106,7 +107,7 @@ export class MedicationLogsService {
         .andWhere('medicationlogs.medicationType = :medicationType', { medicationType: 'ASCH' });
     }
     const aschMedicationList = await aschMedicationQueryBuilder.getRawMany();
-    const totalPatientASCHMedication = aschMedicationList.length;
+    const totalPatientASCHMedication = await aschMedicationQueryBuilder.getCount();
     const totalPages = Math.ceil(totalPatientASCHMedication / perPage);
 
     return {

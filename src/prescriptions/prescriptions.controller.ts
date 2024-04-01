@@ -43,4 +43,16 @@ export class PrescriptionsController {
     softDeletePrescriptions(@Param('id') id: string) {
         return this.prescriptionsService.softDeletePrescriptions(id);
     }
+
+
+    //for sched med logs
+
+    @Post('sched-meds-name/:id')
+    getAllPrescriptionsByPatientForSchedMed(
+        @Param('id') patientId: string,
+       
+    ) {
+        return this.prescriptionsService.getAllPrescriptionsByPatientForSchedMed(patientId);
+    }
+    
 }

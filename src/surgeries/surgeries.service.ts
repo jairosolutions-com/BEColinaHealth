@@ -8,7 +8,7 @@ import { CreateSurgeriesDto } from './dto/create-surgeries.dto';
 import { UpdateSurgeriesDto } from './dto/update-surgeries.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Surgeries } from './entities/surgeries.entity';
-import { Brackets, ILike, Repository } from 'typeorm';
+import { Brackets, ILike, Like, Repository } from 'typeorm';
 import { Patients } from 'src/patients/entities/patients.entity';
 import { IdService } from 'services/uuid/id.service';
 
@@ -30,6 +30,18 @@ export class SurgeriesService {
       select: ['id'],
       where: { uuid: patientUuid },
     });
+
+    const existingSurgery = await this.surgeriesRepository.findOne({
+      where: {
+        typeOfSurgery: Like(`%${surgeryData.typeOfSurgery}%`),
+        surgery: Like(`%${surgeryData.surgery}%`),
+        patientId: patientId,
+      },
+    });
+    console.log(patientId, 'patientId');
+    if (existingSurgery) {
+      throw new ConflictException('Surgery with the same type already exists.');
+    }
 
     const newSurgeries = new Surgeries();
     const uuidPrefix = 'SGY-'; // Customize prefix as needed
@@ -127,7 +139,7 @@ export class SurgeriesService {
       throw new NotFoundException(`Surgery ID-${id}  not found.`);
     }
     Object.assign(surgeries, updateData);
-    const updatedSurgery= await this.surgeriesRepository.save(surgeries);
+    const updatedSurgery = await this.surgeriesRepository.save(surgeries);
     delete updatedSurgery.patientId;
     delete updatedSurgery.id;
     return updatedSurgery;

@@ -7,7 +7,7 @@ export class CreateSurgeriesDto {
   uuid: string;
   @Field()
   @IsNotEmpty()
-  typeOfSurgeries: string;
+  typeOfSurgery: string;
   @Field()
   @IsNotEmpty()
   dateOfSurgery: Date;
@@ -17,5 +17,5 @@ export class CreateSurgeriesDto {
   notes: string;
   @Field()
   @IsNotEmpty()
-  patientUuid: string;
+  patientId: number;
 }
