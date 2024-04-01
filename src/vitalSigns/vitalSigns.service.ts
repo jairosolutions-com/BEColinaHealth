@@ -17,11 +17,14 @@ export class VitalSignsService {
     private patientsRepository: Repository<Patients>,
 
     private idService: IdService, // Inject the IdService
-  ) { }
-  async createVitalSign(patientUuid: string, vitalSignData: CreateVitalSignInput): Promise<VitalSigns> {
+  ) {}
+  async createVitalSign(
+    patientUuid: string,
+    vitalSignData: CreateVitalSignInput,
+  ): Promise<VitalSigns> {
     const { id: patientId } = await this.patientsRepository.findOne({
-      select: ["id"],
-      where: { uuid: patientUuid }
+      select: ['id'],
+      where: { uuid: patientUuid },
     });
     const newVitalSign = new VitalSigns();
     const uuidPrefix = 'VTL-'; // Customize prefix as needed
@@ -35,14 +38,27 @@ export class VitalSignsService {
     delete result.deletedAt;
     delete result.updatedAt;
     delete result.id;
-    return (result)
+    return result;
   }
   //PAGED vitalSign list PER PATIENT
-  async getAllVitalSignsByPatient(patientUuid: string, term: string,
-    page: number = 1, sortBy: string = 'lastName', sortOrder: 'ASC' | 'DESC' = 'ASC', perPage: number = 5): Promise<{ data: VitalSigns[], totalPages: number, currentPage: number, totalCount }> {
+  async getAllVitalSignsByPatient(
+    patientUuid: string,
+    term: string,
+    page: number = 1,
+    sortBy: string = 'lastName',
+    sortOrder: 'ASC' | 'DESC' = 'ASC',
+    perPage: number = 5,
+  ): Promise<{
+    data: VitalSigns[];
+    totalPages: number;
+    currentPage: number;
+    totalCount;
+  }> {
     const searchTerm = `%${term}%`; // Add wildcards to the search term
     const skip = (page - 1) * perPage;
-    const patientExists = await this.patientsRepository.findOne({ where: { uuid: patientUuid } });
+    const patientExists = await this.patientsRepository.findOne({
+      where: { uuid: patientUuid },
+    });
     if (!patientExists) {
       throw new NotFoundException('Patient not found');
     }
@@ -51,28 +67,39 @@ export class VitalSignsService {
       .innerJoinAndSelect('vitalsign.patient', 'patient')
       .select([
         'vitalsign.uuid',
-        'vitalsign.date',
-        'vitalsign.time',
         'vitalsign.bloodPressure',
         'vitalsign.heartRate',
         'vitalsign.temperature',
         'vitalsign.respiratoryRate',
+        'vitalsign.createdAt',
         'patient.uuid',
       ])
       .where('patient.uuid = :uuid', { uuid: patientUuid })
       .orderBy(`vitalsign.${sortBy}`, sortOrder)
       .offset(skip)
       .limit(perPage);
-    if (term !== "") {
-      console.log("term", term);
+    if (term !== '') {
+      console.log('term', term);
       vitalSignsQueryBuilder
-        .where(new Brackets((qb) => {
-          qb.andWhere('patient.uuid = :uuid', { uuid: patientUuid })
-        }))
-        .andWhere(new Brackets((qb) => {
-          qb.andWhere("vitalsign.uuid ILIKE :searchTerm", { searchTerm })
-            .orWhere("vitalsign.date ILIKE :searchTerm", { searchTerm })
-        }));
+        .where(
+          new Brackets((qb) => {
+            qb.andWhere('patient.uuid = :uuid', { uuid: patientUuid });
+          }),
+        )
+        .andWhere(
+          new Brackets((qb) => {
+            qb.andWhere('vitalsign.uuid ILIKE :searchTerm', { searchTerm })
+              .orWhere('vitalsign.bloodPressure ILIKE :searchTerm', {
+                searchTerm,
+              })
+              .orWhere('vitalsign.temperature ILIKE :searchTerm', {
+                searchTerm,
+              })
+              .orWhere('vitalsign.respiratoryRate ILIKE :searchTerm', {
+                searchTerm,
+              });
+          }),
+        );
     }
     const vitalSignsResultList = await vitalSignsQueryBuilder.getRawMany();
     const totalPatientVitalSign = await vitalSignsQueryBuilder.getCount();
@@ -84,25 +111,39 @@ export class VitalSignsService {
       totalCount: totalPatientVitalSign,
     };
   }
-  async updateVitalSign(id: string,
+  async updateVitalSign(
+    id: string,
     updateVitalSignInput: UpdateVitalSignInput,
   ): Promise<VitalSigns> {
     const { ...updateData } = updateVitalSignInput;
-    const prescriptions = await this.vitalSignsRepository.findOne({ where: { uuid: id } });
+    const prescriptions = await this.vitalSignsRepository.findOne({
+      where: { uuid: id },
+    });
     if (!prescriptions) {
       throw new NotFoundException(`VitalSign  ID-${id}  not found.`);
     }
     Object.assign(prescriptions, updateData);
-    return this.vitalSignsRepository.save(prescriptions);
+    const updatedVitalSigns = await this.vitalSignsRepository.save(prescriptions);
+    delete updatedVitalSigns.patientId;
+    delete updatedVitalSigns.deletedAt;
+    delete updatedVitalSigns.id;
+    return updatedVitalSigns;
   }
-  async softDeleteVitalSign(id: string): Promise<{ message: string, deletedVitalSign: VitalSigns }> {
-    const prescriptions = await this.vitalSignsRepository.findOne({ where: { uuid: id } });
+  async softDeleteVitalSign(
+    id: string,
+  ): Promise<{ message: string; deletedVitalSign: VitalSigns }> {
+    const prescriptions = await this.vitalSignsRepository.findOne({
+      where: { uuid: id },
+    });
     if (!prescriptions) {
       throw new NotFoundException(`Prescriptions ID-${id} does not exist.`);
     }
     prescriptions.deletedAt = new Date().toISOString();
-    const deletedVitalSign = await this.vitalSignsRepository.save(prescriptions);
-    return { message: `Prescriptions with ID ${id} has been soft-deleted.`, deletedVitalSign };
-
+    const deletedVitalSign =
+      await this.vitalSignsRepository.save(prescriptions);
+    return {
+      message: `Prescriptions with ID ${id} has been soft-deleted.`,
+      deletedVitalSign,
+    };
   }
 }

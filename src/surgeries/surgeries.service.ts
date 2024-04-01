@@ -1,4 +1,9 @@
-import { ConflictException, Injectable, NotFoundException, Patch } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+  Patch,
+} from '@nestjs/common';
 import { CreateSurgeriesDto } from './dto/create-surgeries.dto';
 import { UpdateSurgeriesDto } from './dto/update-surgeries.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -15,12 +20,15 @@ export class SurgeriesService {
     @InjectRepository(Patients)
     private readonly patientsRepository: Repository<Patients>,
     private idService: IdService,
-  ) { }
+  ) {}
 
-  async createSurgeries(patientUuid: string, surgeryData: CreateSurgeriesDto): Promise<Surgeries> {
+  async createSurgeries(
+    patientUuid: string,
+    surgeryData: CreateSurgeriesDto,
+  ): Promise<Surgeries> {
     const { id: patientId } = await this.patientsRepository.findOne({
-      select: ["id"],
-      where: { uuid: patientUuid }
+      select: ['id'],
+      where: { uuid: patientUuid },
     });
 
     const newSurgeries = new Surgeries();
@@ -35,7 +43,7 @@ export class SurgeriesService {
     delete result.deletedAt;
     delete result.updatedAt;
     delete result.id;
-    return (result)
+    return result;
   }
   async getAllSurgeryByPatient(
     patientUuid: string,
@@ -43,11 +51,18 @@ export class SurgeriesService {
     page: number = 1,
     sortBy: string = 'typeOfSurgery',
     sortOrder: 'ASC' | 'DESC' = 'ASC',
-    perPage: number = 5
-  ): Promise<{ data: Surgeries[]; totalPages: number; currentPage: number; totalCount: number }> {
+    perPage: number = 5,
+  ): Promise<{
+    data: Surgeries[];
+    totalPages: number;
+    currentPage: number;
+    totalCount: number;
+  }> {
     const searchTerm = `%${term}%`; // Add wildcards to the search term
     const skip = (page - 1) * perPage;
-    const patientExists = await this.patientsRepository.findOne({ where: { uuid: patientUuid } });
+    const patientExists = await this.patientsRepository.findOne({
+      where: { uuid: patientUuid },
+    });
 
     if (!patientExists) {
       throw new NotFoundException('Patient not found');
@@ -60,9 +75,6 @@ export class SurgeriesService {
         'surgeries.typeOfSurgery',
         'surgeries.dateOfSurgery',
         'surgeries.surgery',
-        'surgeries.typeOfSurgery',
-        'surgeries.dateOfSurgery',
-        'surgeries.surgery',
         'surgeries.notes',
 
         'patient.uuid',
@@ -71,19 +83,28 @@ export class SurgeriesService {
       .orderBy(`surgeries.${sortBy}`, sortOrder)
       .offset(skip)
       .limit(perPage);
-    if (term !== "") {
-      console.log("term", term);
+    if (term !== '') {
+      console.log('term', term);
       surgeriesQueryBuilder
-        .where(new Brackets((qb) => {
-          qb.andWhere('patient.uuid = :uuid', { uuid: patientUuid })
-        }))
-        .andWhere(new Brackets((qb) => {
-          qb.andWhere("surgeries.typeOfSurgery ILIKE :searchTerm", { searchTerm })
-        .orWhere("surgeries.dateOfSurgery ILIKE :searchTerm", { searchTerm })
-        .orWhere("surgeries.surgery ILIKE :searchTerm", { searchTerm })
-        .orWhere("surgeries.notes ILIKE :searchTerm", { searchTerm })
-        .orWhere("surgeries.uuid ILIKE :searchTerm", { searchTerm })
-        }))};
+        .where(
+          new Brackets((qb) => {
+            qb.andWhere('patient.uuid = :uuid', { uuid: patientUuid });
+          }),
+        )
+        .andWhere(
+          new Brackets((qb) => {
+            qb.andWhere('surgeries.typeOfSurgery ILIKE :searchTerm', {
+              searchTerm,
+            })
+              .orWhere('surgeries.dateOfSurgery ILIKE :searchTerm', {
+                searchTerm,
+              })
+              .orWhere('surgeries.surgery ILIKE :searchTerm', { searchTerm })
+              .orWhere('surgeries.notes ILIKE :searchTerm', { searchTerm })
+              .orWhere('surgeries.uuid ILIKE :searchTerm', { searchTerm });
+          }),
+        );
+    }
     const surgeriesResultList = await surgeriesQueryBuilder.getRawMany();
     const totalPatientSurgeries = await surgeriesQueryBuilder.getCount();
     const totalPages = Math.ceil(totalPatientSurgeries / perPage);
@@ -106,7 +127,10 @@ export class SurgeriesService {
       throw new NotFoundException(`Surgery ID-${id}  not found.`);
     }
     Object.assign(surgeries, updateData);
-    return this.surgeriesRepository.save(surgeries);
+    const updatedSurgery= await this.surgeriesRepository.save(surgeries);
+    delete updatedSurgery.patientId;
+    delete updatedSurgery.id;
+    return updatedSurgery;
   }
   async softDeleteSurgery(
     id: string,

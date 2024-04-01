@@ -1,7 +1,9 @@
 import { InputType, Int, Field } from '@nestjs/graphql';
+import { IsNotEmpty } from 'class-validator';
 
 @InputType()
 export class CreateNotesInput {
-  @Field(() => Int, { description: 'Example field (placeholder)' })
-  exampleField: number;
+  uuid: string;
+  subject: string;
+  notes: string;
 }

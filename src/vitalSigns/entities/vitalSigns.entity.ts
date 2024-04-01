@@ -23,12 +23,6 @@ export class VitalSigns {
   @Column()
   uuid: string;
 
-  @Column()
-  date: string;
-
-  @Column({ nullable: true })
-  time: string;
-
   @Column({ nullable: true })
   bloodPressure: string;
 

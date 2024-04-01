@@ -29,20 +29,6 @@ export class LabResultsService {
       where: { uuid: patientUuid }
     });
 
-    const existingLabResult = await this.labResultsRepository.findOne({
-      where: {
-        hemoglobinA1c: ILike(`%${labResultData.hemoglobinA1c}%`),
-        fastingBloodGlucose: ILike(`%${labResultData.fastingBloodGlucose}%`),
-        date: ILike(`%${labResultData.date}%`),
-        totalCholesterol: ILike(`%${labResultData.totalCholesterol}%`),
-        ldlCholesterol: ILike(`%${labResultData.ldlCholesterol}%`),
-        triglycerides: ILike(`%${labResultData.triglycerides}%`),
-        patientId: patientId,
-      },
-    });
-    if (existingLabResult) {
-      throw new ConflictException('MedicationLogs already exists.');
-    }
     const newLabResults = new LabResults();
     const uuidPrefix = 'LBR-'; // Customize prefix as needed
     const uuid = this.idService.generateRandomUUID(uuidPrefix);
@@ -86,7 +72,7 @@ export class LabResultsService {
       .leftJoinAndSelect('labResults.patient', 'patient')
       .select([
       'labResults.uuid',
-      'labResults.date',
+      'labResults.createdAt',
       'labResults.hemoglobinA1c',
       'labResults.fastingBloodGlucose',
       'labResults.totalCholesterol',

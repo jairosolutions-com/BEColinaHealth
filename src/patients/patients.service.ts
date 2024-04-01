@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { CreatePatientsInput } from './dto/create-patients.input';
 import { UpdatePatientsInput } from './dto/update-patients.input';
 import { Patients } from './entities/patients.entity';
-import { ILike, Repository } from 'typeorm';
+import { ILike, Like, Repository } from 'typeorm';
 import { IdService } from 'services/uuid/id.service'; //
 import {
   HttpException,
@@ -30,8 +30,9 @@ export class PatientsService {
     // Check if a patient with similar information already exists
     const existingLowercaseboth = await this.patientsRepository.findOne({
       where: {
-        firstName: ILike(`%${input.firstName}%`),
-        lastName: ILike(`%${input.lastName}%`),
+        firstName: Like(`%${input.firstName}%`),
+        middleName: Like(`%${input.middleName}%`),
+        lastName: Like(`%${input.lastName}%`),
         dateOfBirth: input.dateOfBirth, // Check for exact match
       },
     });

@@ -7,7 +7,7 @@ import { UpdateVitalSignInput } from './dto/update-vitalSigns.input';
 export class VitalSignsController {
     constructor(private readonly vitalSignService: VitalSignsService) { }
 
-    @Post()
+    @Post(':id')
     createVitalSign(@Param('id') patientId: string,
         @Body() createVitalSignInput: CreateVitalSignInput) {
         return this.vitalSignService.createVitalSign(patientId,createVitalSignInput);
