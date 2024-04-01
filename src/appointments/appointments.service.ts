@@ -28,6 +28,7 @@ export class AppointmentsService {
     });
     const existingAppointment = await this.appointmentsRepository.findOne({
       where: {
+        patientId: patientId,
         appointmentDate: (input.appointmentDate),
         appointmentStatus: (input.appointmentStatus),
         appointmentTime: (input.appointmentTime),
@@ -53,7 +54,7 @@ export class AppointmentsService {
     return (result)
   }
 
-  async getAllAppointmentsByPatient(patientUuid: string, term: string, page: number = 1, sortBy: string = 'appointmentDate', sortOrder: 'ASC' | 'DESC' = 'ASC', perPage: number = 5): Promise<{ data: Appointments[], totalPages: number, currentPage: number, totalCount }> {
+  async getAllAppointmentsByPatient(patientUuid: string, term: string, page: number = 1, sortBy: string = 'appointmentStatus', sortOrder: 'ASC' | 'DESC' = 'ASC', perPage: number = 5): Promise<{ data: Appointments[], totalPages: number, currentPage: number, totalCount }> {
     const searchTerm = `%${term}%`; // Add wildcards to the search term
 
     const skip = (page - 1) * perPage;
@@ -76,11 +77,7 @@ export class AppointmentsService {
         'patient.uuid'
       ])
       .where('patient.uuid = :uuid', { uuid: patientUuid })
-      .andWhere(qb => {
-        qb.where('appointments.uuid ILIKE :searchTerm', { searchTerm })
-          .orWhere('appointments.details ILIKE :searchTerm', { searchTerm })
-          .orWhere('appointments.appointmentStatus ILIKE :searchTerm', { searchTerm });
-      })
+
       .orderBy(`appointments.${sortBy}`, sortOrder)
       .offset(skip)
       .limit(perPage);
@@ -96,11 +93,12 @@ export class AppointmentsService {
           qb.andWhere("appointments.uuid ILIKE :searchTerm", { searchTerm })
             .orWhere("appointments.appointmentStatus ILIKE :searchTerm", { searchTerm })
             .orWhere("appointments.details ILIKE :searchTerm", { searchTerm });
+
         }));
     }
     const appointmentsList = await appointmentsQueryBuilder.getRawMany();
 
-    
+
     const totalPatientAppointments = await appointmentsQueryBuilder.getCount();
     const totalPages = Math.ceil(totalPatientAppointments / perPage);
 
