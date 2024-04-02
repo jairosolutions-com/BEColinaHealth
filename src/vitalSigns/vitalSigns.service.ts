@@ -67,6 +67,8 @@ export class VitalSignsService {
       .innerJoinAndSelect('vitalsign.patient', 'patient')
       .select([
         'vitalsign.uuid',
+        'vitalsign.date',
+        'vitalsign.time',
         'vitalsign.bloodPressure',
         'vitalsign.heartRate',
         'vitalsign.temperature',

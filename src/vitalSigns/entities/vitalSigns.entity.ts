@@ -36,6 +36,12 @@ export class VitalSigns {
   respiratoryRate: string;
 
   @Column({ nullable: true })
+  date: string;
+
+  @Column({ nullable: true })
+  time: string;
+
+  @Column({ nullable: true })
   @Field(() => Int)
   patientId: number;
 
