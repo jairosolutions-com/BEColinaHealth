@@ -3,9 +3,6 @@ import { IsNotEmpty } from 'class-validator';
 
 @InputType()
 export class CreateVitalSignInput {
-  @IsNotEmpty()
-  @Field((type) => Int)
-  id: number;
 
   @IsNotEmpty()
   @Field()
@@ -35,15 +32,4 @@ export class CreateVitalSignInput {
   @Field(() => Int)
   patientId: number;
 
-  @IsNotEmpty()
-  @Field()
-  updatedAt: string;
-
-  @IsNotEmpty()
-  @Field()
-  createdAt: string;
-
-  @IsNotEmpty()
-  @Field()
-  deletedAt: string;
 }
