@@ -68,7 +68,7 @@ export class PatientsService {
   //GET ONE  PATIENT INFORMATION VIA ID
   async getPatientOverviewById(id: string): Promise<ProcessedPatient[]> {
     const patientList = await this.patientsRepository.find({
-      select: ['uuid', 'firstName', 'lastName', 'age', 'gender', 'codeStatus'],
+      select: ['uuid', 'firstName','middleName', 'lastName', 'age', 'gender', 'codeStatus'],
       where: { uuid: id },
       relations: ['allergies'],
     });

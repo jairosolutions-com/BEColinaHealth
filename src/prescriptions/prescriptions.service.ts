@@ -162,6 +162,7 @@ export class PrescriptionsService {
         'prescriptions.name',
       ])
       .where('patient.uuid = :uuid', { uuid: patientUuid })
+      .andWhere('prescriptions.status = :status', { status: 'active' })
       .orderBy('prescriptions.name', 'ASC');
 
     // Get lab results
