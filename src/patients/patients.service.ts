@@ -23,7 +23,7 @@ export class PatientsService {
     @InjectRepository(Patients)
     private patientsRepository: Repository<Patients>,
     private idService: IdService, // Inject the IdService
-  ) {}
+  ) { }
 
   //CREATE PATIENT INFO
   async createPatients(input: CreatePatientsInput): Promise<Patients> {
@@ -52,11 +52,14 @@ export class PatientsService {
 
     // Copy the properties from the input object to the new patient information
     Object.assign(newPatients, input);
+    const savedPatient = await this.patientsRepository.save(newPatients);
+    const result = { ...savedPatient };
+    delete result.id;
+    delete result.deletedAt;
+    delete result.updatedAt;
+    return (result)
 
-    // Save the new patient information to the database
-    return this.patientsRepository.save(newPatients);
   }
-
   //GET FULL PATIENT INFORMATION
   async getAllPatientsFullInfo(): Promise<Patients[]> {
     return this.patientsRepository.find();
@@ -98,18 +101,18 @@ export class PatientsService {
         ...new Set(patient.allergies.map((allergy) => allergy.type)),
       ];
 
-      
-    // Creating a copy of patient object to avoid mutating original data
-    const processedPatient = { ...patient };
-    
-    // Deleting the uuid property from the copied object
-    delete processedPatient.id;
+
+      // Creating a copy of patient object to avoid mutating original data
+      const processedPatient = { ...patient };
+
+      // Deleting the uuid property from the copied object
+      delete processedPatient.id;
       return {
         ...processedPatient,
         allergies: uniqueAllergyTypes.join(', '), // Join unique allergy types into a single string
       };
     });
-    console.log(processedPatientList,"pp")
+    console.log(processedPatientList, "pp")
     return processedPatientList;
   }
 
