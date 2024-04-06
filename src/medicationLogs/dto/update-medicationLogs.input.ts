@@ -38,12 +38,5 @@ export class UpdateMedicationLogsInput extends PartialType(
   @Field()
   medicationLogStatus: string;
 
-  @Field()
-  updatedAt: string;
-
-  @Field()
-  createdAt: string;
-
-  @Field()
-  deletedAt: string;
+  prescriptionUuid: string;
 }

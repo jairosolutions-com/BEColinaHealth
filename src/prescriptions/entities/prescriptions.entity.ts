@@ -1,4 +1,5 @@
 import { ObjectType, Field, Int } from '@nestjs/graphql';
+import { MedicationLogs } from 'src/medicationLogs/entities/medicationLogs.entity';
 import { Patients } from 'src/patients/entities/patients.entity';
 import {
   ManyToOne,
@@ -64,4 +65,8 @@ export class Prescriptions {
   // @OneToMany(() => MedicationLogs, medicationLogs => medicationLogs.prescriptions)
   // @Field(() => [MedicationLogs], { nullable: true })
   // medicationLogs: MedicationLogs[];
+
+  //Prescription to MedicationLogs
+  @OneToMany(() => MedicationLogs, (medicationlogs) => medicationlogs.prescription)
+  medicationlogs: MedicationLogs[];
 }

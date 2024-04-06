@@ -7,9 +7,11 @@ import { EmergencyContacts } from './entities/emergencyContacts.entity';
 import { IdService } from 'services/uuid/id.service';
 import { Patients } from 'src/patients/entities/patients.entity';
 import { PatientsService } from 'src/patients/patients.service';
+import { Prescriptions } from 'src/prescriptions/entities/prescriptions.entity';
+import { PrescriptionsService } from 'src/prescriptions/prescriptions.service';
 
-@Module({  imports: [TypeOrmModule.forFeature([EmergencyContacts, Patients])],
-  providers: [EmergencyContactsResolver, EmergencyContactsService, PatientsService, IdService],
+@Module({  imports: [TypeOrmModule.forFeature([EmergencyContacts, Patients,Prescriptions])],
+  providers: [EmergencyContactsResolver, EmergencyContactsService,PrescriptionsService, PatientsService, IdService],
   controllers: [EmergencyContactsController],
 })
 export class EmergencyContactsModule { }

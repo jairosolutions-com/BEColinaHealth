@@ -1,11 +1,15 @@
-import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreatePrescriptionsInput } from './dto/create-prescriptions.input';
 import { UpdatePrescriptionsInput } from './dto/update-prescriptions.input';
 import { InjectRepository } from '@nestjs/typeorm';
 import { create } from 'domain';
 import { Brackets, ILike, Like, Repository } from 'typeorm';
 import { Prescriptions } from './entities/prescriptions.entity';
-import { IdService } from 'services/uuid/id.service'; // 
+import { IdService } from 'services/uuid/id.service'; //
 import { Patients } from 'src/patients/entities/patients.entity';
 
 @Injectable()
@@ -17,20 +21,22 @@ export class PrescriptionsService {
     private patientsRepository: Repository<Patients>,
 
     private idService: IdService, // Inject the IdService
-  ) { }
+  ) {}
   //CREATE Prescriptions INFO
-  async createPrescriptions(patientUuid: string, prescriptionData: CreatePrescriptionsInput): Promise<Prescriptions> {
+  async createPrescriptions(
+    patientUuid: string,
+    prescriptionData: CreatePrescriptionsInput,
+  ): Promise<Prescriptions> {
     const { id: patientId } = await this.patientsRepository.findOne({
-      select: ["id"],
-      where: { uuid: patientUuid }
+      select: ['id'],
+      where: { uuid: patientUuid },
     });
     const existingPrescriptions = await this.prescriptionsRepository.findOne({
       where: {
         name: Like(`%${prescriptionData.name}%`),
-        patientId: patientId
+        patientId: patientId,
       },
     });
-
 
     if (existingPrescriptions) {
       throw new ConflictException('Prescriptions already exists.');
@@ -44,21 +50,35 @@ export class PrescriptionsService {
     newPrescriptions.uuid = uuid;
     newPrescriptions.patientId = patientId; // Assign patientId
     Object.assign(newPrescriptions, prescriptionData);
-    const savedLabResult = await this.prescriptionsRepository.save(newPrescriptions);
+    const savedLabResult =
+      await this.prescriptionsRepository.save(newPrescriptions);
     const result = { ...savedLabResult };
     delete result.patientId;
     delete result.deletedAt;
     delete result.updatedAt;
     delete result.id;
-    return (result)
+    return result;
   }
 
   //PAGED Prescriptions list PER PATIENT
-  async getAllPrescriptionsByPatient(patientUuid: string, term: string,
-    page: number = 1, sortBy: string = 'status', sortOrder: 'ASC' | 'DESC' = 'ASC', perPage: number = 5): Promise<{ data: Prescriptions[], totalPages: number, currentPage: number, totalCount }> {
+  async getAllPrescriptionsByPatient(
+    patientUuid: string,
+    term: string,
+    page: number = 1,
+    sortBy: string = 'status',
+    sortOrder: 'ASC' | 'DESC' = 'ASC',
+    perPage: number = 5,
+  ): Promise<{
+    data: Prescriptions[];
+    totalPages: number;
+    currentPage: number;
+    totalCount;
+  }> {
     const skip = (page - 1) * perPage;
     const searchTerm = `%${term}%`; // Add wildcards to the search term
-    const patientExists = await this.patientsRepository.findOne({ where: { uuid: patientUuid } });
+    const patientExists = await this.patientsRepository.findOne({
+      where: { uuid: patientUuid },
+    });
 
     if (!patientExists) {
       throw new NotFoundException('Patient not found');
@@ -79,16 +99,21 @@ export class PrescriptionsService {
       .orderBy(`${sortBy}`, sortOrder)
       .offset(skip)
       .limit(perPage);
-    if (term !== "") {
-      console.log("term", term);
+    if (term !== '') {
+      console.log('term', term);
       prescriptionsQueryBuilder
-        .where(new Brackets((qb) => {
-          qb.andWhere('patient.uuid = :uuid', { uuid: patientUuid })
-        }))
-        .andWhere(new Brackets((qb) => {
-          qb.andWhere("prescriptions.uuid ILIKE :searchTerm", { searchTerm })
-            .orWhere("prescriptions.name ILIKE :searchTerm", { searchTerm })
-        }));
+        .where(
+          new Brackets((qb) => {
+            qb.andWhere('patient.uuid = :uuid', { uuid: patientUuid });
+          }),
+        )
+        .andWhere(
+          new Brackets((qb) => {
+            qb.andWhere('prescriptions.uuid ILIKE :searchTerm', {
+              searchTerm,
+            }).orWhere('prescriptions.name ILIKE :searchTerm', { searchTerm });
+          }),
+        );
     }
     // Get lab results
     const prescriptionResultList = await prescriptionsQueryBuilder.getRawMany();
@@ -103,37 +128,41 @@ export class PrescriptionsService {
     };
   }
   //LIST Prescriptions NAMES Dropdown  PER PATIENT
-  async getPrescriptionsDropDownByPatient(patientId: string): Promise<Prescriptions[]> {
-
+  async getPrescriptionsDropDownByPatient(
+    patientId: string,
+  ): Promise<Prescriptions[]> {
     const prescriptionsNameList = await this.prescriptionsRepository.find({
-      select: ["name"],
+      select: ['name'],
       where: { uuid: patientId },
-
     });
-    return prescriptionsNameList
-      ;
+    return prescriptionsNameList;
   }
   async getAllPrescriptions(): Promise<Prescriptions[]> {
-
     const prescriptions = await this.prescriptionsRepository.find();
     return prescriptions;
   }
 
-
-  async updatePrescriptions(id: string,
+  async updatePrescriptions(
+    id: string,
     updatePrescriptionsInput: UpdatePrescriptionsInput,
   ): Promise<Prescriptions> {
     const { ...updateData } = updatePrescriptionsInput;
-    const prescriptions = await this.prescriptionsRepository.findOne({ where: { uuid: id } });
+    const prescriptions = await this.prescriptionsRepository.findOne({
+      where: { uuid: id },
+    });
     if (!prescriptions) {
       throw new NotFoundException(`Prescriptions ID-${id}  not found.`);
     }
     Object.assign(prescriptions, updateData);
     return this.prescriptionsRepository.save(prescriptions);
   }
-  async softDeletePrescriptions(id: string): Promise<{ message: string, deletedPrescriptions: Prescriptions }> {
+  async softDeletePrescriptions(
+    id: string,
+  ): Promise<{ message: string; deletedPrescriptions: Prescriptions }> {
     // Find the patient record by ID
-    const prescriptions = await this.prescriptionsRepository.findOne({ where: { uuid: id } });
+    const prescriptions = await this.prescriptionsRepository.findOne({
+      where: { uuid: id },
+    });
 
     if (!prescriptions) {
       throw new NotFoundException(`Prescriptions ID-${id} does not exist.`);
@@ -143,30 +172,47 @@ export class PrescriptionsService {
     prescriptions.deletedAt = new Date().toISOString();
 
     // Save and return the updated patient record
-    const deletedPrescriptions = await this.prescriptionsRepository.save(prescriptions);
+    const deletedPrescriptions =
+      await this.prescriptionsRepository.save(prescriptions);
 
-    return { message: `Prescriptions with ID ${id} has been soft-deleted.`, deletedPrescriptions };
-
+    return {
+      message: `Prescriptions with ID ${id} has been soft-deleted.`,
+      deletedPrescriptions,
+    };
   }
-
 
   //for medical history logs scheduled
 
-  async getAllPrescriptionsByPatientForSchedMed(patientUuid: string): Promise<{ data: Prescriptions[] }> {
-
+  async getAllPrescriptionsByPatientForSchedMed(
+    patientUuid: string,
+  ): Promise<{ data: Prescriptions[] }> {
+    const todayDate = new Date();
+    todayDate.setUTCHours(0, 0, 0, 0);
     const prescriptionsQueryBuilder = this.prescriptionsRepository
       .createQueryBuilder('prescriptions')
       .leftJoinAndSelect('prescriptions.patient', 'patient')
+      .leftJoinAndSelect('prescriptions.medicationlogs', 'medicationlogs')
       .select([
         'prescriptions.uuid',
         'prescriptions.name',
+        'medicationlogs.medicationLogsTime',
+        'medicationlogs.uuid',
+        'prescriptions.frequency',
+        'prescriptions.interval',
       ])
       .where('patient.uuid = :uuid', { uuid: patientUuid })
       .andWhere('prescriptions.status = :status', { status: 'active' })
+      .andWhere('medicationlogs.createdAt >= :todayDate', {
+        todayDate: todayDate.toISOString().split('T')[0],
+      }) // Filter by today's date
+      .andWhere('medicationlogs.medicationLogStatus = :medicationLogStatus', {
+        medicationLogStatus: 'pending',
+      })
+
       .orderBy('prescriptions.name', 'ASC');
 
-    // Get lab results
     const prescriptionResultList = await prescriptionsQueryBuilder.getRawMany();
+
     return {
       data: prescriptionResultList,
     };

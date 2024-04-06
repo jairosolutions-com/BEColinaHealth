@@ -55,4 +55,6 @@ export class PrescriptionsController {
         return this.prescriptionsService.getAllPrescriptionsByPatientForSchedMed(patientId);
     }
     
+
+    
 }

@@ -6,13 +6,15 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { IdService } from 'services/uuid/id.service';
 import { Brackets, Repository } from 'typeorm';
 import { Patients } from 'src/patients/entities/patients.entity';
+import { Prescriptions } from 'src/prescriptions/entities/prescriptions.entity';
 
 @Injectable()
 export class VitalSignsService {
   constructor(
     @InjectRepository(VitalSigns)
     private vitalSignsRepository: Repository<VitalSigns>,
-
+    @InjectRepository(Prescriptions)
+    private prescriptionsRepository: Repository<Prescriptions>,
     @InjectRepository(Patients)
     private patientsRepository: Repository<Patients>,
 
@@ -125,7 +127,8 @@ export class VitalSignsService {
       throw new NotFoundException(`VitalSign  ID-${id}  not found.`);
     }
     Object.assign(prescriptions, updateData);
-    const updatedVitalSigns = await this.vitalSignsRepository.save(prescriptions);
+    const updatedVitalSigns =
+      await this.vitalSignsRepository.save(prescriptions);
     delete updatedVitalSigns.patientId;
     delete updatedVitalSigns.deletedAt;
     delete updatedVitalSigns.id;
