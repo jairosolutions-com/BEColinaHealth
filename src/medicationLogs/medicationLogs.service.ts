@@ -19,17 +19,26 @@ export class MedicationLogsService {
     private medicationLogsRepository: Repository<MedicationLogs>,
     @InjectRepository(Patients)
     private patientsRepository: Repository<Patients>,
+    @InjectRepository(Prescriptions)
+    private prescriptionsRepository: Repository<Prescriptions>,
 
     private idService: IdService, // Inject the IdService
   ) {}
 
-  async createMedicationLogs(patientUuid: string,medicationLogData: CreateMedicationLogsInput):
-    Promise<MedicationLogs> {
-    var message = "";
+  async createMedicationLogs(
+    patientUuid: string,
+    medicationLogData: CreateMedicationLogsInput,
+  ): Promise<MedicationLogs> {
     const { id: patientId } = await this.patientsRepository.findOne({
-      select: ["id"],
-      where: { uuid: patientUuid }
+      select: ['id'],
+      where: { uuid: patientUuid },
     });
+
+    const { id: prescriptionId } = await this.prescriptionsRepository.findOne({
+      select: ['id'],
+      where: { uuid: medicationLogData.prescriptionUuid },
+    });
+    console.log('prescriptionId', prescriptionId);
     const existingMedicationLog = await this.medicationLogsRepository.findOne({
       where: {
         medicationLogsName: ILike(`${medicationLogData.medicationLogsName}`),
@@ -37,7 +46,7 @@ export class MedicationLogsService {
         medicationLogStatus: ILike(`${medicationLogData.medicationLogStatus}`),
         medicationLogsTime: ILike(`${medicationLogData.medicationLogsTime}`),
         medicationType: ILike(`${medicationLogData.medicationType}`),
-        patientId: medicationLogData.patientId
+        patientId: medicationLogData.patientId,
       },
     });
 
@@ -49,26 +58,36 @@ export class MedicationLogsService {
     const uuid = this.idService.generateRandomUUID(uuidPrefix);
     newMedicationLogs.uuid = uuid;
     newMedicationLogs.patientId = patientId;
+    newMedicationLogs.prescriptionId = prescriptionId;
     Object.assign(newMedicationLogs, medicationLogData);
-    const savedVitalSign = await this.medicationLogsRepository.save(newMedicationLogs);
-    const result = { ...savedVitalSign };
+    const savedMedicationLogs =
+      await this.medicationLogsRepository.save(newMedicationLogs);
+    const result = { ...newMedicationLogs };
     delete result.patientId;
     delete result.deletedAt;
     delete result.updatedAt;
     delete result.id;
-    return (result)
+    return result;
   }
+
   async getAllASCHMedicationLogsByPatient(
     patientUuid: string,
     term: string,
     page: number = 1,
     sortBy: string = 'medicationLogsDate',
     sortOrder: 'ASC' | 'DESC' = 'ASC',
-    perPage: number = 5
-  ): Promise<{ data: MedicationLogs[]; totalPages: number; currentPage: number; totalCount: number }> {
+    perPage: number = 5,
+  ): Promise<{
+    data: MedicationLogs[];
+    totalPages: number;
+    currentPage: number;
+    totalCount: number;
+  }> {
     const skip = (page - 1) * perPage;
     const searchTerm = `%${term}%`;
-    const patientExists = await this.patientsRepository.findOne({ where: { uuid: patientUuid } });
+    const patientExists = await this.patientsRepository.findOne({
+      where: { uuid: patientUuid },
+    });
     if (!patientExists) {
       throw new NotFoundException('Patient not found');
     }
@@ -83,31 +102,54 @@ export class MedicationLogsService {
         'medicationlogs.medicationLogsDate',
         'medicationlogs.medicationLogsTime',
         'medicationlogs.medicationLogStatus',
-        'patient.uuid'
+        'patient.uuid',
       ])
       .where('patient.uuid = :uuid', { uuid: patientUuid })
+      .andWhere('medicationlogs.medicationLogStatus != :medicationLogStatus', {
+        medicationLogStatus: 'pending',
+      })
       .orderBy(`medicationlogs.${sortBy}`, sortOrder)
       .offset(skip)
       .limit(perPage);
-    if (term !== "") {
-      console.log("term", term);
+    if (term !== '') {
+      console.log('term', term);
       aschMedicationQueryBuilder
-        .where(new Brackets((qb) => {
-          qb.andWhere('patient.uuid = :uuid', { uuid: patientUuid })
-            .andWhere('medicationlogs.medicationType = :medicationType', { medicationType: 'ASCH' });
-        }))
-        .andWhere(new Brackets((qb) => {
-          qb.andWhere("medicationlogs.medicationLogsName ILIKE :searchTerm", { searchTerm })
-            .orWhere("medicationlogs.medicationLogStatus ILIKE :searchTerm", { searchTerm })
-            .orWhere("medicationlogs.uuid ILIKE :searchTerm", { searchTerm });
-        }));
+        .where(
+          new Brackets((qb) => {
+            qb.andWhere('patient.uuid = :uuid', { uuid: patientUuid }).andWhere(
+              'medicationlogs.medicationType = :medicationType',
+              {
+                medicationType: 'ASCH',
+              },
+            ).andWhere('medicationlogs.medicationLogStatus != :medicationLogStatus', {
+              medicationLogStatus: 'pending',
+            });;
+          }),
+        )
+        .andWhere(
+          new Brackets((qb) => {
+            qb.andWhere('medicationlogs.medicationLogsName ILIKE :searchTerm', {
+              searchTerm,
+            })
+              .orWhere('medicationlogs.medicationLogStatus ILIKE :searchTerm', {
+                searchTerm,
+              })
+              .orWhere('medicationlogs.uuid ILIKE :searchTerm', { searchTerm });
+          }),
+        );
     } else {
       aschMedicationQueryBuilder
         .where('patient.uuid = :uuid', { uuid: patientUuid })
-        .andWhere('medicationlogs.medicationType = :medicationType', { medicationType: 'ASCH' });
+        .andWhere('medicationlogs.medicationType = :medicationType', {
+          medicationType: 'ASCH',
+        })
+        .andWhere('medicationlogs.medicationLogStatus != :medicationLogStatus', {
+          medicationLogStatus: 'pending',
+        });
     }
     const aschMedicationList = await aschMedicationQueryBuilder.getRawMany();
-    const totalPatientASCHMedication = await aschMedicationQueryBuilder.getCount();
+    const totalPatientASCHMedication =
+      await aschMedicationQueryBuilder.getCount();
     const totalPages = Math.ceil(totalPatientASCHMedication / perPage);
 
     return {
@@ -153,11 +195,18 @@ export class MedicationLogsService {
     page: number = 1,
     sortBy: string = 'medicationLogsDate',
     sortOrder: 'ASC' | 'DESC' = 'ASC',
-    perPage: number = 5
-  ): Promise<{ data: MedicationLogs[]; totalPages: number; currentPage: number; totalCount: number }> {
+    perPage: number = 5,
+  ): Promise<{
+    data: MedicationLogs[];
+    totalPages: number;
+    currentPage: number;
+    totalCount: number;
+  }> {
     const skip = (page - 1) * perPage;
     const searchTerm = `%${term}%`;
-    const patientExists = await this.patientsRepository.findOne({ where: { uuid: patientUuid } });
+    const patientExists = await this.patientsRepository.findOne({
+      where: { uuid: patientUuid },
+    });
     if (!patientExists) {
       throw new NotFoundException('Patient not found');
     }
@@ -172,27 +221,39 @@ export class MedicationLogsService {
         'medicationlogs.medicationLogsDate',
         'medicationlogs.medicationLogsTime',
         'medicationlogs.medicationLogStatus',
-        'patient.uuid'
+        'patient.uuid',
       ])
       .orderBy(`medicationlogs.${sortBy}`, sortOrder)
       .offset(skip)
       .limit(perPage);
-    if (term !== "") {
-      console.log("term", term);
+    if (term !== '') {
+      console.log('term', term);
       prnMedicationQueryBuilder
-        .where(new Brackets((qb) => {
-          qb.andWhere('patient.uuid = :uuid', { uuid: patientUuid })
-            .andWhere('medicationlogs.medicationType = :medicationType', { medicationType: 'PRN' });
-        }))
-        .andWhere(new Brackets((qb) => {
-          qb.andWhere("medicationlogs.medicationLogsName ILIKE :searchTerm", { searchTerm })
-          .orWhere("medicationlogs.medicationLogStatus ILIKE :searchTerm", { searchTerm })
-          .orWhere("medicationlogs.uuid ILIKE :searchTerm", { searchTerm });
-        }));
+        .where(
+          new Brackets((qb) => {
+            qb.andWhere('patient.uuid = :uuid', { uuid: patientUuid }).andWhere(
+              'medicationlogs.medicationType = :medicationType',
+              { medicationType: 'PRN' },
+            );
+          }),
+        )
+        .andWhere(
+          new Brackets((qb) => {
+            qb.andWhere('medicationlogs.medicationLogsName ILIKE :searchTerm', {
+              searchTerm,
+            })
+              .orWhere('medicationlogs.medicationLogStatus ILIKE :searchTerm', {
+                searchTerm,
+              })
+              .orWhere('medicationlogs.uuid ILIKE :searchTerm', { searchTerm });
+          }),
+        );
     } else {
       prnMedicationQueryBuilder
         .where('patient.uuid = :uuid', { uuid: patientUuid })
-        .andWhere('medicationlogs.medicationType = :medicationType', { medicationType: 'PRN' });
+        .andWhere('medicationlogs.medicationType = :medicationType', {
+          medicationType: 'PRN',
+        });
     }
     const prnMedicationList = await prnMedicationQueryBuilder.getRawMany();
     const totalPatientPRNMedication = prnMedicationList.length; // Count the number of PRN medications returned
@@ -226,18 +287,87 @@ export class MedicationLogsService {
     id: string,
   ): Promise<{ message: string; deletedMedicationLogs: MedicationLogs }> {
     // Find the patient record by ID
-    const medicationLogs = await this.medicationLogsRepository.findOne({ where: { uuid: id } });
+    const medicationLogs = await this.medicationLogsRepository.findOne({
+      where: { uuid: id },
+    });
 
     if (!medicationLogs) {
       throw new NotFoundException(`MedicationLogs ID-${id} does not exist.`);
     }
     medicationLogs.deletedAt = new Date().toISOString();
-    const deletedMedicationLogs = await this.medicationLogsRepository.save(medicationLogs);
-    return { message: `MedicationLogs with ID ${id} has been soft-deleted.`, deletedMedicationLogs };
+    const deletedMedicationLogs =
+      await this.medicationLogsRepository.save(medicationLogs);
+    return {
+      message: `MedicationLogs with ID ${id} has been soft-deleted.`,
+      deletedMedicationLogs,
+    };
 
     return {
       message: `MedicationLogs with ID ${id} has been soft-deleted.`,
       deletedMedicationLogs,
     };
   }
+
+  /////
+
+  // async fetchPatientForTimeChart(
+  //   patientUuid: string,
+  //   term: string,
+  //   page: number = 1,
+  //   sortBy: string = 'medicationLogsDate',
+  //   sortOrder: 'ASC' | 'DESC' = 'ASC',
+  //   perPage: number = 5
+  // ): Promise<{ data: MedicationLogs[]; totalPages: number; currentPage: number; totalCount: number }> {
+  //   const skip = (page - 1) * perPage;
+  //   const searchTerm = `%${term}%`;
+  //   const patientExists = await this.patientsRepository.findOne({ where: { uuid: patientUuid } });
+  //   if (!patientExists) {
+  //     throw new NotFoundException('Patient not found');
+  //   }
+
+  //   // Extracting today's date without time
+  //   const todayDate = new Date();
+  //   todayDate.setUTCHours(0, 0, 0, 0);
+
+  //   const aschMedicationQueryBuilder = this.medicationLogsRepository
+  //     .createQueryBuilder('medicationlogs')
+  //     .innerJoinAndSelect('medicationlogs.patient', 'patient')
+  //     .select([
+  //       'medicationlogs.uuid',
+  //       'medicationlogs.medicationLogsName',
+  //       'medicationlogs.notes',
+  //       'medicationlogs.medicationType',
+  //       'medicationlogs.medicationLogsDate',
+  //       'medicationlogs.medicationLogsTime',
+  //       'medicationlogs.medicationLogStatus',
+  //       'patient.uuid',
+  //       'patient.firstName',
+  //       'patient.lastName',
+  //     ])
+  //     .where('medicationlogs.createdAt >= :todayDate', { todayDate: todayDate.toISOString() }) // Filter by today's date
+
+  //   if (term !== "") {
+  //     aschMedicationQueryBuilder
+  //       .andWhere(new Brackets((qb) => {
+  //         qb.andWhere("medicationlogs.medicationLogsName ILIKE :searchTerm", { searchTerm })
+  //           .orWhere("medicationlogs.medicationLogStatus ILIKE :searchTerm", { searchTerm })
+  //           .orWhere("medicationlogs.uuid ILIKE :searchTerm", { searchTerm });
+  //       }));
+  //   }
+
+  //   aschMedicationQueryBuilder
+  //     .orderBy(`medicationlogs.${sortBy} OR patient.${sortBy}`, sortOrder)
+  //     .offset(skip)
+  //     .limit(perPage);
+
+  //   const [aschMedicationList, totalPatientASCHMedication] = await aschMedicationQueryBuilder.getManyAndCount();
+  //   const totalPages = Math.ceil(totalPatientASCHMedication / perPage);
+
+  //   return {
+  //     data: aschMedicationList,
+  //     totalPages: totalPages,
+  //     currentPage: page,
+  //     totalCount: totalPatientASCHMedication,
+  //   };
+  // }
 }

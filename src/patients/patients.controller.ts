@@ -67,4 +67,16 @@ export class PatientsController {
   softDeletePatient(@Param('id') id: string) {
     return this.patientsService.softDeletePatient(id);
   }
+
+  //
+
+  @Post('prescriptions')
+  getPatientsWithMedicationLogsAndPrescriptions(
+    @Body() body: {
+      page: number;
+    }
+  ){
+    const { page } = body;
+    return this.patientsService.getPatientsWithMedicationLogsAndPrescriptions(page);
+  }
 }
