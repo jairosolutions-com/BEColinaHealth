@@ -6,10 +6,12 @@ import { Allergies } from './entities/allergies.entity';
 import { Patients } from 'src/patients/entities/patients.entity';
 import { IdService } from 'services/uuid/id.service';
 import { PatientsService } from 'src/patients/patients.service';
+import { Prescriptions } from 'src/prescriptions/entities/prescriptions.entity';
+import { PrescriptionsService } from 'src/prescriptions/prescriptions.service';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Allergies, Patients])],
+  imports: [TypeOrmModule.forFeature([Allergies, Patients,Prescriptions])],
   controllers: [AllergiesController],
-  providers: [AllergiesService, IdService, PatientsService],
+  providers: [AllergiesService, IdService, PatientsService,PrescriptionsService],
 })
 export class AllergiesModule { }

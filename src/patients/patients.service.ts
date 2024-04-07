@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { CreatePatientsInput } from './dto/create-patients.input';
 import { UpdatePatientsInput } from './dto/update-patients.input';
 import { Patients } from './entities/patients.entity';
-import { ILike, Like, Repository } from 'typeorm';
+import { ILike, In, Like, Repository } from 'typeorm';
 import { IdService } from 'services/uuid/id.service'; //
 import {
   HttpException,
@@ -16,14 +16,17 @@ import {
   ProcessedPatient,
   fullPatientInfo,
 } from './entities/processedPatientInterface';
+import { Prescriptions } from 'src/prescriptions/entities/prescriptions.entity';
 
 @Injectable()
 export class PatientsService {
   constructor(
     @InjectRepository(Patients)
     private patientsRepository: Repository<Patients>,
+    @InjectRepository(Prescriptions)
+    private prescriptionRepository: Repository<Prescriptions>,
     private idService: IdService, // Inject the IdService
-  ) { }
+  ) {}
 
   //CREATE PATIENT INFO
   async createPatients(input: CreatePatientsInput): Promise<Patients> {
@@ -57,8 +60,7 @@ export class PatientsService {
     delete result.id;
     delete result.deletedAt;
     delete result.updatedAt;
-    return (result)
-
+    return result;
   }
   //GET FULL PATIENT INFORMATION
   async getAllPatientsFullInfo(): Promise<Patients[]> {
@@ -68,7 +70,15 @@ export class PatientsService {
   //GET ONE  PATIENT INFORMATION VIA ID
   async getPatientOverviewById(id: string): Promise<ProcessedPatient[]> {
     const patientList = await this.patientsRepository.find({
-      select: ['uuid', 'firstName','middleName', 'lastName', 'age', 'gender', 'codeStatus'],
+      select: [
+        'uuid',
+        'firstName',
+        'middleName',
+        'lastName',
+        'age',
+        'gender',
+        'codeStatus',
+      ],
       where: { uuid: id },
       relations: ['allergies'],
     });
@@ -101,7 +111,6 @@ export class PatientsService {
         ...new Set(patient.allergies.map((allergy) => allergy.type)),
       ];
 
-
       // Creating a copy of patient object to avoid mutating original data
       const processedPatient = { ...patient };
 
@@ -112,7 +121,7 @@ export class PatientsService {
         allergies: uniqueAllergyTypes.join(', '), // Join unique allergy types into a single string
       };
     });
-    console.log(processedPatientList, "pp")
+    console.log(processedPatientList, 'pp');
     return processedPatientList;
   }
 
@@ -221,6 +230,123 @@ export class PatientsService {
     return {
       message: `Patient with ID ${id} has been soft-deleted.`,
       deletedPatient,
+    };
+  }
+
+  /////
+
+  async getPatientsWithMedicationLogsAndPrescriptions(
+    page: number = 1,
+    perPage: number = 3,
+  ): Promise<{
+    data: Patients[];
+    totalPages: number;
+    currentPage: number;
+    totalCount;
+  }> {
+    const skip = (page - 1) * perPage;
+    // Extracting today's date without time
+    const todayDate = new Date();
+    todayDate.setUTCHours(0, 0, 0, 0);
+    console.log(todayDate, 'todayDate');
+    const [patientTimeGraph, totalPatientPrescriptions] = await Promise.all([
+      this.patientsRepository
+        .createQueryBuilder('patient')
+        .leftJoinAndSelect('patient.medicationlogs', 'medicationlogs')
+        .leftJoinAndSelect('patient.prescriptions', 'prescriptions')
+        .where('prescriptions.status = :status', { status: 'active' })
+        .andWhere('medicationlogs.createdAt >= :todayDate', {
+          todayDate: todayDate.toISOString().split('T')[0],
+        }) // Filter by today's date
+        .orderBy('patient.firstName', 'ASC')
+        .skip(skip)
+        .take(perPage)
+        .getMany(),
+      this.patientsRepository
+        .createQueryBuilder('patient')
+        .leftJoin('patient.medicationlogs', 'medicationlogs')
+        .leftJoin('patient.prescriptions', 'prescriptions')
+        .where('prescriptions.status = :status', { status: 'active' })
+        .andWhere('medicationlogs.createdAt >= :todayDate', {
+          todayDate: todayDate.toISOString().split('T')[0],
+        }), // Filter by today's date
+    ]);
+
+    const totalPatientPrescription = await totalPatientPrescriptions.getCount();
+
+    // Fetch all prescription UUIDs
+    const medicationlogPrescriptionIds = patientTimeGraph.flatMap((patient) =>
+      patient.medicationlogs.map(
+        (medicationlog) => medicationlog.prescriptionId,
+      ),
+    );
+    const prescriptions = await this.prescriptionRepository.find({
+      select: ['id', 'uuid'],
+      where: {
+        id: In(medicationlogPrescriptionIds),
+      },
+    });
+    const prescriptionMap = new Map(
+      prescriptions.map((prescription) => [prescription.id, prescription.uuid]),
+    );
+
+    // Filter out medication logs that are before today's date
+    patientTimeGraph.forEach((patient) => {
+      patient.medicationlogs = patient.medicationlogs.filter(
+        (medicationlog) => {
+          // Convert createdAt to Date object
+          const logDate = new Date(medicationlog.createdAt);
+          // Extract date portion (year, month, day)
+          const logDateOnly = new Date(
+            logDate.getFullYear(),
+            logDate.getMonth(),
+            logDate.getDate(),
+          );
+          // Extract today's date
+          const today = new Date();
+          const todayOnly = new Date(
+            today.getFullYear(),
+            today.getMonth(),
+            today.getDate(),
+          );
+
+          // Compare date portions
+          if (logDateOnly.getTime() === todayOnly.getTime()) {
+            // Add additional properties to medicationlog object
+            const prescriptionUuid = prescriptionMap.get(
+              medicationlog.prescriptionId,
+            );
+            if (prescriptionUuid) {
+              (medicationlog as any).prescriptionUuid = prescriptionUuid;
+            }
+            return true;
+          } else {
+            return false;
+          }
+        },
+      );
+
+      // Remove unnecessary fields
+      delete patient.id;
+      patient.medicationlogs.forEach((medicationlog) => {
+        delete medicationlog.id;
+        delete medicationlog.patientId;
+        delete medicationlog.prescriptionId;
+      });
+      patient.prescriptions.forEach((prescription) => {
+        delete prescription.id;
+        delete prescription.patientId;
+      });
+    });
+
+    const totalPages = Math.ceil(totalPatientPrescription / perPage);
+
+    console.log(patientTimeGraph, 'patientTimeGraph');
+    return {
+      data: patientTimeGraph,
+      totalPages: totalPages,
+      currentPage: page,
+      totalCount: totalPatientPrescription,
     };
   }
 }
