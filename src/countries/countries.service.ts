@@ -218,6 +218,7 @@ export class CountryService {
   async getAllCountries(): Promise<Countries[]> {
     const countries = await this.countriesRepository.find({
     });
+    console.log(countries, 'countries')
     return countries;
   }
 
