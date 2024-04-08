@@ -237,7 +237,7 @@ export class PatientsService {
 
   async getPatientsWithMedicationLogsAndPrescriptions(
     page: number = 1,
-    perPage: number = 3,
+    perPage: number = 4,
   ): Promise<{
     data: Patients[];
     totalPages: number;
@@ -254,11 +254,13 @@ export class PatientsService {
         .createQueryBuilder('patient')
         .leftJoinAndSelect('patient.medicationlogs', 'medicationlogs')
         .leftJoinAndSelect('patient.prescriptions', 'prescriptions')
+        .leftJoinAndSelect('patient.allergies', 'allergies')
         .where('prescriptions.status = :status', { status: 'active' })
         .andWhere('medicationlogs.createdAt >= :todayDate', {
           todayDate: todayDate.toISOString().split('T')[0],
         }) // Filter by today's date
         .orderBy('patient.firstName', 'ASC')
+        .distinct(true)
         .skip(skip)
         .take(perPage)
         .getMany(),
@@ -290,6 +292,7 @@ export class PatientsService {
       prescriptions.map((prescription) => [prescription.id, prescription.uuid]),
     );
 
+    // Filter out medication logs that are before today's date
     // Filter out medication logs that are before today's date
     patientTimeGraph.forEach((patient) => {
       patient.medicationlogs = patient.medicationlogs.filter(
@@ -333,15 +336,23 @@ export class PatientsService {
         delete medicationlog.patientId;
         delete medicationlog.prescriptionId;
       });
+      patient.allergies.forEach((allergy) => {
+        delete allergy.id;
+        delete allergy.patientId;
+      });
       patient.prescriptions.forEach((prescription) => {
         delete prescription.id;
         delete prescription.patientId;
+      
       });
+      // Calculate distinct allergy types for the current patient
+      
+      
     });
+    
 
     const totalPages = Math.ceil(totalPatientPrescription / perPage);
 
-    console.log(patientTimeGraph, 'patientTimeGraph');
     return {
       data: patientTimeGraph,
       totalPages: totalPages,
