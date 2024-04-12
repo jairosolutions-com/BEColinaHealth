@@ -1,3 +1,10 @@
 {
-  "cSpell.words": ["ILIKE", "luxon", "medicationlogs", "typeorm", "vitalsign"]
+  "cSpell.words": [
+    "ILIKE",
+    "luxon",
+    "medicationlogs",
+    "Streamable",
+    "typeorm",
+    "vitalsign"
+  ]
 }

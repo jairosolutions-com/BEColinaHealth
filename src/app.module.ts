@@ -27,12 +27,17 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { CronjobsModule } from '../services/cronjobs/cronjobs.module';
 import { CountryModule } from './countries/countries.module';
 import { LabResultsFilesModule } from './labResultsFiles/labResultsFiles.module';
+import { MulterModule } from '@nestjs/platform-express';
+import multer from 'multer';
 
 
 @Module({
   imports: [
     ConfigModule.forRoot({ envFilePath: '.env.local' }),
     ScheduleModule.forRoot(),
+    MulterModule.register({
+      dest: './uploads',
+    }),
     TypeOrmModule.forRoot({
       type: 'postgres',
       host: process.env.DB_HOST,

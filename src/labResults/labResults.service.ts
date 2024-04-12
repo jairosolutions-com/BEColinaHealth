@@ -10,7 +10,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { IdService } from 'services/uuid/id.service';
 import { Repository, ILike, Brackets } from 'typeorm';
 import { Patients } from 'src/patients/entities/patients.entity';
-import {LabResultsFilesService }from '../../src/labResultsFiles/labResultsFiles.service';
+import { LabResultsFilesService } from '../../src/labResultsFiles/labResultsFiles.service';
 
 @Injectable()
 export class LabResultsService {
@@ -19,6 +19,7 @@ export class LabResultsService {
     private patientsRepository: Repository<Patients>,
     @InjectRepository(LabResults)
     private labResultsRepository: Repository<LabResults>,
+    @InjectRepository(LabResultsFilesService)
     private readonly labResultsFilesService: LabResultsFilesService,
 
 
@@ -81,6 +82,7 @@ export class LabResultsService {
         'labResults.ldlCholesterol',
         'labResults.hdlCholesterol',
         'labResults.triglycerides',
+        'labResults.labFileId',
         'patient.uuid',
       ])
       .where('patient.uuid = :uuid', { uuid: patientUuid })
@@ -156,11 +158,24 @@ export class LabResultsService {
     };
   }
   //LAB FILES
-  async addLabFile(id: string, imageBuffer: Buffer, filename: string) {
+  async addPatientLabFile(id: string, imageBuffer: Buffer, filename: string) {
     const labFile = await this.labResultsFilesService.uploadLabResultFile(imageBuffer, filename);
-    await this.labResultsRepository.update(id, {
-      labFileId: labFile.id
+    console.log('idzz', id);
+    const { id: labResultsId } = await this.labResultsRepository.findOne({
+      select: ["id"],
+      where: { uuid: id }
     });
+    await this.labResultsRepository.update(labResultsId, {
+      labFileId: labFile.id,
+    });
+    console.log('labFileId', labFile.id);
     return labFile;
+  }
+  async getPatientLabFileByUuid(id: string, fileId: string) {
+    const patientLabFile = await this.labResultsFilesService.getFileByLabUuid(id);
+    if (!patientLabFile) {
+      throw new NotFoundException();
+    }
+    return patientLabFile;
   }
 }
