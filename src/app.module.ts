@@ -26,6 +26,7 @@ import { VitalSignsModule } from './vitalSigns/vitalSigns.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { CronjobsModule } from '../services/cronjobs/cronjobs.module';
 import { CountryModule } from './countries/countries.module';
+import { LabResultsFilesModule } from './labResultsFiles/labResultsFiles.module';
 
 
 @Module({
@@ -61,6 +62,7 @@ import { CountryModule } from './countries/countries.module';
     AllergiesModule,
     SurgeriesModule,
     CronjobsModule,
+    LabResultsFilesModule,
   ],
   controllers: [AppController],
   providers: [

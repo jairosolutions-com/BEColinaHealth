@@ -10,6 +10,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { IdService } from 'services/uuid/id.service';
 import { Repository, ILike, Brackets } from 'typeorm';
 import { Patients } from 'src/patients/entities/patients.entity';
+import {LabResultsFilesService }from '../../src/labResultsFiles/labResultsFiles.service';
 
 @Injectable()
 export class LabResultsService {
@@ -18,6 +19,7 @@ export class LabResultsService {
     private patientsRepository: Repository<Patients>,
     @InjectRepository(LabResults)
     private labResultsRepository: Repository<LabResults>,
+    private readonly labResultsFilesService: LabResultsFilesService,
 
 
 
@@ -61,7 +63,7 @@ export class LabResultsService {
   ): Promise<{ data: LabResults[], totalPages: number, currentPage: number, totalCount }> {
     const searchTerm = `%${term}%`; // Add wildcards to the search term
     const skip = (page - 1) * perPage;
-   
+
     const patientExists = await this.patientsRepository.findOne({ where: { uuid: patientUuid } });
 
     if (!patientExists) {
@@ -71,35 +73,35 @@ export class LabResultsService {
       .createQueryBuilder('labResults')
       .leftJoinAndSelect('labResults.patient', 'patient')
       .select([
-      'labResults.uuid',
-      'labResults.createdAt',
-      'labResults.hemoglobinA1c',
-      'labResults.fastingBloodGlucose',
-      'labResults.totalCholesterol',
-      'labResults.ldlCholesterol',
-      'labResults.hdlCholesterol',
-      'labResults.triglycerides',
-      'patient.uuid',
+        'labResults.uuid',
+        'labResults.createdAt',
+        'labResults.hemoglobinA1c',
+        'labResults.fastingBloodGlucose',
+        'labResults.totalCholesterol',
+        'labResults.ldlCholesterol',
+        'labResults.hdlCholesterol',
+        'labResults.triglycerides',
+        'patient.uuid',
       ])
       .where('patient.uuid = :uuid', { uuid: patientUuid })
       .orderBy(`labResults.${sortBy}`, sortOrder)
       .offset(skip)
       .limit(perPage);
-      if (term !== "") {
-        console.log("term", term);
-        labResultsQueryBuilder
-          .where(new Brackets((qb) => {
-            qb.andWhere('patient.uuid = :uuid', { uuid: patientUuid })
-          }))
-          .andWhere(new Brackets((qb) => {
-            qb.andWhere("labResults.uuid ILIKE :searchTerm", { searchTerm })
-              .orWhere("labResults.date ILIKE :searchTerm", { searchTerm })
-          }));
-      }
+    if (term !== "") {
+      console.log("term", term);
+      labResultsQueryBuilder
+        .where(new Brackets((qb) => {
+          qb.andWhere('patient.uuid = :uuid', { uuid: patientUuid })
+        }))
+        .andWhere(new Brackets((qb) => {
+          qb.andWhere("labResults.uuid ILIKE :searchTerm", { searchTerm })
+            .orWhere("labResults.date ILIKE :searchTerm", { searchTerm })
+        }));
+    }
     // Get lab results
     const labResultsList = await labResultsQueryBuilder.getRawMany();
 
-    
+
     const totalPatientLabResults = await labResultsQueryBuilder.getCount();
     console.log('COUNTED', totalPatientLabResults);
 
@@ -152,5 +154,13 @@ export class LabResultsService {
       message: `Lab Result with ID ${id} has been soft-deleted.`,
       deletedLabResult,
     };
+  }
+  //LAB FILES
+  async addLabFile(id: string, imageBuffer: Buffer, filename: string) {
+    const labFile = await this.labResultsFilesService.uploadLabResultFile(imageBuffer, filename);
+    await this.labResultsRepository.update(id, {
+      labFileId: labFile.id
+    });
+    return labFile;
   }
 }

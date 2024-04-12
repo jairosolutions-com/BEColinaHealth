@@ -6,10 +6,13 @@ import {
     Patch,
     Post,
     Query,
+    UploadedFile,
+    UseInterceptors,
 } from '@nestjs/common';
 import { LabResultsService } from './labResults.service';
 import { CreateLabResultInput } from './dto/create-labResults.input';
 import { UpdateLabResultInput } from './dto/update-labResults.input';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @Controller('lab-results')
 export class LabResultsController {
@@ -38,6 +41,13 @@ export class LabResultsController {
     @Patch('delete/:id')
     softDeletePrescriptions(@Param('id') id: string) {
         return this.labResultsService.softDeleteLabResults(id);
+    }
+
+    //labFile
+    @Post('lab-results/:id/file')
+    @UseInterceptors(FileInterceptor('file'))
+    addLabFile(@Param('id') @UploadedFile() id: string, file: Express.Multer.File) {
+        return this.labResultsService.addLabFile(id, file.buffer, file.originalname);
     }
 
 }
