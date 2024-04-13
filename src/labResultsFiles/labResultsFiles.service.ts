@@ -21,30 +21,24 @@ export class LabResultsFilesService {
 
   ) { }
 
-  async uploadLabResultFile(dataBuffer: Buffer, filename: string) {
+  async uploadLabResultFile(dataBuffer: Buffer, filename: string, labResultsId: number) {
     const newFile = await this.labResultsFilesRepository.create({
       file_uuid: this.idService.generateRandomUUID("LRF-"),
+      labResultsId: labResultsId,
       filename,
-      data: dataBuffer
+      data: dataBuffer,
     })
     await this.labResultsFilesRepository.save(newFile);
     return newFile;
   }
 
   async getFileByLabUuid(labResultUuid: string) {
-    const labResultFilesQueryBuilder = this.labResultsRepository
-      .createQueryBuilder('labResults')
-      .innerJoinAndSelect('labResults.labFile', 'labFile')
-      .select([
-        'labResults.labFileId',
-      ])
-      .where('labResults.uuid = :uuid', { uuid: labResultUuid })
-    const labResultFileId = await labResultFilesQueryBuilder.getRawOne();
-    if (!labResultFileId) {
-      throw new NotFoundException();
-    }
+    const { id: labResultId } = await this.labResultsRepository.findOne({
+      select: ['id'],
+      where: { uuid: labResultUuid },
+    });
     const file = await this.labResultsFilesRepository.findOne({
-      where: { id: labResultFileId },
+      where: { labResultsId: labResultId   },
     });
     if (!file) {
       throw new NotFoundException();

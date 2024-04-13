@@ -10,6 +10,8 @@ class LabResultsFiles {
     @Column(null, { nullable: true })
     file_uuid: string;
 
+    @Column()
+    labResultsId: number;
 
     @Column()
     filename: string;
@@ -19,15 +21,15 @@ class LabResultsFiles {
     })
     data: Uint8Array;
 
-    // @OneToOne(() => LabResults, (lab) => lab.file)
-    // @JoinColumn({
-    //   name: 'lab',
-    // })
-    // lab: LabResults;
-    
     @OneToOne(() => LabResults, (lab) => lab.labFile)
-    @JoinColumn({ name: 'labFileId' }) // Specify the column name for the foreign key
-    lab: LabResults;
+    @JoinColumn({
+      name: 'labResultsId', //fk id
+    })
+    lab: LabResults | null;
+    
+    // @OneToOne(() => LabResults, (lab) => lab.labFile)
+    // @JoinColumn({ name: 'labFileId' }) // Specify the column name for the foreign key
+    // lab: LabResults;
 
 }
 

@@ -19,7 +19,7 @@ export class LabResultsService {
     private patientsRepository: Repository<Patients>,
     @InjectRepository(LabResults)
     private labResultsRepository: Repository<LabResults>,
-    @InjectRepository(LabResultsFilesService)
+
     private readonly labResultsFilesService: LabResultsFilesService,
 
 
@@ -159,16 +159,16 @@ export class LabResultsService {
   }
   //LAB FILES
   async addPatientLabFile(id: string, imageBuffer: Buffer, filename: string) {
-    const labFile = await this.labResultsFilesService.uploadLabResultFile(imageBuffer, filename);
-    console.log('idzz', id);
+
     const { id: labResultsId } = await this.labResultsRepository.findOne({
       select: ["id"],
       where: { uuid: id }
     });
-    await this.labResultsRepository.update(labResultsId, {
-      labFileId: labFile.id,
-    });
-    console.log('labFileId', labFile.id);
+    const labFile = await this.labResultsFilesService.uploadLabResultFile(imageBuffer, filename, labResultsId);
+    // await this.labResultsRepository.update(labResultsId, {
+    //   labFileId: labFile.id,
+    // });
+    // console.log('labFileId', labFile.id);
     return labFile;
   }
   async getPatientLabFileByUuid(id: string, fileId: string) {

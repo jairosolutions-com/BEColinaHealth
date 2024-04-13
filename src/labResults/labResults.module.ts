@@ -14,7 +14,7 @@ import { LabResultsFilesService } from 'src/labResultsFiles/labResultsFiles.serv
 
 @Module({
   imports: [TypeOrmModule.forFeature([LabResults, LabResultsFiles,  Patients,Prescriptions])],
-  providers: [LabResultsResolver, LabResultsService, PatientsService,PrescriptionsService, IdService,LabResultsFiles,LabResultsFilesService ],
+  providers: [LabResultsResolver, LabResultsService, PatientsService,PrescriptionsService, IdService,LabResultsFilesService ],
   controllers: [LabResultsController],
 })
 export class LabResultsModule { }

@@ -50,9 +50,6 @@ export class LabResults {
   @Field((type) => Int)
   patientId: number;
 
-  @Column({ nullable: true })
-  labFileId?: number;
-
   @UpdateDateColumn({ name: 'updatedAt', nullable: true })
   @Field()
   updatedAt: string;
@@ -80,7 +77,7 @@ export class LabResults {
   // labFile?: LabResultsFiles;
 
   @OneToOne(() => LabResultsFiles, (file) => file.lab)
-  @JoinColumn({ name: 'id' }) // Specify the column name for the foreign key
+  @JoinColumn({ name: 'id' }) // Specify the column name for the primary key
   labFile?: LabResultsFiles;  
 
   // @JoinColumn({ name: 'labFileId' })

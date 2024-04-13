@@ -71,7 +71,7 @@ export class LabResultsController {
         }
     }
     @Get(':id/file')
-    async getDatabaseFileById(@Param('id', ParseIntPipe) id: string, @Res({ passthrough: true }) response: Response) {
+    async getDatabaseFileById(@Param('id') id: string, @Res({ passthrough: true }) response: Response) {
         const file = await this.labResultsFilesService.getFileByLabUuid(id);
         const stream = Readable.from(file.data);
         let contentType;
