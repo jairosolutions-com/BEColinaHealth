@@ -26,10 +26,6 @@ class LabResultsFiles {
       name: 'labResultsId', //fk id
     })
     lab: LabResults | null;
-    
-    // @OneToOne(() => LabResults, (lab) => lab.labFile)
-    // @JoinColumn({ name: 'labFileId' }) // Specify the column name for the foreign key
-    // lab: LabResults;
 
 }
 

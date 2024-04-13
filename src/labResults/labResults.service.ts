@@ -165,10 +165,6 @@ export class LabResultsService {
       where: { uuid: id }
     });
     const labFile = await this.labResultsFilesService.uploadLabResultFile(imageBuffer, filename, labResultsId);
-    // await this.labResultsRepository.update(labResultsId, {
-    //   labFileId: labFile.id,
-    // });
-    // console.log('labFileId', labFile.id);
     return labFile;
   }
   async getPatientLabFileByUuid(id: string, fileId: string) {
