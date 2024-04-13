@@ -37,7 +37,7 @@ export class LabResultsFilesService {
       select: ['id'],
       where: { uuid: labResultUuid },
     });
-    const file = await this.labResultsFilesRepository.findOne({
+    const file = await this.labResultsFilesRepository.find({
       where: { labResultsId: labResultId   },
     });
     if (!file) {

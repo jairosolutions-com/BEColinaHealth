@@ -1,6 +1,6 @@
 
 import { LabResults } from 'src/labResults/entities/labResults.entity';
-import { Column, Entity, JoinColumn, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity('labResultsFiles')
 class LabResultsFiles {
@@ -21,7 +21,7 @@ class LabResultsFiles {
     })
     data: Uint8Array;
 
-    @OneToOne(() => LabResults, (lab) => lab.labFile)
+    @ManyToOne(() => LabResults, (lab) => lab.labFile)
     @JoinColumn({
       name: 'labResultsId', //fk id
     })

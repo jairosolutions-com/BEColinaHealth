@@ -9,6 +9,7 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
+  OneToMany,
   OneToOne,
   PrimaryColumn,
   PrimaryGeneratedColumn,
@@ -76,7 +77,7 @@ export class LabResults {
   // })
   // labFile?: LabResultsFiles;
 
-  @OneToOne(() => LabResultsFiles, (file) => file.lab)
+  @OneToMany(() => LabResultsFiles, (file) => file.lab)
   @JoinColumn({ name: 'id' }) // Specify the column name for the primary key
   labFile?: LabResultsFiles;  
 

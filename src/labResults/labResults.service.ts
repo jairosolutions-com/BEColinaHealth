@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ConflictException,
   Injectable,
   NotFoundException,
@@ -158,15 +159,20 @@ export class LabResultsService {
     };
   }
   //LAB FILES
-  async addPatientLabFile(id: string, imageBuffer: Buffer, filename: string) {
+  async addPatientLabFile(labResultUuid: string, imageBuffer: Buffer, filename: string) {
 
     const { id: labResultsId } = await this.labResultsRepository.findOne({
       select: ["id"],
-      where: { uuid: id }
+      where: { uuid: labResultUuid }
     });
+    
     const labFile = await this.labResultsFilesService.uploadLabResultFile(imageBuffer, filename, labResultsId);
+    if (!labFile) {
+      throw new BadRequestException(`Lab result with UUID ${labResultUuid} not found`);
+  }
     return labFile;
   }
+  
   async getPatientLabFileByUuid(id: string, fileId: string) {
     const patientLabFile = await this.labResultsFilesService.getFileByLabUuid(id);
     if (!patientLabFile) {
