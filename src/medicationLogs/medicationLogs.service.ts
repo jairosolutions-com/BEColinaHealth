@@ -74,7 +74,7 @@ export class MedicationLogsService {
     patientUuid: string,
     term: string,
     page: number = 1,
-    sortBy: string = 'medicationLogsDate',
+    sortBy: string = 'medicationLogsTime',
     sortOrder: 'ASC' | 'DESC' = 'ASC',
     perPage: number = 5,
   ): Promise<{

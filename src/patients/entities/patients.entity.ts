@@ -3,6 +3,7 @@ import { Allergies } from 'src/allergies/entities/allergies.entity';
 import { Appointments } from 'src/appointments/entities/appointments.entity';
 import { Companies } from 'src/companies/entities/companies.entity';
 import { EmergencyContacts } from 'src/emergencyContacts/entities/emergencyContacts.entity';
+import { Forms } from 'src/forms/entities/form.entity';
 import { LabResults } from 'src/labResults/entities/labResults.entity';
 import { MedicationLogs } from 'src/medicationLogs/entities/medicationLogs.entity';
 
@@ -153,4 +154,9 @@ export class Patients {
   //Patient information to table Allergies
   @OneToMany(() => Surgeries, (surgeries) => surgeries.patient)
   surgeries: Surgeries[];
+
+   //Patient information to table Forms
+   @OneToMany(() => Forms, (forms) => forms.patient)
+   @Field(() => [Forms], { nullable: true })
+   forms: Forms[];
 }
