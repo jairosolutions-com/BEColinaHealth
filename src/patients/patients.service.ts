@@ -237,7 +237,7 @@ export class PatientsService {
 
   async getPatientsWithMedicationLogsAndPrescriptions(
     page: number = 1,
-    perPage: number = 4,
+    perPage: number = 3,
   ): Promise<{
     data: Patients[];
     totalPages: number;

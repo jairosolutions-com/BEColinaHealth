@@ -27,6 +27,9 @@ export class Forms {
   @Column()
   notes: string;
 
+  @Column({ nullable: true })
+  patientId: number;
+
   @UpdateDateColumn({ name: 'updatedAt', nullable: true })
   updatedAt: string;
 
