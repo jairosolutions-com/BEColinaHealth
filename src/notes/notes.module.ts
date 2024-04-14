@@ -9,9 +9,10 @@ import { PatientsService } from 'src/patients/patients.service';
 import { IdService } from 'services/uuid/id.service';
 import { Prescriptions } from 'src/prescriptions/entities/prescriptions.entity';
 import { PrescriptionsService } from 'src/prescriptions/prescriptions.service';
+import { MedicationLogs } from 'src/medicationLogs/entities/medicationLogs.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Notes, Patients,Prescriptions])],
+  imports: [TypeOrmModule.forFeature([Notes, Patients,Prescriptions,MedicationLogs])],
   providers: [NotesService,PatientsService,PrescriptionsService, IdService],
   controllers: [NotesController],
 })
