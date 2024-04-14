@@ -3,6 +3,7 @@ import { NotesService } from './notes.service';
 import { CreateNotesInput } from './dto/create-notes.input';
 import { UpdateNotesInput } from './dto/update-notes.input';
 
+
 @Controller('notes')
 export class NotesController {
     constructor(private readonly notesService: NotesService) { }
