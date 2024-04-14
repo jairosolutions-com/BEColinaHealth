@@ -3,6 +3,7 @@ import {
     Body,
     Controller,
     Get,
+    HttpStatus,
     Param,
 
     ParseIntPipe,
@@ -18,6 +19,8 @@ import {
     UploadedFiles,
     UseInterceptors,
 } from '@nestjs/common';
+import * as fs from 'fs';
+
 import { LabResultsService } from './labResults.service';
 import { CreateLabResultInput } from './dto/create-labResults.input';
 import { UpdateLabResultInput } from './dto/update-labResults.input';
@@ -87,29 +90,73 @@ export class LabResultsController {
     async getDatabaseFilesById(@Param('id') id: string, @Res({ passthrough: true }) response: Response) {
         // Retrieve an array of files associated with the given lab result UUID
         const files = await this.labResultsFilesService.getFileByLabUuid(id);
-
+        console.log(files)
         // Check if there are any files to render
         if (files.length === 0) {
             response.status(404).send(`No files found for lab result with UUID ${id}`);
             return;
         }
+        response.setHeader('Content-Disposition', `inline; filename="${files[0].filename}"`);
+        const ext = extname(files[0].filename).toLowerCase();
+        let contentType: string;
+
+        switch (ext) {
+            case '.jpeg':
+            case '.jpg':
+                contentType = 'image/jpeg';
+                break;
+            case '.png':
+                contentType = 'image/png';
+                break;
+            case '.pdf':
+                contentType = 'application/pdf';
+                break;
+            default:
+                contentType = 'application/octet-stream';
+        }
+        response.setHeader('Content-Type', contentType);
+
 
         // Iterate over each file in the array
         for (const file of files) {
-
-            let contentType: string;
             const stream = Readable.from(file.data);
 
-            // Set the appropriate headers
-            response.set({
-                'Content-Disposition': `inline; filename="${file.filename}"`,
-                'Content-Type': 'application/zip',
-            });
+            // // Determine the file extension and set the content type
+            // const ext = extname(file.filename).toLowerCase();
 
-            //   Determine the file extension and set the content type
-            const ext = extname(file.filename).toLowerCase();
+            // Stream the file to the client
+            stream.pipe(response, { end: false });
 
-            switch (ext) {
+            // Add a delay between files if necessary (optional)
+            await new Promise(resolve => setTimeout(resolve, 100));
+        }
+
+        // End the response when done
+        response.end();
+    }
+    @Get(':id/files')
+
+    async getDatabaseFileszById(@Param('id') id: string, @Res() response: Response): Promise<void> {
+        // Retrieve an array of files associated with the given lab result UUID
+        // Retrieve an array of files associated with the given lab result UUID
+        const files = await this.labResultsFilesService.getFileByLabUuid(id);
+
+        // Check if there are any files to render
+        if (files.length === 0) {
+            response.status(HttpStatus.NOT_FOUND).send(`No files found for lab result with UUID ${id}`);
+            return;
+        }
+
+        // Iterate over each file in the array and stream them one by one
+        for (const file of files) {
+            // Create a readable stream from the file data
+            const fileStream = Readable.from(file.data);
+
+            // Determine the file extension and set the content type
+            const fileExtension = extname(file.filename).toLowerCase();
+            let contentType: string;
+
+            switch (fileExtension) {
                 case '.jpeg':
                 case '.jpg':
                     contentType = 'image/jpeg';
@@ -120,50 +167,91 @@ export class LabResultsController {
                 case '.pdf':
                     contentType = 'application/pdf';
                     break;
-                // Add more cases as needed for additional file types
                 default:
-                    // If the file type is not recognized, set a default content type
-                    contentType = 'application/octet-stream'; // Default binary content type
+                    contentType = 'application/octet-stream';
             }
 
+            // Set headers for the file
+            response.setHeader('Content-Disposition', `inline; filename="${file.filename}"`);
+            response.setHeader('Content-Type', contentType);
 
-            // // Create a zip archive with the files
-            // const archiver = require('archiver');
-            // const archive = archiver('zip', { zlib: { level: 9 } });
+            // Use StreamableFile to manage the streaming of the file
+            // const streamableFile = new StreamableFile(fileStream);
 
-            // // Set up the stream
-            // response.on('close', () => {
-            //     archive.destroy();
-            // });
+            // Stream the file to the client
+            // streamableFile.pipe(response, { end: false });
+            fileStream.pipe(response, { end: false });
 
-            // archive.on('error', (err: Error) => {
-            //     throw err;
-            // });
+            // Add a delay between files if necessary (optional)
+            await new Promise(resolve => setTimeout(resolve, 100));
+        }
 
-            // archive.pipe(response);
+        // End the response when done
+        response.end();
+    }
+    @Get(':id/filez')
+    async getFile(@Param('id') id: string, @Res() response: Response): Promise<void> {
+        const files = await this.labResultsFilesService.getFileByLabUuid(id);
+        const fileList = [];
+        const arrRes = [];
 
-            // // Add files to the archive
-            // files.forEach(file => {
-            //     archive.append(file.data, { name: file.filename });
-            // });
+        // Check if there are any files to render
+        if (files.length === 0) {
+            response.status(HttpStatus.NOT_FOUND).send(`No files found for lab result with UUID ${id}`);
+            return;
+        }
 
-            // // Finalize the archive
-            // await archive.finalize();
-            // // Create a Readable stream from the file data
-            // Create a readable stream from the file data
+        // Iterate over each file in the array and stream them one by one
+        for (const file of files) {
+            response.setHeader('Content-Disposition', `inline; filename="${file.filename}"`);
+            const fileExtension = extname(file.filename).toLowerCase();
+            let contentType: string;
 
-            // Stream the file to the client using StreamableFile
-            await new Promise<void>((resolve) => {
-                const file = createReadStream(join(process.cwd(), 'package.json'));
+            switch (fileExtension) {
+                case '.jpeg':
+                case '.jpg':
+                    contentType = 'image/jpeg';
+                    break;
+                case '.png':
+                    contentType = 'image/png';
+                    break;
+                case '.pdf':
+                    contentType = 'application/pdf';
+                    break;
+                default:
+                    contentType = 'application/octet-stream';
+            }
 
-                stream.on('end', resolve);
-                return new StreamableFile(file);
+            // Set headers for the file
 
-            });
+            fileList.push(file);
 
         }
+        // Create a readable stream from the file data
+        for (const filez of fileList) {
+            console.log(filez.filename)
+            const fileStream= Readable.from(filez.data);
+
+            arrRes.push(fileStream);
+
+            for (const file of arrRes) {
+                fileStream.pipe(response, { end: false });
+
+            }
+            // Add a delay between files if necessary (optional)
+            await new Promise(resolve => setTimeout(resolve, 100));
+        }
+
+        // Pipe the file stream to the response
+
+
+        // End the response after all files have been streamed
+        response.end();
     }
+
 }
+
+
 //SINGLE FILE VIEW
 // async getDatabaseFileById(@Param('id') id: string, @Res({ passthrough: true }) response: Response) {
 //     const file = await this.labResultsFilesService.getFileByLabUuid(id);
