@@ -32,13 +32,23 @@ export class LabResultsFilesService {
     return newFile;
   }
 
-  async getFileByLabUuid(labResultUuid: string) {
-    const { id: labResultId } = await this.labResultsRepository.findOne({
-      select: ['id'],
-      where: { uuid: labResultUuid },
-    });
+  async getLabFilesByLabId(labResultId: number) {
     const file = await this.labResultsFilesRepository.find({
       where: { labResultsId: labResultId   },
+    });
+    if (!file) {
+      throw new NotFoundException();
+    }
+    return file;
+  }
+  
+  async getFileByLabFileUuid(labFileUuid: string) {
+    const { id: labFileId } = await this.labResultsFilesRepository.findOne({
+      select: ['id'],
+      where: { file_uuid: labFileUuid },
+    });
+    const file = await this.labResultsFilesRepository.findOne({
+      where: { id: labFileId   },
     });
     if (!file) {
       throw new NotFoundException();

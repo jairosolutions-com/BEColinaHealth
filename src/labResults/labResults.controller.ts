@@ -86,21 +86,41 @@ export class LabResultsController {
             throw new BadRequestException('No file uploaded');
         }
     }
-    @Get(':id/file')
-    async getDatabaseFilesById(@Param('id') id: string, @Res({ passthrough: true }) response: Response) {
-        // Retrieve an array of files associated with the given lab result UUID
-        const files = await this.labResultsFilesService.getFileByLabUuid(id);
-        console.log(files)
-        // Check if there are any files to render
+    @Get(':id/files') //get a list of files of that lab result
+    async getDatabaseFilesById(@Param('id') id: string, response: Response) {
+        const files = await this.labResultsService.getPatientLabFileByUuid(id);
+
         if (files.length === 0) {
-            response.status(404).send(`No files found for lab result with UUID ${id}`);
+            return (`No files found for lab result with UUID ${id}`);
+        }
+
+        // Return an array of file metadata (e.g., file IDs, filenames, file types)
+        const fileMetadataArray = files.map(file => ({
+            fileId: file.file_uuid,
+            filename: file.filename,
+            data: file.data,
+
+        }));
+
+        return fileMetadataArray;
+    }
+    @Get(':id/files/:fileId') //get a list of files of that lab result
+    async getFileById(@Param('id') id: string, @Param('fileId') fileId: string, @Res() response: Response): Promise<Response> {
+
+        const file = await this.labResultsFilesService.getFileByLabFileUuid(fileId);
+
+        if (!file) {
+            response.status(HttpStatus.NOT_FOUND).send(`File with File ID ${fileId} not found`);
             return;
         }
-        response.setHeader('Content-Disposition', `inline; filename="${files[0].filename}"`);
-        const ext = extname(files[0].filename).toLowerCase();
+
+
+        // Set appropriate headers
+        response.setHeader('Content-Disposition', `inline; filename="${file.filename}"`);
+        const fileExtension = extname(file.filename).toLowerCase();
         let contentType: string;
 
-        switch (ext) {
+        switch (fileExtension) {
             case '.jpeg':
             case '.jpg':
                 contentType = 'image/jpeg';
@@ -114,141 +134,16 @@ export class LabResultsController {
             default:
                 contentType = 'application/octet-stream';
         }
+
         response.setHeader('Content-Type', contentType);
 
-
-        // Iterate over each file in the array
-        for (const file of files) {
-            const stream = Readable.from(file.data);
-
-            // // Determine the file extension and set the content type
-            // const ext = extname(file.filename).toLowerCase();
-
-            // Stream the file to the client
-            stream.pipe(response, { end: false });
-
-            // Add a delay between files if necessary (optional)
-            await new Promise(resolve => setTimeout(resolve, 100));
-        }
-
-        // End the response when done
-        response.end();
-    }
-    @Get(':id/files')
-
-    async getDatabaseFileszById(@Param('id') id: string, @Res() response: Response): Promise<void> {
-        // Retrieve an array of files associated with the given lab result UUID
-        // Retrieve an array of files associated with the given lab result UUID
-        const files = await this.labResultsFilesService.getFileByLabUuid(id);
-
-        // Check if there are any files to render
-        if (files.length === 0) {
-            response.status(HttpStatus.NOT_FOUND).send(`No files found for lab result with UUID ${id}`);
-            return;
-        }
-
-        // Iterate over each file in the array and stream them one by one
-        for (const file of files) {
-            // Create a readable stream from the file data
-            const fileStream = Readable.from(file.data);
-
-            // Determine the file extension and set the content type
-            const fileExtension = extname(file.filename).toLowerCase();
-            let contentType: string;
-
-            switch (fileExtension) {
-                case '.jpeg':
-                case '.jpg':
-                    contentType = 'image/jpeg';
-                    break;
-                case '.png':
-                    contentType = 'image/png';
-                    break;
-                case '.pdf':
-                    contentType = 'application/pdf';
-                    break;
-                default:
-                    contentType = 'application/octet-stream';
-            }
-
-            // Set headers for the file
-            response.setHeader('Content-Disposition', `inline; filename="${file.filename}"`);
-            response.setHeader('Content-Type', contentType);
-
-            // Use StreamableFile to manage the streaming of the file
-            // const streamableFile = new StreamableFile(fileStream);
-
-            // Stream the file to the client
-            // streamableFile.pipe(response, { end: false });
-            fileStream.pipe(response, { end: false });
-
-            // Add a delay between files if necessary (optional)
-            await new Promise(resolve => setTimeout(resolve, 100));
-        }
-
-        // End the response when done
-        response.end();
-    }
-    @Get(':id/filez')
-    async getFile(@Param('id') id: string, @Res() response: Response): Promise<void> {
-        const files = await this.labResultsFilesService.getFileByLabUuid(id);
-        const fileList = [];
-        const arrRes = [];
-
-        // Check if there are any files to render
-        if (files.length === 0) {
-            response.status(HttpStatus.NOT_FOUND).send(`No files found for lab result with UUID ${id}`);
-            return;
-        }
-
-        // Iterate over each file in the array and stream them one by one
-        for (const file of files) {
-            response.setHeader('Content-Disposition', `inline; filename="${file.filename}"`);
-            const fileExtension = extname(file.filename).toLowerCase();
-            let contentType: string;
-
-            switch (fileExtension) {
-                case '.jpeg':
-                case '.jpg':
-                    contentType = 'image/jpeg';
-                    break;
-                case '.png':
-                    contentType = 'image/png';
-                    break;
-                case '.pdf':
-                    contentType = 'application/pdf';
-                    break;
-                default:
-                    contentType = 'application/octet-stream';
-            }
-
-            // Set headers for the file
-
-            fileList.push(file);
-
-        }
         // Create a readable stream from the file data
-        for (const filez of fileList) {
-            console.log(filez.filename)
-            const fileStream= Readable.from(filez.data);
-
-            arrRes.push(fileStream);
-
-            for (const file of arrRes) {
-                fileStream.pipe(response, { end: false });
-
-            }
-            // Add a delay between files if necessary (optional)
-            await new Promise(resolve => setTimeout(resolve, 100));
-        }
+        const fileStream = Readable.from(file.data);
 
         // Pipe the file stream to the response
 
-
-        // End the response after all files have been streamed
-        response.end();
+        return fileStream.pipe(response);
     }
-
 }
 
 

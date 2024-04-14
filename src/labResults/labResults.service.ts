@@ -83,7 +83,6 @@ export class LabResultsService {
         'labResults.ldlCholesterol',
         'labResults.hdlCholesterol',
         'labResults.triglycerides',
-        'labResults.labFileId',
         'patient.uuid',
       ])
       .where('patient.uuid = :uuid', { uuid: patientUuid })
@@ -165,16 +164,30 @@ export class LabResultsService {
       select: ["id"],
       where: { uuid: labResultUuid }
     });
-    
+
     const labFile = await this.labResultsFilesService.uploadLabResultFile(imageBuffer, filename, labResultsId);
     if (!labFile) {
       throw new BadRequestException(`Lab result with UUID ${labResultUuid} not found`);
-  }
+    }
     return labFile;
   }
-  
-  async getPatientLabFileByUuid(id: string, fileId: string) {
-    const patientLabFile = await this.labResultsFilesService.getFileByLabUuid(id);
+
+  async getPatientLabFileByUuid(labResultUuid: string) {
+    const labResult = await this.labResultsRepository.findOne({
+      select: ['id'],
+      where: { uuid: labResultUuid },
+    });
+
+    // Check if a lab result was found
+    if (!labResult) {
+      // If no lab result is found, throw a NotFoundException
+      throw new NotFoundException(`Lab result with UUID ${labResultUuid} not found`);
+    }
+
+    // If a lab result was found, destructure the 'id' property
+    const { id: labResultId } = labResult;
+
+    const patientLabFile = await this.labResultsFilesService.getLabFilesByLabId(labResultId);
     if (!patientLabFile) {
       throw new NotFoundException();
     }
