@@ -68,13 +68,14 @@ export class LabResultsController {
     @Post(':id/upload')
     @UseInterceptors(FilesInterceptor('labfile', 5))
     addLabFile(@Param('id') id: string, @UploadedFiles(getFileValidator()) files: Array<Express.Multer.File>) {
+        console.log(`Received ID: ${id}`);
+
         // Ensure that 'file' is defined before accessing its properties
         if (files && files.length > 0) {
             for (const file of files) {
                 if (file) {
                     // Process each file if it is defined
                     this.labResultsService.addPatientLabFile(id, file.buffer, file.originalname);
-                    console.log(file);
                 } else {
                     // Handle undefined file elements
                     console.warn('Undefined file element detected.');

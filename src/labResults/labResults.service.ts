@@ -159,18 +159,34 @@ export class LabResultsService {
   }
   //LAB FILES
   async addPatientLabFile(labResultUuid: string, imageBuffer: Buffer, filename: string) {
-
-    const { id: labResultsId } = await this.labResultsRepository.findOne({
-      select: ["id"],
-      where: { uuid: labResultUuid }
-    });
-
-    const labFile = await this.labResultsFilesService.uploadLabResultFile(imageBuffer, filename, labResultsId);
-    if (!labFile) {
-      throw new BadRequestException(`Lab result with UUID ${labResultUuid} not found`);
+    console.log(`Received labResultUuid: ${labResultUuid}`);
+    
+    if (!labResultUuid) {
+        console.error("No labResultUuid provided.");
+        throw new BadRequestException(`No lab result uuid provided`);
     }
+    
+    const { id: labResultsId } = await this.labResultsRepository.findOne({
+        select: ["id"],
+        where: { uuid: labResultUuid }
+    });
+    
+    console.log(`Found lab result ID: ${labResultsId}`);
+    
+    if (!labResultsId) {
+        throw new BadRequestException(`Lab result with UUID ${labResultUuid} not found`);
+    }
+    
+    const labFile = await this.labResultsFilesService.uploadLabResultFile(imageBuffer, filename, labResultsId);
+    
+    if (!labFile) {
+        throw new BadRequestException(`Failed to upload lab file for lab result UUID ${labResultUuid}`);
+    }
+    
+    console.log(`Lab file uploaded successfully: ${labFile}`);
+    
     return labFile;
-  }
+}
 
   async getPatientLabFileByUuid(labResultUuid: string) {
     const labResult = await this.labResultsRepository.findOne({
