@@ -59,7 +59,7 @@ export class LabResultsService {
     term: string,
     patientUuid: string,
     page: number = 1,
-    sortBy: string = 'date',
+    sortBy: string = 'uuid',
     sortOrder: 'ASC' | 'DESC' = 'ASC',
     perPage: number = 5,
   ): Promise<{ data: LabResults[], totalPages: number, currentPage: number, totalCount }> {
@@ -71,24 +71,27 @@ export class LabResultsService {
     if (!patientExists) {
       throw new NotFoundException('Patient not found');
     }
+    // Build the query with DISTINCT, ordering, and pagination
     const labResultsQueryBuilder = this.labResultsRepository
-      .createQueryBuilder('labResults')
-      .leftJoinAndSelect('labResults.patient', 'patient')
-      .select([
-        'labResults.uuid',
-        'labResults.createdAt',
-        'labResults.hemoglobinA1c',
-        'labResults.fastingBloodGlucose',
-        'labResults.totalCholesterol',
-        'labResults.ldlCholesterol',
-        'labResults.hdlCholesterol',
-        'labResults.triglycerides',
-        'patient.uuid',
-      ])
-      .where('patient.uuid = :uuid', { uuid: patientUuid })
-      .orderBy(`labResults.${sortBy}`, sortOrder)
-      .offset(skip)
-      .limit(perPage);
+        .createQueryBuilder('labResults')
+        .leftJoinAndSelect('labResults.patient', 'patient')
+        .select([
+            'labResults.uuid', // Add DISTINCT for UUID
+            'labResults.createdAt',
+            'labResults.hemoglobinA1c',
+            'labResults.fastingBloodGlucose',
+            'labResults.totalCholesterol',
+            'labResults.ldlCholesterol',
+            'labResults.hdlCholesterol',
+            'labResults.triglycerides',
+            'patient.uuid',
+        ])
+        .where('patient.uuid = :uuid', { uuid: patientUuid })
+        .orderBy(`labResults.${sortBy}`, sortOrder)
+        .offset(skip) // Skip records according to the page number and perPage
+        .limit(perPage); // Retrieve only the number of records per page
+
+
     if (term !== "") {
       console.log("term", term);
       labResultsQueryBuilder
