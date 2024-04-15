@@ -29,6 +29,7 @@ import { CountryModule } from './countries/countries.module';
 import { LabResultsFilesModule } from './labResultsFiles/labResultsFiles.module';
 import { MulterModule } from '@nestjs/platform-express';
 import multer from 'multer';
+import { PrescriptionFilesModule } from './prescriptionsFiles/prescriptionsFiles.module';
 
 
 @Module({
@@ -68,6 +69,7 @@ import multer from 'multer';
     SurgeriesModule,
     CronjobsModule,
     LabResultsFilesModule,
+    PrescriptionFilesModule
   ],
   controllers: [AppController],
   providers: [

@@ -4,9 +4,8 @@ import {
   Res,
   StreamableFile,
 } from '@nestjs/common';
-import { LabResultsFilesService } from './prescriptionsFiles.service';
-import { CreateLabResultsFileDto } from './dto/create-labResultsFiles.dto';
-import { UpdateLabResultsFileDto } from './dto/update-prescriptionsFiles.dto';
+import { PrescriptionFilesService } from './prescriptionsFiles.service';
+
 import { Readable } from 'stream';
 import { Response } from 'express';
 import { extname } from 'path'; // Import the 'extname' function from the 'path' module
@@ -14,8 +13,8 @@ import { extname } from 'path'; // Import the 'extname' function from the 'path'
 
 
 @Controller('labResultsFiles')
-export class LabResultsFilesController {
-  constructor(private readonly labResultsFilesService: LabResultsFilesService) { }
+export class PrescriptionsFilesController {
+  constructor(private readonly prescriptionFilesService: PrescriptionFilesService) { }
 
   // @Get(':id')
   // async getDatabaseFileById(@Param('id', ParseIntPipe) @Param('file_uuid') file_uuid: string, id: string, @Res({ passthrough: true }) response: Response) {

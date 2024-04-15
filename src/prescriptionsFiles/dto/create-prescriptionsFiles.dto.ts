@@ -1,7 +1,7 @@
 import { Field } from '@nestjs/graphql';
 import { IsString, IsNotEmpty, IsNumber } from 'class-validator';
 
-export class CreateLabResultsFileDto {
+export class CreatePrescriptionsFileDto {
     @Field()
     id: number;
 
