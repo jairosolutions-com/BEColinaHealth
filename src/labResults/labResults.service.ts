@@ -69,7 +69,7 @@ export class LabResultsService {
     const patientExists = await this.patientsRepository.findOne({ where: { uuid: patientUuid } });
 
     if (!patientExists) {
-      throw new NotFoundException('Patient not found');
+      throw new NotFoundException('Patient   not found');
     }
     // Build the query with DISTINCT, ordering, and pagination
     const labResultsQueryBuilder = this.labResultsRepository
