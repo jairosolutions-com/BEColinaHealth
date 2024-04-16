@@ -11,10 +11,11 @@ import { Prescriptions } from 'src/prescriptions/entities/prescriptions.entity';
 import { PrescriptionsService } from 'src/prescriptions/prescriptions.service';
 import { PrescriptionsFiles } from 'src/prescriptionsFiles/entities/prescriptionsFiles.entity';
 import { PrescriptionFilesService } from 'src/prescriptionsFiles/prescriptionsFiles.service';
+import { MedicationLogs } from 'src/medicationLogs/entities/medicationLogs.entity';
 // import { AppointmentScheduler } from 'services/scheduler/appointment.scheduler';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Appointments, Patients,Prescriptions, PrescriptionsFiles])],
+  imports: [TypeOrmModule.forFeature([Appointments,MedicationLogs, Patients,Prescriptions, PrescriptionsFiles])],
   providers: [AppointmentsResolver, AppointmentsService, IdService,PrescriptionsService, Logger, PatientsService,PrescriptionFilesService],
 
   controllers: [AppointmentsController],

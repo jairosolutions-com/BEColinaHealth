@@ -71,7 +71,7 @@ import { FormsModule } from './forms/forms.module';
     SurgeriesModule,
     CronjobsModule,
 
-    PrescriptionFilesModule
+    PrescriptionFilesModule,
 
    LabResultsFilesModule,
 

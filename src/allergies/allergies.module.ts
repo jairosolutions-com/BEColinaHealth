@@ -10,9 +10,10 @@ import { Prescriptions } from 'src/prescriptions/entities/prescriptions.entity';
 import { PrescriptionsService } from 'src/prescriptions/prescriptions.service';
 import { PrescriptionFilesService } from 'src/prescriptionsFiles/prescriptionsFiles.service';
 import { PrescriptionsFiles } from 'src/prescriptionsFiles/entities/prescriptionsFiles.entity';
+import { MedicationLogs } from 'src/medicationLogs/entities/medicationLogs.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Allergies, Patients,Prescriptions,PrescriptionsFiles])],
+  imports: [TypeOrmModule.forFeature([Allergies,MedicationLogs, Patients,Prescriptions,PrescriptionsFiles])],
 
   controllers: [AllergiesController],
   providers: [AllergiesService, IdService, PatientsService,PrescriptionsService, PrescriptionFilesService],

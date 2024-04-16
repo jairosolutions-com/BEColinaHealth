@@ -13,6 +13,7 @@ import { Prescriptions } from './entities/prescriptions.entity';
 import { IdService } from 'services/uuid/id.service'; //
 import { Patients } from 'src/patients/entities/patients.entity';
 import { PrescriptionFilesService } from 'src/prescriptionsFiles/prescriptionsFiles.service';
+import { MedicationLogs } from 'src/medicationLogs/entities/medicationLogs.entity';
 
 
 @Injectable()
@@ -22,6 +23,8 @@ export class PrescriptionsService {
     private prescriptionsRepository: Repository<Prescriptions>,
     @InjectRepository(Patients)
     private patientsRepository: Repository<Patients>,
+    @InjectRepository(MedicationLogs)
+    private medicationLogsRepository: Repository<MedicationLogs>,
     private readonly prescriptionFilesService: PrescriptionFilesService,
 
     private idService: IdService, // Inject the IdService

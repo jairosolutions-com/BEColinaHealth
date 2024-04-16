@@ -13,9 +13,10 @@ import LabResultsFiles from 'src/labResultsFiles/entities/labResultsFiles.entity
 import { LabResultsFilesService } from 'src/labResultsFiles/labResultsFiles.service';
 import { PrescriptionFilesService } from 'src/prescriptionsFiles/prescriptionsFiles.service';
 import { PrescriptionsFiles } from 'src/prescriptionsFiles/entities/prescriptionsFiles.entity';
+import { MedicationLogs } from 'src/medicationLogs/entities/medicationLogs.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([LabResults, LabResultsFiles,  Patients,Prescriptions, PrescriptionsFiles])],
+  imports: [TypeOrmModule.forFeature([LabResults, LabResultsFiles, MedicationLogs, Patients,Prescriptions, PrescriptionsFiles])],
   providers: [LabResultsResolver, LabResultsService, PatientsService,PrescriptionFilesService,PrescriptionsService, IdService,LabResultsFilesService ],
 
   controllers: [LabResultsController],

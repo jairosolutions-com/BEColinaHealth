@@ -11,8 +11,9 @@ import { Prescriptions } from 'src/prescriptions/entities/prescriptions.entity';
 import { PrescriptionsService } from 'src/prescriptions/prescriptions.service';
 import { PrescriptionsFiles } from 'src/prescriptionsFiles/entities/prescriptionsFiles.entity';
 import { PrescriptionFilesService } from 'src/prescriptionsFiles/prescriptionsFiles.service';
+import { MedicationLogs } from 'src/medicationLogs/entities/medicationLogs.entity';
 
-@Module({  imports: [TypeOrmModule.forFeature([EmergencyContacts, Patients,Prescriptions, PrescriptionsFiles])],
+@Module({  imports: [TypeOrmModule.forFeature([EmergencyContacts,MedicationLogs, Patients,Prescriptions, PrescriptionsFiles])],
   providers: [EmergencyContactsResolver, PrescriptionFilesService,EmergencyContactsService,PrescriptionsService, PatientsService, IdService],
 
   controllers: [EmergencyContactsController],
