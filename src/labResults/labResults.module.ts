@@ -17,6 +17,7 @@ import { PrescriptionsFiles } from 'src/prescriptionsFiles/entities/prescription
 @Module({
   imports: [TypeOrmModule.forFeature([LabResults, LabResultsFiles,  Patients,Prescriptions, PrescriptionsFiles])],
   providers: [LabResultsResolver, LabResultsService, PatientsService,PrescriptionFilesService,PrescriptionsService, IdService,LabResultsFilesService ],
+
   controllers: [LabResultsController],
 })
 export class LabResultsModule { }

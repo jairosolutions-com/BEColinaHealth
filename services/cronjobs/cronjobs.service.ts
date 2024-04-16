@@ -158,6 +158,7 @@ export class CronjobsService {
   //   const todayDate = new Date();
   //   todayDate.setUTCHours(0, 0, 0, 0);
 
+
   //   console.log('currentDate now', todayDate);
 
   //   const prescriptions = await this.prescriptionsRepository.find({

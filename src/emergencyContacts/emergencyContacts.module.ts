@@ -14,6 +14,7 @@ import { PrescriptionFilesService } from 'src/prescriptionsFiles/prescriptionsFi
 
 @Module({  imports: [TypeOrmModule.forFeature([EmergencyContacts, Patients,Prescriptions, PrescriptionsFiles])],
   providers: [EmergencyContactsResolver, PrescriptionFilesService,EmergencyContactsService,PrescriptionsService, PatientsService, IdService],
+
   controllers: [EmergencyContactsController],
 })
 export class EmergencyContactsModule { }

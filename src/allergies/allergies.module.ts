@@ -13,6 +13,7 @@ import { PrescriptionsFiles } from 'src/prescriptionsFiles/entities/prescription
 
 @Module({
   imports: [TypeOrmModule.forFeature([Allergies, Patients,Prescriptions,PrescriptionsFiles])],
+
   controllers: [AllergiesController],
   providers: [AllergiesService, IdService, PatientsService,PrescriptionsService, PrescriptionFilesService],
 })

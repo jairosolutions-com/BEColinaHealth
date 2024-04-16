@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { CreatePatientsInput } from './dto/create-patients.input';
 import { UpdatePatientsInput } from './dto/update-patients.input';
 import { Patients } from './entities/patients.entity';
-import { ILike, In, Like, Repository } from 'typeorm';
+import { Brackets, ILike, In, Like, Repository } from 'typeorm';
 import { IdService } from 'services/uuid/id.service'; //
 import {
   HttpException,
@@ -236,18 +236,34 @@ export class PatientsService {
   }
 
   /////
+  async searchPatients(term: string): Promise<Patients[]> {
+    const searchTerm = `%${term}%`; // Add wildcards to the search term
+    const patients = await this.patientsRepository
+      .createQueryBuilder('patient')
+      .leftJoinAndSelect('patient.medicationlogs', 'medicationlogs')
+      .leftJoinAndSelect('patient.prescriptions', 'prescriptions')
+      .leftJoinAndSelect('patient.allergies', 'allergies')
+      .where('patient.firstName ILIKE :searchTerm', { searchTerm })
+      .orWhere('patient.lastName ILIKE :searchTerm', { searchTerm })
+      .orWhere('patient.email ILIKE :searchTerm', { searchTerm })
+      .getMany();
+    console.log('patients', patients);
+    return patients;
+  }
 
   async getPatientsWithMedicationLogsAndPrescriptions(
+    term: string,
     page: number = 1,
-    perPage: number = 4,
+    perPage: number = 3,
   ): Promise<{
     data: Patients[];
     totalPages: number;
     currentPage: number;
-    totalCount;
+    totalCount: number;
   }> {
     const skip = (page - 1) * perPage;
-    // Extracting today's date without time
+    const searchTerm = `%${term}%`;
+
     const todayDate = new Date();
     todayDate.setUTCHours(0, 0, 0, 0);
     console.log(todayDate, 'todayDate');
@@ -264,8 +280,7 @@ export class PatientsService {
         .orderBy('patient.firstName', 'ASC')
         .distinct(true)
         .skip(skip)
-        .take(perPage)
-        .getMany(),
+        .take(perPage),
       this.patientsRepository
         .createQueryBuilder('patient')
         .leftJoin('patient.medicationlogs', 'medicationlogs')
@@ -276,13 +291,29 @@ export class PatientsService {
         }), // Filter by today's date
     ]);
 
-    const totalPatientPrescription = await totalPatientPrescriptions.getCount();
+    if (term !== '') {
+      const patients = await this.searchPatients(searchTerm);
+      patientTimeGraph.where(
+        new Brackets((qb) => {
+          qb.andWhere('patient.uuid ILIKE :searchTerm', {
+            searchTerm,
+          }).orWhere('patient.firstName ILIKE :searchTerm', { searchTerm })
+          .andWhere('prescriptions.status = :status', { status: 'active' })
+          .andWhere('medicationlogs.createdAt >= :todayDate', {
+            todayDate: todayDate.toISOString().split('T')[0],
+          }) // Filter by today's date;
+        }),
+      );
+    }
 
+    const totalPatientPrescription = await totalPatientPrescriptions.getCount();
+    const patientPrescriptions = await patientTimeGraph.getMany();
     // Fetch all prescription UUIDs
-    const medicationlogPrescriptionIds = patientTimeGraph.flatMap((patient) =>
-      patient.medicationlogs.map(
-        (medicationlog) => medicationlog.prescriptionId,
-      ),
+    const medicationlogPrescriptionIds = patientPrescriptions.flatMap(
+      (patient) =>
+        patient.medicationlogs.map(
+          (medicationlog) => medicationlog.prescriptionId,
+        ),
     );
     const prescriptions = await this.prescriptionRepository.find({
       select: ['id', 'uuid'],
@@ -295,8 +326,7 @@ export class PatientsService {
     );
 
     // Filter out medication logs that are before today's date
-    // Filter out medication logs that are before today's date
-    patientTimeGraph.forEach((patient) => {
+    patientPrescriptions.forEach((patient) => {
       patient.medicationlogs = patient.medicationlogs.filter(
         (medicationlog) => {
           // Convert createdAt to Date object
@@ -345,18 +375,16 @@ export class PatientsService {
       patient.prescriptions.forEach((prescription) => {
         delete prescription.id;
         delete prescription.patientId;
-      
       });
+
       // Calculate distinct allergy types for the current patient
-      
-      
     });
-    
 
     const totalPages = Math.ceil(totalPatientPrescription / perPage);
-
+    console.log(patientPrescriptions, 'patientPrescriptions');
+    console.log(totalPages, 'totalPages');
     return {
-      data: patientTimeGraph,
+      data: patientPrescriptions,
       totalPages: totalPages,
       currentPage: page,
       totalCount: totalPatientPrescription,

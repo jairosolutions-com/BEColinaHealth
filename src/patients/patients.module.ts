@@ -13,6 +13,7 @@ import { PrescriptionFilesService } from 'src/prescriptionsFiles/prescriptionsFi
 
 @Module({
   imports: [TypeOrmModule.forFeature([Patients, Allergies, Prescriptions, PrescriptionsFiles])],
+
   providers: [
     PatientsResolver,
     PatientsService,

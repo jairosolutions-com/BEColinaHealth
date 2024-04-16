@@ -31,6 +31,8 @@ import { MulterModule } from '@nestjs/platform-express';
 import multer from 'multer';
 import { PrescriptionFilesModule } from './prescriptionsFiles/prescriptionsFiles.module';
 
+import { FormsModule } from './forms/forms.module';
+
 
 @Module({
   imports: [
@@ -68,8 +70,13 @@ import { PrescriptionFilesModule } from './prescriptionsFiles/prescriptionsFiles
     AllergiesModule,
     SurgeriesModule,
     CronjobsModule,
-    LabResultsFilesModule,
+
     PrescriptionFilesModule
+
+   LabResultsFilesModule,
+
+    FormsModule,
+
   ],
   controllers: [AppController],
   providers: [

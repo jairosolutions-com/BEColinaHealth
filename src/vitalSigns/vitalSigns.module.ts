@@ -15,6 +15,7 @@ import { PrescriptionFilesService } from 'src/prescriptionsFiles/prescriptionsFi
 @Module({
   imports: [TypeOrmModule.forFeature([VitalSigns, Patients, Prescriptions, PrescriptionsFiles])],
 
+
   providers: [
     VitalSignsResolver,
     VitalSignsService,
