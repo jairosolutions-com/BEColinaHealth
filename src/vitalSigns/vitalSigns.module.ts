@@ -9,9 +9,11 @@ import { Patients } from 'src/patients/entities/patients.entity';
 import { PatientsService } from 'src/patients/patients.service';
 import { Prescriptions } from 'src/prescriptions/entities/prescriptions.entity';
 import { PrescriptionsService } from 'src/prescriptions/prescriptions.service';
+import { PrescriptionsFiles } from 'src/prescriptionsFiles/entities/prescriptionsFiles.entity';
+import { PrescriptionFilesService } from 'src/prescriptionsFiles/prescriptionsFiles.service';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([VitalSigns, Patients, Prescriptions])],
+  imports: [TypeOrmModule.forFeature([VitalSigns, Patients, Prescriptions, PrescriptionsFiles])],
 
   providers: [
     VitalSignsResolver,
@@ -19,6 +21,7 @@ import { PrescriptionsService } from 'src/prescriptions/prescriptions.service';
     PatientsService,
     PrescriptionsService,
     IdService,
+    PrescriptionFilesService,
   ],
   controllers: [VitalSignsController],
 })

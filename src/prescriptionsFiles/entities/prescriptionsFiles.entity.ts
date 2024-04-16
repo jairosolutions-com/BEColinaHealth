@@ -12,7 +12,7 @@ export class PrescriptionsFiles {
   file_uuid: string;
 
   @Column()
-  prescriptionsUuid: number;
+  prescriptionsId: number;
 
   @Column()
   filename: string;

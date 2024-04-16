@@ -8,10 +8,11 @@ import { IdService } from 'services/uuid/id.service';
 import { Patients } from 'src/patients/entities/patients.entity';
 import { PatientsService } from 'src/patients/patients.service';
 import {PrescriptionsFiles} from 'src/prescriptionsFiles/entities/prescriptionsFiles.entity';
+import { PrescriptionFilesService } from 'src/prescriptionsFiles/prescriptionsFiles.service';
 @Module({
   imports: [TypeOrmModule.forFeature([Prescriptions, Patients, PrescriptionsFiles])],
 
-  providers: [PrescriptionsResolver, IdService, PrescriptionsService, PatientsService],
+  providers: [PrescriptionsResolver, IdService, PrescriptionsService, PatientsService,PrescriptionFilesService],
   controllers: [PrescriptionsController],
 })
 export class PrescriptionsModule { }
