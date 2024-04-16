@@ -12,7 +12,7 @@ export class CreatePrescriptionsFileDto {
     filename: string;
 
     @Field()
-    labResultsId: string;
+    prescriptionsId: string;
 
     @Field()
     data: Uint8Array;
