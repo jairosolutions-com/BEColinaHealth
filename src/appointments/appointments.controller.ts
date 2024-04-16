@@ -14,6 +14,15 @@ import { UpdateAppointmentsInput } from './dto/update-appointments.input';
 @Controller('appointments')
 export class AppointmentsController {
   constructor(private readonly appointmentService: AppointmentsService) { }
+
+  @Post('upcoming-appointments')
+  getUpcomingAppointments(
+    @Body() body: { term: string, page: number, sortBy: string, sortOrder: 'ASC' | 'DESC' }
+  ) {
+    const { term = "", page, sortBy, sortOrder } = body;
+    return this.appointmentService.getUpcomingAppointments( term, page, sortBy, sortOrder);
+
+  }
   @Post(':id')
   createAppointments(@Param('id') patientId: string, @Body() createAppointmentsInput: CreateAppointmentsInput) {
     return this.appointmentService.createAppointments(patientId, createAppointmentsInput);

@@ -152,8 +152,8 @@ export class CronjobsService {
   }
 
   ///
-
-  @Cron('0 0 * * * *') // Cron job to run12am
+// @Cron('*/5 * * * * *')
+  // @Cron('0 0 * * * *') // Cron job to run12am
   async checkDailyPrescription(medicationLogData: CreateMedicationLogsInput) {
     const todayDate = new Date();
     todayDate.setUTCHours(0, 0, 0, 0);

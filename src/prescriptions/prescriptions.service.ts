@@ -86,6 +86,7 @@ console.log(prescriptionUuid,"prescriptionUUID")
         const medlogs = await this.medicationLogsRepository.find({
           select: [
             'patientId',
+            'uuid',
             'prescriptionId',
             'medicationLogStatus',
             'medicationLogsName',
@@ -145,9 +146,44 @@ console.log(prescriptionUuid,"prescriptionUUID")
             delete result.id;
             console.log('Saved medication logs:', result);
           }
+        } else if (medlogs.length > expectedLogs){
+          console.log(
+            `Deleting medication logs for ${prescription.frequency} prescription...`,
+          );
+          for (let i = expectedLogs; i < medlogs.length; i++) {
+            const medLog = medlogs[i];
+            console.log(medlogs[i], "medlogs[i]")
+            await this.softDeletePrescriptionTimeChart(medLog.uuid);
+          }
         }
       }
     }
+  }
+
+  async softDeletePrescriptionTimeChart(
+    id: string,
+  ): Promise<{ message: string; deletedMedicationLogs: MedicationLogs }> {
+    // Find the patient record by ID
+    console.log("soft delete", id)
+    const medicationlogs = await this.medicationLogsRepository.findOne({
+      where: { uuid: id },
+    });
+
+    if (!medicationlogs) {
+      throw new NotFoundException(`MedicationLogs ID-${id} does not exist.`);
+    }
+
+    // Set the deletedAt property to mark as soft deleted
+    medicationlogs.deletedAt = new Date().toISOString();
+
+    // Save and return the updated patient record
+    const deletedMedicationLogs =
+      await this.medicationLogsRepository.save(medicationlogs);
+
+    return {
+      message: `MedicationLogs with ID ${id} has been soft-deleted.`,
+      deletedMedicationLogs,
+    };
   }
 
   
@@ -269,10 +305,27 @@ console.log(prescriptionUuid,"prescriptionUUID")
     if (!prescriptions) {
       throw new NotFoundException(`Prescriptions ID-${id}  not found.`);
     }
-    Object.assign(prescriptions, updateData);
-    await this.createTimeGraphPrescription(id);
-    return this.prescriptionsRepository.save(prescriptions);
+    
+    // Check if the frequency has been updated
+    if (updateData.frequency && updateData.frequency !== prescriptions.frequency) {
+      // Update the frequency and save the prescription
+      prescriptions.frequency = updateData.frequency;
+      await this.prescriptionsRepository.save(prescriptions);
+      
+      // Recreate medication logs based on the new frequency
+      await this.createTimeGraphPrescription(id);
+    } else {
+      // If frequency is not updated, simply update the prescription data
+      Object.assign(prescriptions, updateData);
+      await this.prescriptionsRepository.save(prescriptions);
+    }
+    
+    return prescriptions;
   }
+  
+
+
+
   async softDeletePrescriptions(
     id: string,
   ): Promise<{ message: string; deletedPrescriptions: Prescriptions }> {

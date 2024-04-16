@@ -116,14 +116,16 @@ export class MedicationLogsService {
       aschMedicationQueryBuilder
         .where(
           new Brackets((qb) => {
-            qb.andWhere('patient.uuid = :uuid', { uuid: patientUuid }).andWhere(
-              'medicationlogs.medicationType = :medicationType',
-              {
+            qb.andWhere('patient.uuid = :uuid', { uuid: patientUuid })
+              .andWhere('medicationlogs.medicationType = :medicationType', {
                 medicationType: 'ASCH',
-              },
-            ).andWhere('medicationlogs.medicationLogStatus != :medicationLogStatus', {
-              medicationLogStatus: 'pending',
-            });;
+              })
+              .andWhere(
+                'medicationlogs.medicationLogStatus != :medicationLogStatus',
+                {
+                  medicationLogStatus: 'pending',
+                },
+              );
           }),
         )
         .andWhere(
@@ -143,9 +145,12 @@ export class MedicationLogsService {
         .andWhere('medicationlogs.medicationType = :medicationType', {
           medicationType: 'ASCH',
         })
-        .andWhere('medicationlogs.medicationLogStatus != :medicationLogStatus', {
-          medicationLogStatus: 'pending',
-        });
+        .andWhere(
+          'medicationlogs.medicationLogStatus != :medicationLogStatus',
+          {
+            medicationLogStatus: 'pending',
+          },
+        );
     }
     const aschMedicationList = await aschMedicationQueryBuilder.getRawMany();
     const totalPatientASCHMedication =
@@ -265,10 +270,105 @@ export class MedicationLogsService {
       totalCount: totalPatientPRNMedication,
     };
   }
-  async getAllMedicationLogs(): Promise<MedicationLogs[]> {
-    const medicationLogs = await this.medicationLogsRepository.find();
-    return medicationLogs;
+
+  async getAllDueMedication(
+    term: string,
+    page: number = 1,
+    sortBy: string = 'medicationLogsTime',
+    sortOrder: 'ASC' | 'DESC' = 'ASC',
+    perPage: number = 0,
+  ): Promise<{
+    data: MedicationLogs[];
+    totalPages: number;
+    currentPage: number;
+    totalCount: number;
+  }> {
+    const todayDate = new Date();
+    todayDate.setUTCHours(0, 0, 0, 0);
+    const searchTerm = `%${term}%`;
+    const dueMedicationQueryBuilder = this.medicationLogsRepository
+      .createQueryBuilder('medicationlogs')
+      .innerJoinAndSelect('medicationlogs.patient', 'patient')
+      .select([
+        'medicationlogs.uuid',
+        'medicationlogs.medicationLogsName',
+        'medicationlogs.notes',
+        'medicationlogs.medicationType',
+        'medicationlogs.medicationLogsDate',
+        'medicationlogs.medicationLogsTime',
+        'medicationlogs.medicationLogStatus',
+        'patient.uuid',
+        'patient.firstName',
+        'patient.lastName',
+        'patient.middleName',
+      ])
+      .where('medicationlogs.medicationLogStatus = :medicationLogStatus', {
+        medicationLogStatus: 'pending',
+      })
+      .andWhere('medicationlogs.createdAt >= :todayDate', {
+        todayDate: todayDate.toISOString().split('T')[0],
+      }) // Filter by today's date
+
+      .orderBy(`medicationlogs.${sortBy}`, sortOrder)
+
+      .addOrderBy('patient.firstName', sortOrder)
+      .limit(perPage);
+
+    if (term !== '') {
+      console.log('term', term);
+      dueMedicationQueryBuilder
+        .where(
+          new Brackets((qb) => {
+            qb.andWhere('medicationlogs.medicationType = :medicationType', {
+              medicationType: 'ASCH',
+            })
+              .andWhere('medicationlogs.createdAt >= :todayDate', {
+                todayDate: todayDate.toISOString().split('T')[0],
+              }) // Filter by today's date
+              .andWhere(
+                'medicationlogs.medicationLogStatus = :medicationLogStatus',
+                {
+                  medicationLogStatus: 'pending',
+                },
+              );
+          }),
+        )
+        .andWhere(
+          new Brackets((qb) => {
+            qb.andWhere('medicationlogs.medicationLogsName ILIKE :searchTerm', {
+              searchTerm,
+            })
+              .orWhere('medicationlogs.medicationLogStatus ILIKE :searchTerm', {
+                searchTerm,
+              })
+              .orWhere('medicationlogs.uuid ILIKE :searchTerm', { searchTerm });
+          }),
+        );
+    } else {
+      dueMedicationQueryBuilder
+        .andWhere('medicationlogs.medicationType = :medicationType', {
+          medicationType: 'ASCH',
+        })
+        .andWhere('medicationlogs.createdAt >= :todayDate', {
+          todayDate: todayDate.toISOString().split('T')[0],
+        }) // Filter by today's date
+        .andWhere('medicationlogs.medicationLogStatus = :medicationLogStatus', {
+          medicationLogStatus: 'pending',
+        });
+    }
+    const dueMedicationList = await dueMedicationQueryBuilder.getRawMany();
+    const totalPatientdueMedication =
+      await dueMedicationQueryBuilder.getCount();
+    const totalPages = Math.ceil(totalPatientdueMedication / perPage);
+
+    return {
+      data: dueMedicationList,
+      totalPages: totalPages,
+      currentPage: page,
+      totalCount: totalPatientdueMedication,
+    };
   }
+
   async updateMedicationLogs(
     id: string,
     updateMedicationLogsInput: UpdateMedicationLogsInput,

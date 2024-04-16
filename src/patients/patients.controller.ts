@@ -73,10 +73,11 @@ export class PatientsController {
   @Post('prescriptions')
   getPatientsWithMedicationLogsAndPrescriptions(
     @Body() body: {
+      term:string
       page: number;
     }
   ){
-    const { page } = body;
-    return this.patientsService.getPatientsWithMedicationLogsAndPrescriptions(page);
+    const {term, page } = body;
+    return this.patientsService.getPatientsWithMedicationLogsAndPrescriptions(term, page);
   }
 }
