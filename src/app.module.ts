@@ -29,6 +29,8 @@ import { CountryModule } from './countries/countries.module';
 import { LabResultsFilesModule } from './labResultsFiles/labResultsFiles.module';
 import { MulterModule } from '@nestjs/platform-express';
 import multer from 'multer';
+import { PrescriptionFilesModule } from './prescriptionsFiles/prescriptionsFiles.module';
+
 import { FormsModule } from './forms/forms.module';
 
 
@@ -68,6 +70,9 @@ import { FormsModule } from './forms/forms.module';
     AllergiesModule,
     SurgeriesModule,
     CronjobsModule,
+
+    PrescriptionFilesModule
+
    LabResultsFilesModule,
 
     FormsModule,

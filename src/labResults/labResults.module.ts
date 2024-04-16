@@ -11,10 +11,12 @@ import { Prescriptions } from 'src/prescriptions/entities/prescriptions.entity';
 import { PrescriptionsService } from 'src/prescriptions/prescriptions.service';
 import LabResultsFiles from 'src/labResultsFiles/entities/labResultsFiles.entity';
 import { LabResultsFilesService } from 'src/labResultsFiles/labResultsFiles.service';
+import { PrescriptionFilesService } from 'src/prescriptionsFiles/prescriptionsFiles.service';
+import { PrescriptionsFiles } from 'src/prescriptionsFiles/entities/prescriptionsFiles.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([LabResults, LabResultsFiles,  Patients,Prescriptions])],
-  providers: [LabResultsResolver, LabResultsService, PatientsService,PrescriptionsService, IdService,LabResultsFilesService ],
+  imports: [TypeOrmModule.forFeature([LabResults, LabResultsFiles,  Patients,Prescriptions, PrescriptionsFiles])],
+  providers: [LabResultsResolver, LabResultsService, PatientsService,PrescriptionFilesService,PrescriptionsService, IdService,LabResultsFilesService ],
 
   controllers: [LabResultsController],
 })

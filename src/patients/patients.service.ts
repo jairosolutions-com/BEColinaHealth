@@ -17,6 +17,7 @@ import {
   fullPatientInfo,
 } from './entities/processedPatientInterface';
 import { Prescriptions } from 'src/prescriptions/entities/prescriptions.entity';
+import { PrescriptionsFiles } from 'src/prescriptionsFiles/entities/prescriptionsFiles.entity';
 
 @Injectable()
 export class PatientsService {
@@ -25,6 +26,7 @@ export class PatientsService {
     private patientsRepository: Repository<Patients>,
     @InjectRepository(Prescriptions)
     private prescriptionRepository: Repository<Prescriptions>,
+ 
     private idService: IdService, // Inject the IdService
   ) {}
 

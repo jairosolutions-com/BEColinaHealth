@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ConflictException,
   Injectable,
   NotFoundException,
@@ -11,8 +12,8 @@ import { Brackets, ILike, Like, MoreThanOrEqual, Repository } from 'typeorm';
 import { Prescriptions } from './entities/prescriptions.entity';
 import { IdService } from 'services/uuid/id.service'; //
 import { Patients } from 'src/patients/entities/patients.entity';
-import { CreateMedicationLogsInput } from 'src/medicationLogs/dto/create-medicationLogs.input';
-import { MedicationLogs } from 'src/medicationLogs/entities/medicationLogs.entity';
+import { PrescriptionFilesService } from 'src/prescriptionsFiles/prescriptionsFiles.service';
+
 
 @Injectable()
 export class PrescriptionsService {
@@ -21,10 +22,10 @@ export class PrescriptionsService {
     private prescriptionsRepository: Repository<Prescriptions>,
     @InjectRepository(Patients)
     private patientsRepository: Repository<Patients>,
-    @InjectRepository(MedicationLogs)
-    private medicationLogsRepository: Repository<MedicationLogs>,
+    private readonly prescriptionFilesService: PrescriptionFilesService,
+
     private idService: IdService, // Inject the IdService
-  ) {}
+  ) { }
   //CREATE Prescriptions INFO
   async createPrescriptions(
     patientUuid: string,
@@ -387,4 +388,59 @@ console.log(prescriptionUuid,"prescriptionUUID")
       data: prescriptionResultList,
     };
   }
+
+  //Prescription Files
+  //LAB FILES
+  async addPrescriptionFile(prescriptionUuid: string, imageBuffer: Buffer, filename: string) {
+    console.log(`Received prescriptionUuid: ${prescriptionUuid}`);
+
+    if (!prescriptionUuid) {
+      console.error("No labResultUuid provided.");
+      throw new BadRequestException(`No prescriptions uuid provided`);
+    }
+
+    const { id: prescriptionsId } = await this.prescriptionsRepository.findOne({
+      select: ["id"],
+      where: { uuid: prescriptionUuid }
+    });
+
+    console.log(`Found prescription ID: ${prescriptionsId}`);
+
+    if (!prescriptionsId) {
+      throw new BadRequestException(`prescription result with UUID ${prescriptionUuid} not found`);
+    }
+
+    const prescriptionFile = await this.prescriptionFilesService.uploadPrescriptionFile(imageBuffer, filename, prescriptionsId);
+
+    if (!prescriptionFile) {
+      throw new BadRequestException(`Failed to upload prescription file for lab result UUID ${prescriptionUuid}`);
+    }
+
+    console.log(`prescription file uploaded successfully: ${prescriptionFile}`);
+
+    return prescriptionFile;
+  }
+
+  async getPatientLabFileByUuid(prescriptionUuid: string) {
+    const labResult = await this.prescriptionsRepository.findOne({
+      select: ['id'],
+      where: { uuid: prescriptionUuid },
+    });
+
+    // Check if a lab result was found
+    if (!labResult) {
+      // If no lab result is found, throw a NotFoundException
+      throw new NotFoundException(`prescription result with UUID ${prescriptionUuid} not found`);
+    }
+
+    // If a lab result was found, destructure the 'id' property
+    const { id: prescriptionId } = labResult;
+
+    const patientLabFile = await this.prescriptionFilesService.getPrescriptionFilesByPrescriptionId(prescriptionId);
+    if (!patientLabFile) {
+      throw new NotFoundException();
+    }
+    return patientLabFile;
+  }
 }
+

@@ -1,6 +1,7 @@
 import { ObjectType, Field, Int } from '@nestjs/graphql';
 import { MedicationLogs } from 'src/medicationLogs/entities/medicationLogs.entity';
 import { Patients } from 'src/patients/entities/patients.entity';
+import { PrescriptionsFiles } from 'src/prescriptionsFiles/entities/prescriptionsFiles.entity';
 import {
   ManyToOne,
   JoinColumn,
@@ -65,6 +66,9 @@ export class Prescriptions {
   // @OneToMany(() => MedicationLogs, medicationLogs => medicationLogs.prescriptions)
   // @Field(() => [MedicationLogs], { nullable: true })
   // medicationLogs: MedicationLogs[];
+  @OneToMany(() => PrescriptionsFiles, (file) => file.prescription)
+  @JoinColumn({ name: 'id' }) // Specify the column name for the primary key
+  prescriptionFile?: PrescriptionsFiles;  
 
   //Prescription to MedicationLogs
   @OneToMany(() => MedicationLogs, (medicationlogs) => medicationlogs.prescription)
