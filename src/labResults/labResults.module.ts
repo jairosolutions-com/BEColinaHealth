@@ -9,11 +9,13 @@ import { Patients } from 'src/patients/entities/patients.entity';
 import { PatientsService } from 'src/patients/patients.service';
 import { Prescriptions } from 'src/prescriptions/entities/prescriptions.entity';
 import { PrescriptionsService } from 'src/prescriptions/prescriptions.service';
-import { MedicationLogs } from 'src/medicationLogs/entities/medicationLogs.entity';
+import LabResultsFiles from 'src/labResultsFiles/entities/labResultsFiles.entity';
+import { LabResultsFilesService } from 'src/labResultsFiles/labResultsFiles.service';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([LabResults, Patients,Prescriptions,MedicationLogs])],
-  providers: [LabResultsResolver, LabResultsService, PatientsService,PrescriptionsService, IdService],
+  imports: [TypeOrmModule.forFeature([LabResults, LabResultsFiles,  Patients,Prescriptions])],
+  providers: [LabResultsResolver, LabResultsService, PatientsService,PrescriptionsService, IdService,LabResultsFilesService ],
+
   controllers: [LabResultsController],
 })
 export class LabResultsModule { }

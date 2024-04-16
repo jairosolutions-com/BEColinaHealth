@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ConflictException,
   Injectable,
   NotFoundException,
@@ -10,6 +11,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { IdService } from 'services/uuid/id.service';
 import { Repository, ILike, Brackets } from 'typeorm';
 import { Patients } from 'src/patients/entities/patients.entity';
+import { LabResultsFilesService } from '../../src/labResultsFiles/labResultsFiles.service';
 
 @Injectable()
 export class LabResultsService {
@@ -18,6 +20,8 @@ export class LabResultsService {
     private patientsRepository: Repository<Patients>,
     @InjectRepository(LabResults)
     private labResultsRepository: Repository<LabResults>,
+
+    private readonly labResultsFilesService: LabResultsFilesService,
 
 
 
@@ -55,51 +59,54 @@ export class LabResultsService {
     term: string,
     patientUuid: string,
     page: number = 1,
-    sortBy: string = 'date',
+    sortBy: string = 'uuid',
     sortOrder: 'ASC' | 'DESC' = 'ASC',
     perPage: number = 5,
   ): Promise<{ data: LabResults[], totalPages: number, currentPage: number, totalCount }> {
     const searchTerm = `%${term}%`; // Add wildcards to the search term
     const skip = (page - 1) * perPage;
-   
+
     const patientExists = await this.patientsRepository.findOne({ where: { uuid: patientUuid } });
 
     if (!patientExists) {
       throw new NotFoundException('Patient not found');
     }
+    // Build the query with DISTINCT, ordering, and pagination
     const labResultsQueryBuilder = this.labResultsRepository
-      .createQueryBuilder('labResults')
-      .leftJoinAndSelect('labResults.patient', 'patient')
-      .select([
-      'labResults.uuid',
-      'labResults.createdAt',
-      'labResults.hemoglobinA1c',
-      'labResults.fastingBloodGlucose',
-      'labResults.totalCholesterol',
-      'labResults.ldlCholesterol',
-      'labResults.hdlCholesterol',
-      'labResults.triglycerides',
-      'patient.uuid',
-      ])
-      .where('patient.uuid = :uuid', { uuid: patientUuid })
-      .orderBy(`labResults.${sortBy}`, sortOrder)
-      .offset(skip)
-      .limit(perPage);
-      if (term !== "") {
-        console.log("term", term);
-        labResultsQueryBuilder
-          .where(new Brackets((qb) => {
-            qb.andWhere('patient.uuid = :uuid', { uuid: patientUuid })
-          }))
-          .andWhere(new Brackets((qb) => {
-            qb.andWhere("labResults.uuid ILIKE :searchTerm", { searchTerm })
-              .orWhere("labResults.date ILIKE :searchTerm", { searchTerm })
-          }));
-      }
+        .createQueryBuilder('labResults')
+        .leftJoinAndSelect('labResults.patient', 'patient')
+        .select([
+            'labResults.uuid', // Add DISTINCT for UUID
+            'labResults.createdAt',
+            'labResults.hemoglobinA1c',
+            'labResults.fastingBloodGlucose',
+            'labResults.totalCholesterol',
+            'labResults.ldlCholesterol',
+            'labResults.hdlCholesterol',
+            'labResults.triglycerides',
+            'patient.uuid',
+        ])
+        .where('patient.uuid = :uuid', { uuid: patientUuid })
+        .orderBy(`labResults.${sortBy}`, sortOrder)
+        .offset(skip) // Skip records according to the page number and perPage
+        .limit(perPage); // Retrieve only the number of records per page
+
+
+    if (term !== "") {
+      console.log("term", term);
+      labResultsQueryBuilder
+        .where(new Brackets((qb) => {
+          qb.andWhere('patient.uuid = :uuid', { uuid: patientUuid })
+        }))
+        .andWhere(new Brackets((qb) => {
+          qb.andWhere("labResults.uuid ILIKE :searchTerm", { searchTerm })
+            .orWhere("labResults.date ILIKE :searchTerm", { searchTerm })
+        }));
+    }
     // Get lab results
     const labResultsList = await labResultsQueryBuilder.getRawMany();
 
-    
+
     const totalPatientLabResults = await labResultsQueryBuilder.getCount();
     console.log('COUNTED', totalPatientLabResults);
 
@@ -152,5 +159,57 @@ export class LabResultsService {
       message: `Lab Result with ID ${id} has been soft-deleted.`,
       deletedLabResult,
     };
+  }
+  //LAB FILES
+  async addPatientLabFile(labResultUuid: string, imageBuffer: Buffer, filename: string) {
+    console.log(`Received labResultUuid: ${labResultUuid}`);
+    
+    if (!labResultUuid) {
+        console.error("No labResultUuid provided.");
+        throw new BadRequestException(`No lab result uuid provided`);
+    }
+    
+    const { id: labResultsId } = await this.labResultsRepository.findOne({
+        select: ["id"],
+        where: { uuid: labResultUuid }
+    });
+    
+    console.log(`Found lab result ID: ${labResultsId}`);
+    
+    if (!labResultsId) {
+        throw new BadRequestException(`Lab result with UUID ${labResultUuid} not found`);
+    }
+    
+    const labFile = await this.labResultsFilesService.uploadLabResultFile(imageBuffer, filename, labResultsId);
+    
+    if (!labFile) {
+        throw new BadRequestException(`Failed to upload lab file for lab result UUID ${labResultUuid}`);
+    }
+    
+    console.log(`Lab file uploaded successfully: ${labFile}`);
+    
+    return labFile;
+}
+
+  async getPatientLabFileByUuid(labResultUuid: string) {
+    const labResult = await this.labResultsRepository.findOne({
+      select: ['id'],
+      where: { uuid: labResultUuid },
+    });
+
+    // Check if a lab result was found
+    if (!labResult) {
+      // If no lab result is found, throw a NotFoundException
+      throw new NotFoundException(`Lab result with UUID ${labResultUuid} not found`);
+    }
+
+    // If a lab result was found, destructure the 'id' property
+    const { id: labResultId } = labResult;
+
+    const patientLabFile = await this.labResultsFilesService.getLabFilesByLabId(labResultId);
+    if (!patientLabFile) {
+      throw new NotFoundException();
+    }
+    return patientLabFile;
   }
 }
