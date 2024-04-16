@@ -8,9 +8,10 @@ import { PatientsService } from './patients.service';
 import { Allergies } from 'src/allergies/entities/allergies.entity';
 import { Prescriptions } from 'src/prescriptions/entities/prescriptions.entity';
 import { PrescriptionsService } from 'src/prescriptions/prescriptions.service';
+import { MedicationLogs } from 'src/medicationLogs/entities/medicationLogs.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Patients, Allergies, Prescriptions])],
+  imports: [TypeOrmModule.forFeature([Patients, Allergies, Prescriptions, MedicationLogs])],
   providers: [
     PatientsResolver,
     PatientsService,
