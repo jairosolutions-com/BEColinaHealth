@@ -25,14 +25,13 @@ export class PatientsController {
       sortBy: string;
       sortOrder: 'ASC' | 'DESC';
     },
-
   ): Promise<{
     data: Patients[];
     totalPages: number;
     currentPage: number;
     totalCount;
   }> {
-    const { term = "", page, sortBy, sortOrder } = requestData;
+    const { term = '', page, sortBy, sortOrder } = requestData;
     return this.patientsService.getAllPatientsBasicInfo(
       term,
       page,
@@ -69,15 +68,4 @@ export class PatientsController {
   }
 
   //
-
-  @Post('prescriptions')
-  getPatientsWithMedicationLogsAndPrescriptions(
-    @Body() body: {
-      term:string
-      page: number;
-    }
-  ){
-    const {term, page } = body;
-    return this.patientsService.getPatientsWithMedicationLogsAndPrescriptions(term, page);
-  }
 }

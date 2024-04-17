@@ -8,13 +8,19 @@ import { CreatePrescriptionsInput } from './dto/create-prescriptions.input';
 import { UpdatePrescriptionsInput } from './dto/update-prescriptions.input';
 import { InjectRepository } from '@nestjs/typeorm';
 import { create } from 'domain';
-import { Brackets, ILike, Like, MoreThanOrEqual, Repository } from 'typeorm';
+import {
+  Brackets,
+  ILike,
+  In,
+  Like,
+  MoreThanOrEqual,
+  Repository,
+} from 'typeorm';
 import { Prescriptions } from './entities/prescriptions.entity';
 import { IdService } from 'services/uuid/id.service'; //
 import { Patients } from 'src/patients/entities/patients.entity';
 import { PrescriptionFilesService } from 'src/prescriptionsFiles/prescriptionsFiles.service';
 import { MedicationLogs } from 'src/medicationLogs/entities/medicationLogs.entity';
-
 
 @Injectable()
 export class PrescriptionsService {
@@ -28,7 +34,7 @@ export class PrescriptionsService {
     private readonly prescriptionFilesService: PrescriptionFilesService,
 
     private idService: IdService, // Inject the IdService
-  ) { }
+  ) {}
   //CREATE Prescriptions INFO
   async createPrescriptions(
     patientUuid: string,
@@ -69,10 +75,10 @@ export class PrescriptionsService {
     return result;
   }
 
-  async createTimeGraphPrescription(prescriptionUuid:string) {
+  async createTimeGraphPrescription(prescriptionUuid: string) {
     const todayDate = new Date();
     todayDate.setUTCHours(0, 0, 0, 0);
-console.log(prescriptionUuid,"prescriptionUUID")
+    console.log(prescriptionUuid, 'prescriptionUUID');
     console.log('currentDate now', todayDate);
 
     const prescriptions = await this.prescriptionsRepository.find({
@@ -150,13 +156,13 @@ console.log(prescriptionUuid,"prescriptionUUID")
             delete result.id;
             console.log('Saved medication logs:', result);
           }
-        } else if (medlogs.length > expectedLogs){
+        } else if (medlogs.length > expectedLogs) {
           console.log(
             `Deleting medication logs for ${prescription.frequency} prescription...`,
           );
           for (let i = expectedLogs; i < medlogs.length; i++) {
             const medLog = medlogs[i];
-            console.log(medlogs[i], "medlogs[i]")
+            console.log(medlogs[i], 'medlogs[i]');
             await this.softDeletePrescriptionTimeChart(medLog.uuid);
           }
         }
@@ -168,7 +174,7 @@ console.log(prescriptionUuid,"prescriptionUUID")
     id: string,
   ): Promise<{ message: string; deletedMedicationLogs: MedicationLogs }> {
     // Find the patient record by ID
-    console.log("soft delete", id)
+    console.log('soft delete', id);
     const medicationlogs = await this.medicationLogsRepository.findOne({
       where: { uuid: id },
     });
@@ -190,7 +196,6 @@ console.log(prescriptionUuid,"prescriptionUUID")
     };
   }
 
-  
   // Function to calculate medicationLogsTime based on frequency and interval
   calculateMedicationTime(
     frequency: string,
@@ -309,13 +314,16 @@ console.log(prescriptionUuid,"prescriptionUUID")
     if (!prescriptions) {
       throw new NotFoundException(`Prescriptions ID-${id}  not found.`);
     }
-    
+
     // Check if the frequency has been updated
-    if (updateData.frequency && updateData.frequency !== prescriptions.frequency) {
+    if (
+      updateData.frequency &&
+      updateData.frequency !== prescriptions.frequency
+    ) {
       // Update the frequency and save the prescription
       prescriptions.frequency = updateData.frequency;
       await this.prescriptionsRepository.save(prescriptions);
-      
+
       // Recreate medication logs based on the new frequency
       await this.createTimeGraphPrescription(id);
     } else {
@@ -323,12 +331,9 @@ console.log(prescriptionUuid,"prescriptionUUID")
       Object.assign(prescriptions, updateData);
       await this.prescriptionsRepository.save(prescriptions);
     }
-    
+
     return prescriptions;
   }
-  
-
-
 
   async softDeletePrescriptions(
     id: string,
@@ -394,29 +399,42 @@ console.log(prescriptionUuid,"prescriptionUUID")
 
   //Prescription Files
   //LAB FILES
-  async addPrescriptionFile(prescriptionUuid: string, imageBuffer: Buffer, filename: string) {
+  async addPrescriptionFile(
+    prescriptionUuid: string,
+    imageBuffer: Buffer,
+    filename: string,
+  ) {
     console.log(`Received prescriptionUuid: ${prescriptionUuid}`);
 
     if (!prescriptionUuid) {
-      console.error("No labResultUuid provided.");
+      console.error('No labResultUuid provided.');
       throw new BadRequestException(`No prescriptions uuid provided`);
     }
 
     const { id: prescriptionsId } = await this.prescriptionsRepository.findOne({
-      select: ["id"],
-      where: { uuid: prescriptionUuid }
+      select: ['id'],
+      where: { uuid: prescriptionUuid },
     });
 
     console.log(`Found prescription ID: ${prescriptionsId}`);
 
     if (!prescriptionsId) {
-      throw new BadRequestException(`prescription result with UUID ${prescriptionUuid} not found`);
+      throw new BadRequestException(
+        `prescription result with UUID ${prescriptionUuid} not found`,
+      );
     }
 
-    const prescriptionFile = await this.prescriptionFilesService.uploadPrescriptionFile(imageBuffer, filename, prescriptionsId);
+    const prescriptionFile =
+      await this.prescriptionFilesService.uploadPrescriptionFile(
+        imageBuffer,
+        filename,
+        prescriptionsId,
+      );
 
     if (!prescriptionFile) {
-      throw new BadRequestException(`Failed to upload prescription file for lab result UUID ${prescriptionUuid}`);
+      throw new BadRequestException(
+        `Failed to upload prescription file for lab result UUID ${prescriptionUuid}`,
+      );
     }
 
     console.log(`prescription file uploaded successfully: ${prescriptionFile}`);
@@ -433,17 +451,177 @@ console.log(prescriptionUuid,"prescriptionUUID")
     // Check if a lab result was found
     if (!labResult) {
       // If no lab result is found, throw a NotFoundException
-      throw new NotFoundException(`prescription result with UUID ${prescriptionUuid} not found`);
+      throw new NotFoundException(
+        `prescription result with UUID ${prescriptionUuid} not found`,
+      );
     }
 
     // If a lab result was found, destructure the 'id' property
     const { id: prescriptionId } = labResult;
 
-    const patientLabFile = await this.prescriptionFilesService.getPrescriptionFilesByPrescriptionId(prescriptionId);
+    const patientLabFile =
+      await this.prescriptionFilesService.getPrescriptionFilesByPrescriptionId(
+        prescriptionId,
+      );
     if (!patientLabFile) {
       throw new NotFoundException();
     }
     return patientLabFile;
   }
-}
 
+  async searchPatients(term: string): Promise<Patients[]> {
+    const searchTerm = `%${term}%`; // Add wildcards to the search term
+    const patients = await this.patientsRepository
+      .createQueryBuilder('patient')
+      .leftJoinAndSelect('patient.medicationlogs', 'medicationlogs')
+      .leftJoinAndSelect('patient.prescriptions', 'prescriptions')
+      .leftJoinAndSelect('patient.allergies', 'allergies')
+      .where('patient.firstName ILIKE :searchTerm', { searchTerm })
+      .orWhere('patient.lastName ILIKE :searchTerm', { searchTerm })
+      .orWhere('patient.email ILIKE :searchTerm', { searchTerm })
+      .getMany();
+    console.log('patients', patients);
+    return patients;
+  }
+
+  async getPatientsWithMedicationLogsAndPrescriptions(
+    term: string,
+    page: number = 1,
+    perPage: number = 3,
+  ): Promise<{
+    data: Patients[];
+    totalPages: number;
+    currentPage: number;
+    totalCount: number;
+  }> {
+    const skip = (page - 1) * perPage;
+    const searchTerm = `%${term}%`;
+
+    const todayDate = new Date();
+    todayDate.setUTCHours(0, 0, 0, 0);
+    console.log(todayDate, 'todayDate');
+    const [patientTimeGraph, totalPatientPrescriptions] = await Promise.all([
+      this.patientsRepository
+        .createQueryBuilder('patient')
+        .leftJoinAndSelect('patient.medicationlogs', 'medicationlogs')
+        .leftJoinAndSelect('patient.prescriptions', 'prescriptions')
+        .leftJoinAndSelect('patient.allergies', 'allergies')
+        .where('prescriptions.status = :status', { status: 'active' })
+        .andWhere('medicationlogs.createdAt >= :todayDate', {
+          todayDate: todayDate.toISOString().split('T')[0],
+        }) // Filter by today's date
+        .orderBy('patient.firstName', 'ASC')
+        .distinct(true)
+        .skip(skip)
+        .take(perPage),
+      this.patientsRepository
+        .createQueryBuilder('patient')
+        .leftJoin('patient.medicationlogs', 'medicationlogs')
+        .leftJoin('patient.prescriptions', 'prescriptions')
+        .where('prescriptions.status = :status', { status: 'active' })
+        .andWhere('medicationlogs.createdAt >= :todayDate', {
+          todayDate: todayDate.toISOString().split('T')[0],
+        }), // Filter by today's date
+    ]);
+
+    if (term !== '') {
+      const patients = await this.searchPatients(searchTerm);
+      patientTimeGraph.where(
+        new Brackets((qb) => {
+          qb.andWhere('patient.uuid ILIKE :searchTerm', {
+            searchTerm,
+          })
+            .orWhere('patient.firstName ILIKE :searchTerm', { searchTerm })
+            .andWhere('prescriptions.status = :status', { status: 'active' })
+            .andWhere('medicationlogs.createdAt >= :todayDate', {
+              todayDate: todayDate.toISOString().split('T')[0],
+            }); // Filter by today's date;
+        }),
+      );
+    }
+
+    const totalPatientPrescription = await totalPatientPrescriptions.getCount();
+    const patientPrescriptions = await patientTimeGraph.getMany();
+    // Fetch all prescription UUIDs
+    const medicationlogPrescriptionIds = patientPrescriptions.flatMap(
+      (patient) =>
+        patient.medicationlogs.map(
+          (medicationlog) => medicationlog.prescriptionId,
+        ),
+    );
+    const prescriptions = await this.prescriptionsRepository.find({
+      select: ['id', 'uuid'],
+      where: {
+        id: In(medicationlogPrescriptionIds),
+      },
+    });
+    const prescriptionMap = new Map(
+      prescriptions.map((prescription) => [prescription.id, prescription.uuid]),
+    );
+
+    // Filter out medication logs that are before today's date
+    patientPrescriptions.forEach((patient) => {
+      patient.medicationlogs = patient.medicationlogs.filter(
+        (medicationlog) => {
+          // Convert createdAt to Date object
+          const logDate = new Date(medicationlog.createdAt);
+          // Extract date portion (year, month, day)
+          const logDateOnly = new Date(
+            logDate.getFullYear(),
+            logDate.getMonth(),
+            logDate.getDate(),
+          );
+          // Extract today's date
+          const today = new Date();
+          const todayOnly = new Date(
+            today.getFullYear(),
+            today.getMonth(),
+            today.getDate(),
+          );
+
+          // Compare date portions
+          if (logDateOnly.getTime() === todayOnly.getTime()) {
+            // Add additional properties to medicationlog object
+            const prescriptionUuid = prescriptionMap.get(
+              medicationlog.prescriptionId,
+            );
+            if (prescriptionUuid) {
+              (medicationlog as any).prescriptionUuid = prescriptionUuid;
+            }
+            return true;
+          } else {
+            return false;
+          }
+        },
+      );
+
+      // Remove unnecessary fields
+      delete patient.id;
+      patient.medicationlogs.forEach((medicationlog) => {
+        delete medicationlog.id;
+        delete medicationlog.patientId;
+        delete medicationlog.prescriptionId;
+      });
+      patient.allergies.forEach((allergy) => {
+        delete allergy.id;
+        delete allergy.patientId;
+      });
+      patient.prescriptions.forEach((prescription) => {
+        delete prescription.id;
+        delete prescription.patientId;
+      });
+
+      // Calculate distinct allergy types for the current patient
+    });
+
+    const totalPages = Math.ceil(totalPatientPrescription / perPage);
+    console.log(patientPrescriptions, 'patientPrescriptions');
+    console.log(totalPages, 'totalPages');
+    return {
+      data: patientPrescriptions,
+      totalPages: totalPages,
+      currentPage: page,
+      totalCount: totalPatientPrescription,
+    };
+  }
+}
