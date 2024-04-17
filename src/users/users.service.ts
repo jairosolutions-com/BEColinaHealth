@@ -195,7 +195,7 @@ export class UsersService {
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
-
+    delete savedUser.id
     return savedUser;
   }
 
