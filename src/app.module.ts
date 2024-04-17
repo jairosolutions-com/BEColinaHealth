@@ -33,7 +33,6 @@ import { PrescriptionFilesModule } from './prescriptionsFiles/prescriptionsFiles
 
 import { FormsModule } from './forms/forms.module';
 
-
 @Module({
   imports: [
     ConfigModule.forRoot({ envFilePath: '.env.local' }),
@@ -70,13 +69,9 @@ import { FormsModule } from './forms/forms.module';
     AllergiesModule,
     SurgeriesModule,
     CronjobsModule,
-
     PrescriptionFilesModule,
-
-   LabResultsFilesModule,
-
+    LabResultsFilesModule,
     FormsModule,
-
   ],
   controllers: [AppController],
   providers: [
@@ -87,4 +82,4 @@ import { FormsModule } from './forms/forms.module';
     },
   ],
 })
-export class AppModule { }
+export class AppModule {}

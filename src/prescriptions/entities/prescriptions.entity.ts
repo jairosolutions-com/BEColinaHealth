@@ -58,8 +58,7 @@ export class Prescriptions {
   @Field()
   deletedAt: string;
 
-  @ManyToOne(() => Patients, patient => patient.prescriptions)
-
+  @ManyToOne(() => Patients, (patient) => patient.prescriptions)
   @JoinColumn({ name: 'patientId' }) // FK attribute
   patient: Patients;
 
@@ -68,9 +67,12 @@ export class Prescriptions {
   // medicationLogs: MedicationLogs[];
   @OneToMany(() => PrescriptionsFiles, (file) => file.prescription)
   @JoinColumn({ name: 'id' }) // Specify the column name for the primary key
-  prescriptionFile?: PrescriptionsFiles;  
+  prescriptionFile?: PrescriptionsFiles;
 
   //Prescription to MedicationLogs
-  @OneToMany(() => MedicationLogs, (medicationlogs) => medicationlogs.prescription)
+  @OneToMany(
+    () => MedicationLogs,
+    (medicationlogs) => medicationlogs.prescription,
+  )
   medicationlogs: MedicationLogs[];
 }

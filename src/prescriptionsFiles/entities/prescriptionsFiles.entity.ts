@@ -1,7 +1,12 @@
-
-
 import { Prescriptions } from 'src/prescriptions/entities/prescriptions.entity';
-import { Column, Entity, JoinColumn, ManyToOne, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  OneToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 
 @Entity('prescriptionFiles')
 export class PrescriptionsFiles {
@@ -22,11 +27,12 @@ export class PrescriptionsFiles {
   })
   data: Uint8Array;
 
-  @ManyToOne(() => Prescriptions, (prescription) => prescription.prescriptionFile)
+  @ManyToOne(
+    () => Prescriptions,
+    (prescription) => prescription.prescriptionFile,
+  )
   @JoinColumn({
     name: 'prescriptionsId', //fk id
   })
   prescription: Prescriptions | null;
-
 }
-

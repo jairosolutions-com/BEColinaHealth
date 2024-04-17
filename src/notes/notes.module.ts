@@ -7,15 +7,10 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Notes } from './entities/notes.entity';
 import { PatientsService } from 'src/patients/patients.service';
 import { IdService } from 'services/uuid/id.service';
-import { Prescriptions } from 'src/prescriptions/entities/prescriptions.entity';
-import { PrescriptionsService } from 'src/prescriptions/prescriptions.service';
-import { PrescriptionsFiles } from 'src/prescriptionsFiles/entities/prescriptionsFiles.entity';
-import { PrescriptionFilesService } from 'src/prescriptionsFiles/prescriptionsFiles.service';
-import { MedicationLogs } from 'src/medicationLogs/entities/medicationLogs.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Notes,MedicationLogs, Patients,Prescriptions, PrescriptionsFiles])],
-  providers: [NotesService,PatientsService,PrescriptionFilesService,PrescriptionsService, IdService],
+  imports: [TypeOrmModule.forFeature([Notes, Patients])],
+  providers: [NotesService, PatientsService, IdService],
 
   controllers: [NotesController],
 })

@@ -6,15 +6,12 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { IdService } from 'services/uuid/id.service';
 import { Brackets, Repository } from 'typeorm';
 import { Patients } from 'src/patients/entities/patients.entity';
-import { Prescriptions } from 'src/prescriptions/entities/prescriptions.entity';
 
 @Injectable()
 export class VitalSignsService {
   constructor(
     @InjectRepository(VitalSigns)
     private vitalSignsRepository: Repository<VitalSigns>,
-    @InjectRepository(Prescriptions)
-    private prescriptionsRepository: Repository<Prescriptions>,
     @InjectRepository(Patients)
     private patientsRepository: Repository<Patients>,
 
@@ -120,15 +117,15 @@ export class VitalSignsService {
     updateVitalSignInput: UpdateVitalSignInput,
   ): Promise<VitalSigns> {
     const { ...updateData } = updateVitalSignInput;
-    const prescriptions = await this.vitalSignsRepository.findOne({
+    const vitalSigns = await this.vitalSignsRepository.findOne({
       where: { uuid: id },
     });
-    if (!prescriptions) {
+    if (!vitalSigns) {
       throw new NotFoundException(`VitalSign  ID-${id}  not found.`);
     }
-    Object.assign(prescriptions, updateData);
+    Object.assign(vitalSigns, updateData);
     const updatedVitalSigns =
-      await this.vitalSignsRepository.save(prescriptions);
+      await this.vitalSignsRepository.save(vitalSigns);
     delete updatedVitalSigns.patientId;
     delete updatedVitalSigns.deletedAt;
     delete updatedVitalSigns.id;
@@ -137,17 +134,17 @@ export class VitalSignsService {
   async softDeleteVitalSign(
     id: string,
   ): Promise<{ message: string; deletedVitalSign: VitalSigns }> {
-    const prescriptions = await this.vitalSignsRepository.findOne({
+    const vitalSigns = await this.vitalSignsRepository.findOne({
       where: { uuid: id },
     });
-    if (!prescriptions) {
-      throw new NotFoundException(`Prescriptions ID-${id} does not exist.`);
+    if (!vitalSigns) {
+      throw new NotFoundException(`VitalSign ID-${id} does not exist.`);
     }
-    prescriptions.deletedAt = new Date().toISOString();
+    vitalSigns.deletedAt = new Date().toISOString();
     const deletedVitalSign =
-      await this.vitalSignsRepository.save(prescriptions);
+      await this.vitalSignsRepository.save(vitalSigns);
     return {
-      message: `Prescriptions with ID ${id} has been soft-deleted.`,
+      message: `VitalSign with ID ${id} has been soft-deleted.`,
       deletedVitalSign,
     };
   }
