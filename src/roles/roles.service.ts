@@ -14,7 +14,7 @@ export class RolesService {
   async createRoles(createRolesInput: CreateRolesInput): Promise<Roles> {
     const existingRoles = await this.rolesRepository.findOne({
       where: {
-        name: ILike(`%${createRolesInput.name}%`),
+        name: createRolesInput.name,
       },
     });
     if (existingRoles) {
