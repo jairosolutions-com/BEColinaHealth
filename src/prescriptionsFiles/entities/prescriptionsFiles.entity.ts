@@ -14,9 +14,9 @@ export class PrescriptionsFiles {
   id: number;
 
   @Column(null, { nullable: true })
-  file_uuid: string;
+  file_uuid: string;  
 
-  @Column()
+  @Column() 
   prescriptionsId: number;
 
   @Column()

@@ -32,6 +32,7 @@ import multer from 'multer';
 import { PrescriptionFilesModule } from './prescriptionsFiles/prescriptionsFiles.module';
 
 import { FormsModule } from './forms/forms.module';
+import { FormFilesModule } from './formFiles/formFiles.module';
 
 @Module({
   imports: [
@@ -72,6 +73,7 @@ import { FormsModule } from './forms/forms.module';
     PrescriptionFilesModule,
     LabResultsFilesModule,
     FormsModule,
+    FormFilesModule,
   ],
   controllers: [AppController],
   providers: [
@@ -82,4 +84,4 @@ import { FormsModule } from './forms/forms.module';
     },
   ],
 })
-export class AppModule {}
+export class AppModule { }
