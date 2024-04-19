@@ -77,7 +77,7 @@ export class LabResultsService {
         .leftJoinAndSelect('labResults.patient', 'patient')
         .select([
             'labResults.uuid', // Add DISTINCT for UUID
-            'labResults.createdAt',
+            'labResults.date',
             'labResults.hemoglobinA1c',
             'labResults.fastingBloodGlucose',
             'labResults.totalCholesterol',
