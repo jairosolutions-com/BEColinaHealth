@@ -60,12 +60,12 @@ export class LabResultsController {
         return this.labResultsService.updateLabResults(id, updateLabResultInput);
     }
     @Patch('delete/:id')
-    softDeletePrescriptions(@Param('id') id: string) {
+    softDeleteLabResult(@Param('id') id: string) {
         return this.labResultsService.softDeleteLabResults(id);
     }
 
     //labFile
-    @Post(':id/upload')
+    @Post(':id/uploadfiles')
     @UseInterceptors(FilesInterceptor('labfile', 5))
     addLabFile(@Param('id') id: string, @UploadedFiles(getFileValidator()) files: Array<Express.Multer.File>) {
         console.log(`Received ID: ${id}`);
@@ -84,6 +84,30 @@ export class LabResultsController {
             console.log(files);
         } else {
             // Handle the case where 'file' is undefined
+            throw new BadRequestException('No file uploaded');
+        }
+    }
+    @Patch(':id/updatefile')
+    @UseInterceptors(FilesInterceptor('labfile', 1)) // Limiting to 1 file upload at a time
+    updateLabFile(@Param('id') id: string, @UploadedFiles(getFileValidator()) files: Array<Express.Multer.File>) {
+        console.log(`Received ID: ${id}`);
+
+        // Check if a file has been uploaded
+        if (files && files.length > 0) {
+            const file = files[0]; // Since we expect only one file
+            if (file) {
+                // Call the service method to update the lab file
+                const updatedLabFile = this.labResultsService.updatePatientLabFile(id, file.buffer, file.originalname);
+
+                console.log(`Lab file updated: ${updatedLabFile}`);
+                return updatedLabFile;
+            } else {
+                // Handle undefined file
+                console.warn('Undefined file detected.');
+                throw new BadRequestException('Invalid file uploaded');
+            }
+        } else {
+            // Handle the case where no file was uploaded
             throw new BadRequestException('No file uploaded');
         }
     }
@@ -145,9 +169,15 @@ export class LabResultsController {
 
         return fileStream.pipe(response);
     }
+    // Updated softDeleteLabFiles function
+    @Patch('files/delete/:fileId')
+    async softDeleteLabFiles(@Param('fileId') fileUuid: string) {
+    
+        await this.labResultsFilesService.softDeleteLabFile(fileUuid);
+        console.log(`Delete Lab File`, fileUuid);
+        return `Deleted Lab File ${fileUuid} Successfully`;
+    }
 }
-
-
 //SINGLE FILE VIEW
 // async getDatabaseFileById(@Param('id') id: string, @Res({ passthrough: true }) response: Response) {
 //     const file = await this.labResultsFilesService.getFileByLabUuid(id);
