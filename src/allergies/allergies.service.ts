@@ -63,7 +63,7 @@ export class AllergiesService {
     term: string,
     page: number = 1,
     sortBy: string = 'type',
-    sortOrder: 'ASC' | 'DESC' = 'ASC',
+    sortOrder: 'ASC' | 'DESC' = 'DESC',
     perPage: number = 5
   ): Promise<{ data: Allergies[]; totalPages: number; currentPage: number; totalCount: number }> {
     const searchTerm = `%${term}%`; // Add wildcards to the search term

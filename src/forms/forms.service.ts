@@ -139,7 +139,7 @@ export class FormsService {
       delete deletedForms.patientId;
       delete deletedForms.id;
     return {
-      message: `Note with ID ${id} has been soft-deleted.`,
+      message: `Form with ID ${id} has been soft-deleted.`,
       deletedForms,
     };
   }

@@ -36,7 +36,6 @@ export class PatientsService {
         firstName: Like(`%${input.firstName}%`),
         middleName: Like(`%${input.middleName}%`),
         lastName: Like(`%${input.lastName}%`),
-        dateOfBirth: input.dateOfBirth, // Check for exact match
       },
     });
     // If a patient with similar information exists, throw an error
