@@ -45,8 +45,9 @@ export class NotesService {
   //PAGED NOTES list PER PATIENT
   async getAllNotesByPatient(
     patientUuid: string,
-    type: string,
     term: string,
+    type: string,
+
     page: number = 1,
     sortBy: string = 'subject',
     sortOrder: 'ASC' | 'DESC' = 'ASC',
@@ -57,6 +58,7 @@ export class NotesService {
     currentPage: number;
     totalCount;
   }> {
+    console.log(type, 'typess');
     const searchTerm = `%${term}%`; // Add wildcards to the search term
     const skip = (page - 1) * perPage;
     const patientExists = await this.patientsRepository.findOne({
@@ -66,7 +68,7 @@ export class NotesService {
     if (!patientExists) {
       throw new NotFoundException('Patient not found');
     }
-    console.log(type, 'type');
+
     const notesQueryBuilder = this.notesRepository
       .createQueryBuilder('notes')
       .innerJoinAndSelect('notes.patient', 'patient')
