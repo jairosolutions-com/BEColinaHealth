@@ -45,6 +45,7 @@ export class NotesService {
   //PAGED NOTES list PER PATIENT
   async getAllNotesByPatient(
     patientUuid: string,
+    type: string,
     term: string,
     page: number = 1,
     sortBy: string = 'subject',
@@ -61,9 +62,11 @@ export class NotesService {
     const patientExists = await this.patientsRepository.findOne({
       where: { uuid: patientUuid },
     });
+
     if (!patientExists) {
       throw new NotFoundException('Patient not found');
     }
+    console.log(type, 'type');
     const notesQueryBuilder = this.notesRepository
       .createQueryBuilder('notes')
       .innerJoinAndSelect('notes.patient', 'patient')
@@ -71,10 +74,12 @@ export class NotesService {
         'notes.uuid',
         'notes.subject',
         'notes.notes',
+        'notes.type',
         'notes.createdAt',
         'patient.uuid',
       ])
       .where('patient.uuid = :uuid', { uuid: patientUuid })
+      .andWhere('notes.type = :type', { type: type })
       .orderBy(`notes.${sortBy}`, sortOrder)
       .offset(skip)
       .limit(perPage);
@@ -94,7 +99,7 @@ export class NotesService {
               })
               .orWhere('notes.notes ILIKE :searchTerm', {
                 searchTerm,
-              })
+              });
           }),
         );
     }
@@ -137,14 +142,12 @@ export class NotesService {
       throw new NotFoundException(`Notes ID-${id} does not exist.`);
     }
     notes.deletedAt = new Date().toISOString();
-    const deletedNotes =
-      await this.notesRepository.save(notes);
-      delete deletedNotes.patientId;
-      delete deletedNotes.id;
+    const deletedNotes = await this.notesRepository.save(notes);
+    delete deletedNotes.patientId;
+    delete deletedNotes.id;
     return {
       message: `Note with ID ${id} has been soft-deleted.`,
       deletedNotes,
     };
   }
 }
-

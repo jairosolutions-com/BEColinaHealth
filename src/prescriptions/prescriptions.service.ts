@@ -510,6 +510,10 @@ export class PrescriptionsService {
         .andWhere('medicationlogs.createdAt >= :todayDate', {
           todayDate: todayDate.toISOString().split('T')[0],
         }) // Filter by today's date
+        .andWhere(
+          'medicationlogs.prescriptionId IN (SELECT id FROM prescriptions WHERE status = :status)',
+          { status: 'active' },
+        )
         .orderBy('patient.firstName', 'ASC')
         .distinct(true)
         .skip(skip)
