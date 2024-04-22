@@ -6,4 +6,5 @@ export class CreateNotesInput {
   uuid: string;
   subject: string;
   notes: string;
+  type: string;
 }

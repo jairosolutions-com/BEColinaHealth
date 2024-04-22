@@ -32,6 +32,9 @@ export class Notes {
   @Field()
   notes: string;
 
+  @Column()
+  type:string
+
   @Column({ nullable: true })
   @Field(() => Int)
   patientId: number;
