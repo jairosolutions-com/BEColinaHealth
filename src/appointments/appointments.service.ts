@@ -173,7 +173,7 @@ export class AppointmentsService {
         todayDate: todayDate.toISOString().split('T')[0],
       }) 
       .andWhere('appointments.appointmentStatus = :appointmentStatus', {
-        appointmentStatus: 'scheduled',
+        appointmentStatus: 'Scheduled',
       })
       .orderBy(`appointments.${sortBy}`, sortOrder)
       .offset(skip)
