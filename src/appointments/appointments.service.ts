@@ -171,7 +171,7 @@ export class AppointmentsService {
       ])
       .where('appointments.appointmentDate >= :todayDate', {
         todayDate: todayDate.toISOString().split('T')[0],
-      }) 
+      })
       .andWhere('appointments.appointmentStatus = :appointmentStatus', {
         appointmentStatus: 'Scheduled',
       })
@@ -179,21 +179,19 @@ export class AppointmentsService {
       .offset(skip)
       .limit(perPage);
 
-
     if (term !== '') {
       console.log('term', term);
-      appointmentsQueryBuilder
-        .where(
-          new Brackets((qb) => {
-            qb.andWhere('appointments.uuid ILIKE :searchTerm', { searchTerm })
-              .orWhere('appointments.appointmentStatus ILIKE :searchTerm', {
-                searchTerm,
-              })
-              .orWhere('appointments.details ILIKE :searchTerm', {
-                searchTerm,
-              });
-          }),
-        );
+      appointmentsQueryBuilder.where(
+        new Brackets((qb) => {
+          qb.andWhere('appointments.uuid ILIKE :searchTerm', { searchTerm })
+            .orWhere('appointments.appointmentStatus ILIKE :searchTerm', {
+              searchTerm,
+            })
+            .orWhere('appointments.details ILIKE :searchTerm', {
+              searchTerm,
+            });
+        }),
+      );
     }
     const appointmentsList = await appointmentsQueryBuilder.getRawMany();
 
@@ -208,14 +206,74 @@ export class AppointmentsService {
     };
   }
 
-  async getAllAppointments(): Promise<Appointments[]> {
-    const currentTimeFormatted = this.getCurrentTimeFormatted();
-    const currentDate = new Date(); // Get current date
-    const formattedDate = this.formatDate(currentDate);
-    console.log('Current Time:', currentTimeFormatted); // Log current time
-    console.log('Current Date:', formattedDate); // Log current time
+  async getAllAppointments(
+    term: string,
+    page: number = 1,
+    sortBy: string = 'appointmentStatus',
+    sortOrder: 'ASC' | 'DESC' = 'ASC',
+    startDate: string = '2021-01-01',
+    endDate: string = '2300-01-01',
+    perPage: number = 5,
+  ): Promise<{
+    data: Appointments[];
+    totalPages: number;
+    currentPage: number;
+    totalCount;
+  }> {
+    const searchTerm = `%${term}%`; // Add wildcards to the search term
+    const todayDate = new Date();
+    todayDate.setUTCHours(0, 0, 0, 0);
+    const skip = (page - 1) * perPage;
 
-    return this.appointmentsRepository.find();
+    const appointmentsQueryBuilder = this.appointmentsRepository
+      .createQueryBuilder('appointments')
+      .innerJoinAndSelect('appointments.patient', 'patient')
+      .select([
+        'appointments.uuid',
+        'appointments.appointmentTime',
+        'appointments.appointmentStatus',
+        'appointments.appointmentEndTime',
+        'appointments.appointmentDate',
+        'patient.uuid',
+        'patient.firstName',
+        'patient.lastName',
+        'patient.middleName',
+      ])
+      .where('appointments.appointmentDate >= :startDate', {
+        startDate: startDate,
+      })
+      .andWhere('appointments.appointmentDate <= :endDate', {
+        endDate: endDate,
+      })
+      .orderBy(`appointments.${sortBy}`, sortOrder)
+      .offset(skip)
+      .limit(perPage);
+
+    if (term !== '') {
+      console.log('term', term);
+      appointmentsQueryBuilder.where(
+        new Brackets((qb) => {
+          qb.andWhere('appointments.uuid ILIKE :searchTerm', { searchTerm })
+            .orWhere('appointments.appointmentStatus ILIKE :searchTerm', {
+              searchTerm,
+            })
+            .orWhere('appointments.details ILIKE :searchTerm', {
+              searchTerm,
+            });
+        }),
+      );
+    }
+    const appointmentsList = await appointmentsQueryBuilder.getRawMany();
+
+    const totalPatientAppointments = await appointmentsQueryBuilder.getCount();
+    const totalPages = Math.ceil(totalPatientAppointments / perPage);
+
+    return {
+      data: appointmentsList,
+      totalPages: totalPages,
+      currentPage: page,
+      totalCount: totalPatientAppointments,
+    };
   }
 
   async updateAppointment(
