@@ -1,6 +1,7 @@
 
 import { LabResults } from 'src/labResults/entities/labResults.entity';
-import { Column, Entity, JoinColumn, ManyToOne, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { Column,  CreateDateColumn, UpdateDateColumn,
+  DeleteDateColumn,Entity, JoinColumn, ManyToOne, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity('labResultsFiles')
 class LabResultsFiles {
@@ -21,6 +22,15 @@ class LabResultsFiles {
     })
     data: Uint8Array;
 
+    @UpdateDateColumn({ name: 'updatedAt', nullable: true })
+    updatedAt: string;
+  
+    @CreateDateColumn({ name: 'createdAt', nullable: true })
+    createdAt: string;
+  
+    @DeleteDateColumn({ name: 'deletedAt', nullable: true })
+    deletedAt: string;
+  
     @ManyToOne(() => LabResults, (lab) => lab.labFile)
     @JoinColumn({
       name: 'labResultsId', //fk id

@@ -52,15 +52,12 @@ export class LabResults {
   patientId: number;
 
   @UpdateDateColumn({ name: 'updatedAt', nullable: true })
-  @Field()
   updatedAt: string;
 
   @CreateDateColumn({ name: 'createdAt', nullable: true })
-  @Field()
   createdAt: string;
 
   @DeleteDateColumn({ name: 'deletedAt', nullable: true })
-  @Field()
   deletedAt: string;
 
 

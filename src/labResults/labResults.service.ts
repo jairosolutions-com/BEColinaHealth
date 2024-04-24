@@ -73,23 +73,23 @@ export class LabResultsService {
     }
     // Build the query with DISTINCT, ordering, and pagination
     const labResultsQueryBuilder = this.labResultsRepository
-        .createQueryBuilder('labResults')
-        .leftJoinAndSelect('labResults.patient', 'patient')
-        .select([
-            'labResults.uuid', // Add DISTINCT for UUID
-            'labResults.date',
-            'labResults.hemoglobinA1c',
-            'labResults.fastingBloodGlucose',
-            'labResults.totalCholesterol',
-            'labResults.ldlCholesterol',
-            'labResults.hdlCholesterol',
-            'labResults.triglycerides',
-            'patient.uuid',
-        ])
-        .where('patient.uuid = :uuid', { uuid: patientUuid })
-        .orderBy(`labResults.${sortBy}`, sortOrder)
-        .offset(skip) // Skip records according to the page number and perPage
-        .limit(perPage); // Retrieve only the number of records per page
+      .createQueryBuilder('labResults')
+      .leftJoinAndSelect('labResults.patient', 'patient')
+      .select([
+        'labResults.uuid', // Add DISTINCT for UUID
+        'labResults.date',
+        'labResults.hemoglobinA1c',
+        'labResults.fastingBloodGlucose',
+        'labResults.totalCholesterol',
+        'labResults.ldlCholesterol',
+        'labResults.hdlCholesterol',
+        'labResults.triglycerides',
+        'patient.uuid',
+      ])
+      .where('patient.uuid = :uuid', { uuid: patientUuid })
+      .orderBy(`labResults.${sortBy}`, sortOrder)
+      .offset(skip) // Skip records according to the page number and perPage
+      .limit(perPage); // Retrieve only the number of records per page
 
 
     if (term !== "") {
@@ -160,36 +160,38 @@ export class LabResultsService {
       deletedLabResult,
     };
   }
+
+
   //LAB FILES
   async addPatientLabFile(labResultUuid: string, imageBuffer: Buffer, filename: string) {
     console.log(`Received labResultUuid: ${labResultUuid}`);
-    
+
     if (!labResultUuid) {
-        console.error("No labResultUuid provided.");
-        throw new BadRequestException(`No lab result uuid provided`);
+      console.error("No labResultUuid provided.");
+      throw new BadRequestException(`No lab result uuid provided`);
     }
-    
+
     const { id: labResultsId } = await this.labResultsRepository.findOne({
-        select: ["id"],
-        where: { uuid: labResultUuid }
+      select: ["id"],
+      where: { uuid: labResultUuid }
     });
-    
+
     console.log(`Found lab result ID: ${labResultsId}`);
-    
+
     if (!labResultsId) {
-        throw new BadRequestException(`Lab result with UUID ${labResultUuid} not found`);
+      throw new BadRequestException(`Lab result with UUID ${labResultUuid} not found`);
     }
-    
+
     const labFile = await this.labResultsFilesService.uploadLabResultFile(imageBuffer, filename, labResultsId);
-    
+
     if (!labFile) {
-        throw new BadRequestException(`Failed to upload lab file for lab result UUID ${labResultUuid}`);
+      throw new BadRequestException(`Failed to upload lab file for lab result UUID ${labResultUuid}`);
     }
-    
+
     console.log(`Lab file uploaded successfully: ${labFile}`);
-    
+
     return labFile;
-}
+  }
 
   async getPatientLabFileByUuid(labResultUuid: string) {
     const labResult = await this.labResultsRepository.findOne({
@@ -212,4 +214,43 @@ export class LabResultsService {
     }
     return patientLabFile;
   }
+
+  async updatePatientLabFile(labResultUuid: string, imageBuffer: Buffer, filename: string): Promise<any> {
+    console.log(`Received labResultUuid: ${labResultUuid}`);
+
+    // Validate the provided lab result UUID
+    if (!labResultUuid) {
+      console.error("No labResultUuid provided.");
+      throw new BadRequestException(`No lab result UUID provided`);
+    }
+
+    // Find the lab result ID using the provided UUID
+    const { id: labResultsId } = await this.labResultsRepository.findOne({
+      select: ["id"],
+      where: { uuid: labResultUuid }
+    });
+
+    console.log(`Found lab result ID: ${labResultsId}`);
+
+    // Handle the case where the lab result ID is not found
+    if (!labResultsId) {
+      throw new BadRequestException(`Lab result with UUID ${labResultUuid} not found`);
+    }
+
+    // Update the lab file using the lab result ID
+    return this.labResultsFilesService.updateLabFile(labResultsId, imageBuffer, filename);
+  }
+  async getCurrentFileCountFromDatabase(labResultUuid: string): Promise<number> {
+    const { id: labResultsId } = await this.labResultsRepository.findOne({
+      select: ["id"],
+      where: { uuid: labResultUuid }
+    });
+    try {
+      const files = await this.labResultsFilesService.getLabFilesByLabId(labResultsId);
+      return files.length; // Return the number of files
+    } catch (error) {
+      throw new NotFoundException('Lab result files not found');
+    }
+  }
+
 }
