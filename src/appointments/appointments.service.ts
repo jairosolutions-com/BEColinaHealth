@@ -213,7 +213,7 @@ export class AppointmentsService {
     sortOrder: 'ASC' | 'DESC' = 'ASC',
     startDate: string = '2021-01-01',
     endDate: string = '2300-01-01',
-    perPage: number = 5,
+    perPage: number = 8,
   ): Promise<{
     data: Appointments[];
     totalPages: number;
@@ -257,6 +257,8 @@ export class AppointmentsService {
             .orWhere('appointments.appointmentStatus ILIKE :searchTerm', {
               searchTerm,
             })
+            .orWhere('patient.firstName ILIKE :searchTerm', { searchTerm })
+            .orWhere('patient.lastName ILIKE :searchTerm', { searchTerm })
             .orWhere('appointments.details ILIKE :searchTerm', {
               searchTerm,
             });
