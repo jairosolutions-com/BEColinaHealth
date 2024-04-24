@@ -129,6 +129,14 @@ export class LabResultsController {
 
         return fileMetadataArray;
     }
+    @Get(':id/files/count') //get a list of files of that lab result
+    async getCurrentFileCountFromDatabase(@Param('id') id: string, response: Response) {
+        const files = await this.labResultsService.getCurrentFileCountFromDatabase(id);
+
+      
+
+        return files;
+    }
     @Get(':id/files/:fileId') //get a list of files of that lab result
     async getFileById(@Param('id') id: string, @Param('fileId') fileId: string, @Res() response: Response): Promise<Response> {
 
@@ -179,7 +187,7 @@ export class LabResultsController {
     }
 }
 //SINGLE FILE VIEW
-// async getDatabaseFileById(@Param('id') id: string, @Res({ passthrough: true }) response: Response) {
+// async getDatabaseFileById(@Param('id') id: string, @Res({ passthrough: true }) response: Response) { 
 //     const file = await this.labResultsFilesService.getFileByLabUuid(id);
 //     const stream = Readable.from(file.data);
 //     let contentType;
@@ -209,4 +217,4 @@ export class LabResultsController {
 //     });
 //     return new StreamableFile(stream);
 // }
-
+ 

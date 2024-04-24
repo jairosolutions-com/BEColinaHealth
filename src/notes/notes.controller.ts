@@ -11,7 +11,7 @@ export class NotesController {
     @Post(':id')
     createVitalSign(@Param('id') patientId: string,
         @Body() createNotesInput: CreateNotesInput) {
-        return this.notesService.createNote(patientId,createNotesInput);
+        return this.notesService.createNote(patientId, createNotesInput);
     }
 
     @Post('list/:id')
@@ -32,4 +32,4 @@ export class NotesController {
     softDeleteNote(@Param('id') id: string) {
         return this.notesService.softDeleteNotes(id);
     }
- }
+}

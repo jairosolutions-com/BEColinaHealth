@@ -240,5 +240,17 @@ export class LabResultsService {
     // Update the lab file using the lab result ID
     return this.labResultsFilesService.updateLabFile(labResultsId, imageBuffer, filename);
   }
+  async getCurrentFileCountFromDatabase(labResultUuid: string): Promise<number> {
+    const { id: labResultsId } = await this.labResultsRepository.findOne({
+      select: ["id"],
+      where: { uuid: labResultUuid }
+    });
+    try {
+      const files = await this.labResultsFilesService.getLabFilesByLabId(labResultsId);
+      return files.length; // Return the number of files
+    } catch (error) {
+      throw new NotFoundException('Lab result files not found');
+    }
+  }
 
 }

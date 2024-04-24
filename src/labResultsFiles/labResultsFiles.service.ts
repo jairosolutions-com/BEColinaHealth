@@ -28,6 +28,8 @@ export class LabResultsFilesService {
     return newFile;
   }
 
+  
+
   async getLabFilesByLabId(labResultId: number) {
     const file = await this.labResultsFilesRepository.find({
       where: { labResultsId: labResultId },
@@ -37,6 +39,7 @@ export class LabResultsFilesService {
     }
     return file;
   }
+
 
   async getFileByLabFileUuid(labFileUuid: string) {
     const { id: labFileId } = await this.labResultsFilesRepository.findOne({
