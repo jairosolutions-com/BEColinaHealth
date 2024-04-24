@@ -273,10 +273,10 @@ export class MedicationLogsService {
 
   async getAllDueMedication(
     term: string,
-    page: number = 1,
+    page: number = 2,
     sortBy: string = 'medicationLogsTime',
     sortOrder: 'ASC' | 'DESC' = 'ASC',
-    perPage: number = 0,
+    perPage: number = 8,
   ): Promise<{
     data: MedicationLogs[];
     totalPages: number;
@@ -284,6 +284,7 @@ export class MedicationLogsService {
     totalCount: number;
   }> {
     const todayDate = new Date();
+    const skip = (page - 1) * perPage;
     todayDate.setUTCHours(0, 0, 0, 0);
     const searchTerm = `%${term}%`;
     const dueMedicationQueryBuilder = this.medicationLogsRepository
@@ -308,10 +309,9 @@ export class MedicationLogsService {
       .andWhere('medicationlogs.createdAt >= :todayDate', {
         todayDate: todayDate.toISOString().split('T')[0],
       }) // Filter by today's date
-
       .orderBy(`medicationlogs.${sortBy}`, sortOrder)
-
       .addOrderBy('patient.firstName', sortOrder)
+      .offset(skip)
       .limit(perPage);
 
     if (term !== '') {
@@ -338,6 +338,8 @@ export class MedicationLogsService {
             qb.andWhere('medicationlogs.medicationLogsName ILIKE :searchTerm', {
               searchTerm,
             })
+              .orWhere('patient.firstName ILIKE :searchTerm', { searchTerm })
+              .orWhere('patient.lastName ILIKE :searchTerm', { searchTerm })
               .orWhere('medicationlogs.medicationLogStatus ILIKE :searchTerm', {
                 searchTerm,
               })
