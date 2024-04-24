@@ -27,7 +27,7 @@ export class PrescriptionsController {
   constructor(
     private readonly prescriptionsService: PrescriptionsService,
     private prescriptionFilesService: PrescriptionFilesService,
-  ) {}
+  ) { }
 
   @Post('timechart')
   getPatientsWithMedicationLogsAndPrescriptions(
@@ -109,7 +109,7 @@ export class PrescriptionsController {
   //PrescriptionFile
   @Post(':id/upload')
   @UseInterceptors(FilesInterceptor('prescriptionFile', 5))
-  addLabFile(
+  addFile(
     @Param('id') id: string,
     @UploadedFiles(getFileValidator()) files: Array<Express.Multer.File>,
   ) {
@@ -136,15 +136,72 @@ export class PrescriptionsController {
       throw new BadRequestException('No file uploaded');
     }
   }
-  @Get(':id/files') //get a list of files of that lab result
-  async getDatabaseFilesById(@Param('id') id: string, response: Response) {
-    const files = await this.prescriptionsService.getPatientLabFileByUuid(id);
+  @Patch('files/delete/:fileId')
+    async deleteFile(@Param('fileId') fileUuid: string) {
+    
+        await this.prescriptionFilesService.softDeletePrescriptionFile(fileUuid);
+        console.log(`Delete Prescription File`, fileUuid);
+        return `Deleted Prescription File ${fileUuid} Successfully`;
+    }
+  @Post(':id/uploadfiles')
+  @UseInterceptors(FilesInterceptor('prescriptionfile', 5))
+  async addPrescriptionFile(
+    @Param('id') id: string,
+    @UploadedFiles() files: Array<Express.Multer.File>,
+  ) {
+    console.log(`Received ID: ${id}`);
 
-    if (files.length === 0) {
-      return `No files found for lab result with UUID ${id}`;
+    if (!files || files.length === 0) {
+      throw new BadRequestException('No file uploaded');
     }
 
-    // Return an array of file metadata (e.g., file IDs, filenames, file types)
+    for (const file of files) {
+      if (file) {
+        await this.prescriptionsService.addPrescriptionFile(
+          id,
+          file.buffer,
+          file.originalname,
+        );
+      } else {
+        console.warn('Undefined file element detected.');
+      }
+    }
+  }
+
+  @Patch(':id/updatefile')
+  @UseInterceptors(FilesInterceptor('prescriptionfile', 1))
+  async updatePrescriptionFile(
+    @Param('id') id: string,
+    @UploadedFiles() files: Array<Express.Multer.File>,
+  ) {
+    console.log(`Received ID: ${id}`);
+
+    if (!files || files.length === 0) {
+      throw new BadRequestException('No file uploaded');
+    }
+
+    const file = files[0]; // Since we expect only one file
+    if (!file) {
+      throw new BadRequestException('Invalid file uploaded');
+    }
+
+    return this.prescriptionsService.updatePrescriptionFile(
+      id,
+      file.buffer,
+      file.originalname,
+    );
+  }
+
+  @Get(':id/files')
+  async getDatabaseFilesById(@Param('id') id: string) {
+    const files = await this.prescriptionsService.getPrescriptionFilesByUuid(
+      id,
+    );
+
+    if (files.length === 0) {
+      return `No files found for prescription with UUID ${id}`;
+    }
+
     const fileMetadataArray = files.map((file) => ({
       fileId: file.file_uuid,
       filename: file.filename,
@@ -153,14 +210,21 @@ export class PrescriptionsController {
 
     return fileMetadataArray;
   }
-  @Get(':id/files/:fileId') //get a list of files of that lab result
+  @Get(':id/files/count') //get a list of files of that lab result
+  async getCurrentFileCountFromDatabase(@Param('id') id: string, response: Response) {
+    const files = await this.prescriptionsService.getCurrentFileCountFromDatabase(id);
+    return files;
+  }
+  @Get(':id/files/:fileId')
   async getFileById(
     @Param('id') id: string,
     @Param('fileId') fileId: string,
     @Res() response: Response,
   ): Promise<Response> {
     const file =
-      await this.prescriptionFilesService.getFileByPrescriptionFileUuid(fileId);
+      await this.prescriptionFilesService.getFileByPrescriptionFileUuid(
+        fileId,
+      );
 
     if (!file) {
       response
@@ -169,7 +233,6 @@ export class PrescriptionsController {
       return;
     }
 
-    // Set appropriate headers
     response.setHeader(
       'Content-Disposition',
       `inline; filename="${file.filename}"`,
@@ -194,10 +257,7 @@ export class PrescriptionsController {
 
     response.setHeader('Content-Type', contentType);
 
-    // Create a readable stream from the file data
     const fileStream = Readable.from(file.data);
-
-    // Pipe the file stream to the response
 
     return fileStream.pipe(response);
   }
