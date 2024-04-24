@@ -132,9 +132,6 @@ export class LabResultsController {
     @Get(':id/files/count') //get a list of files of that lab result
     async getCurrentFileCountFromDatabase(@Param('id') id: string, response: Response) {
         const files = await this.labResultsService.getCurrentFileCountFromDatabase(id);
-
-      
-
         return files;
     }
     @Get(':id/files/:fileId') //get a list of files of that lab result

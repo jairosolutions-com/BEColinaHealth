@@ -34,7 +34,7 @@ export class PrescriptionsService {
     private readonly prescriptionFilesService: PrescriptionFilesService,
 
     private idService: IdService, // Inject the IdService
-  ) {}
+  ) { }
   //CREATE Prescriptions INFO
   async createPrescriptions(
     patientUuid: string,
@@ -63,9 +63,9 @@ export class PrescriptionsService {
     newPrescriptions.uuid = uuid;
     newPrescriptions.patientId = patientId; // Assign patientId
     Object.assign(newPrescriptions, prescriptionData);
-    const savedLabResult =
+    const savedPrescription =
       await this.prescriptionsRepository.save(newPrescriptions);
-    const result = { ...savedLabResult };
+    const result = { ...savedPrescription };
     delete result.patientId;
     delete result.deletedAt;
     delete result.updatedAt;
@@ -276,16 +276,16 @@ export class PrescriptionsService {
           }),
         );
     }
-    // Get lab results
+    // Get prescriptions
     const prescriptionResultList = await prescriptionsQueryBuilder.getRawMany();
-    const totalPatientLabResults = await prescriptionsQueryBuilder.getCount();
-    const totalPages = Math.ceil(totalPatientLabResults / perPage);
+    const totalPatientPrescriptions = await prescriptionsQueryBuilder.getCount();
+    const totalPages = Math.ceil(totalPatientPrescriptions / perPage);
 
     return {
       data: prescriptionResultList,
       totalPages: totalPages,
       currentPage: page,
-      totalCount: totalPatientLabResults,
+      totalCount: totalPatientPrescriptions,
     };
   }
   //LIST Prescriptions NAMES Dropdown  PER PATIENT
@@ -396,79 +396,6 @@ export class PrescriptionsService {
       data: prescriptionResultList,
     };
   }
-
-  //Prescription Files
-  //LAB FILES
-  async addPrescriptionFile(
-    prescriptionUuid: string,
-    imageBuffer: Buffer,
-    filename: string,
-  ) {
-    console.log(`Received prescriptionUuid: ${prescriptionUuid}`);
-
-    if (!prescriptionUuid) {
-      console.error('No labResultUuid provided.');
-      throw new BadRequestException(`No prescriptions uuid provided`);
-    }
-
-    const { id: prescriptionsId } = await this.prescriptionsRepository.findOne({
-      select: ['id'],
-      where: { uuid: prescriptionUuid },
-    });
-
-    console.log(`Found prescription ID: ${prescriptionsId}`);
-
-    if (!prescriptionsId) {
-      throw new BadRequestException(
-        `prescription result with UUID ${prescriptionUuid} not found`,
-      );
-    }
-
-    const prescriptionFile =
-      await this.prescriptionFilesService.uploadPrescriptionFile(
-        imageBuffer,
-        filename,
-        prescriptionsId,
-      );
-
-    if (!prescriptionFile) {
-      throw new BadRequestException(
-        `Failed to upload prescription file for lab result UUID ${prescriptionUuid}`,
-      );
-    }
-
-    console.log(`prescription file uploaded successfully: ${prescriptionFile}`);
-
-    return prescriptionFile;
-  }
-
-  async getPatientLabFileByUuid(prescriptionUuid: string) {
-    const labResult = await this.prescriptionsRepository.findOne({
-      select: ['id'],
-      where: { uuid: prescriptionUuid },
-    });
-
-    // Check if a lab result was found
-    if (!labResult) {
-      // If no lab result is found, throw a NotFoundException
-      throw new NotFoundException(
-        `prescription result with UUID ${prescriptionUuid} not found`,
-      );
-    }
-
-    // If a lab result was found, destructure the 'id' property
-    const { id: prescriptionId } = labResult;
-
-    const patientLabFile =
-      await this.prescriptionFilesService.getPrescriptionFilesByPrescriptionId(
-        prescriptionId,
-      );
-    if (!patientLabFile) {
-      throw new NotFoundException();
-    }
-    return patientLabFile;
-  }
-
   async searchPatients(term: string): Promise<Patients[]> {
     const searchTerm = `%${term}%`; // Add wildcards to the search term
     const patients = await this.patientsRepository
@@ -628,4 +555,112 @@ export class PrescriptionsService {
       totalCount: totalPatientPrescription,
     };
   }
+  //Prescription Files
+  //prescription FILES
+  async addPrescriptionFile(prescriptionUuid: string, imageBuffer: Buffer, filename: string) {
+    console.log(`Received prescriptionUuid: ${prescriptionUuid}`);
+
+    if (!prescriptionUuid) {
+      console.error('No prescriptionUuid provided.');
+      throw new BadRequestException(`No prescription uuid provided`);
+    }
+
+    const { id: prescriptionId } = await this.prescriptionsRepository.findOne({
+      select: ['id'],
+      where: { uuid: prescriptionUuid },
+    });
+
+    console.log(`Found prescription ID: ${prescriptionId}`);
+
+    if (!prescriptionId) {
+      throw new BadRequestException(
+        `Prescription with UUID ${prescriptionUuid} not found`,
+      );
+    }
+
+    const prescriptionFile =
+      await this.prescriptionFilesService.uploadPrescriptionFile(
+        imageBuffer,
+        filename,
+        prescriptionId,
+      );
+
+    if (!prescriptionFile) {
+      throw new BadRequestException(
+        `Failed to upload prescription file for prescription UUID ${prescriptionUuid}`,
+      );
+    }
+
+    console.log(`Prescription file uploaded successfully: ${prescriptionFile}`);
+
+    return prescriptionFile;
+  }
+
+  async getPrescriptionFilesByUuid(prescriptionUuid: string) {
+    const prescription = await this.prescriptionsRepository.findOne({
+      select: ['id'],
+      where: { uuid: prescriptionUuid },
+    });
+
+    // Check if a prescription was found
+    if (!prescription) {
+      // If no prescription is found, throw a NotFoundException
+      throw new NotFoundException(
+        `Prescription with UUID ${prescriptionUuid} not found`,
+      );
+    }
+
+    // If a prescription was found, destructure the 'id' property
+    const { id: prescriptionId } = prescription;
+
+    const prescriptionFiles =
+      await this.prescriptionFilesService.getPrescriptionFilesByPrescriptionId(
+        prescriptionId,
+      );
+    if (!prescriptionFiles) {
+      throw new NotFoundException();
+    }
+    return prescriptionFiles;
+  }
+
+  async updatePrescriptionFile(prescriptionUuid: string, imageBuffer: Buffer, filename: string): Promise<any> {
+    console.log(`Received prescriptionUuid: ${prescriptionUuid}`);
+
+    // Validate the provided prescription UUID
+    if (!prescriptionUuid) {
+      console.error('No prescriptionUuid provided.');
+      throw new BadRequestException(`No prescription UUID provided`);
+    }
+
+    // Find the prescription ID using the provided UUID
+    const { id: prescriptionId } = await this.prescriptionsRepository.findOne({
+      select: ['id'],
+      where: { uuid: prescriptionUuid },
+    });
+
+    console.log(`Found prescription ID: ${prescriptionId}`);
+
+    // Handle the case where the prescription ID is not found
+    if (!prescriptionId) {
+      throw new BadRequestException(
+        `Prescription with UUID ${prescriptionUuid} not found`,
+      );
+    }
+
+    // Update the prescription file using the prescription ID
+    return this.prescriptionFilesService.updatePrescriptionFile(prescriptionId, imageBuffer, filename);
+  }
+  async getCurrentFileCountFromDatabase(prescriptionsUuid: string): Promise<number> {
+    const { id: prescriptionId } = await this.prescriptionsRepository.findOne({
+      select: ["id"],
+      where: { uuid: prescriptionsUuid }
+    });
+    try {
+      const files = await this.prescriptionFilesService.getPrescriptionFilesByPrescriptionId(prescriptionId);
+      return files.length; // Return the number of files
+    } catch (error) {
+      throw new NotFoundException('Lab result files not found');
+    }
+  }
+
 }
