@@ -1,12 +1,6 @@
 import { Prescriptions } from 'src/prescriptions/entities/prescriptions.entity';
-import {
-  Column,
-  Entity,
-  JoinColumn,
-  ManyToOne,
-  OneToOne,
-  PrimaryGeneratedColumn,
-} from 'typeorm';
+import { Column,  CreateDateColumn, UpdateDateColumn,
+  DeleteDateColumn,Entity, JoinColumn, ManyToOne, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity('prescriptionFiles')
 export class PrescriptionsFiles {
@@ -26,7 +20,14 @@ export class PrescriptionsFiles {
     type: 'bytea',
   })
   data: Uint8Array;
+  @UpdateDateColumn({ name: 'updatedAt', nullable: true })
+  updatedAt: string;
 
+  @CreateDateColumn({ name: 'createdAt', nullable: true })
+  createdAt: string;
+
+  @DeleteDateColumn({ name: 'deletedAt', nullable: true })
+  deletedAt: string;
   @ManyToOne(
     () => Prescriptions,
     (prescription) => prescription.prescriptionFile,
@@ -36,3 +37,4 @@ export class PrescriptionsFiles {
   })
   prescription: Prescriptions | null;
 }
+
