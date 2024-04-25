@@ -1,3 +1,4 @@
+import { FormFiles } from 'src/formFiles/entities/formFiles.entity';
 import { Patients } from 'src/patients/entities/patients.entity';
 import {
   Column,
@@ -7,7 +8,7 @@ import {
   JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
-  UpdateDateColumn,
+  UpdateDateColumn, OneToMany,
 } from 'typeorm';
 
 @Entity('forms')
@@ -45,4 +46,8 @@ export class Forms {
     name: 'patientId',
   })
   patient: Patients;
+
+  @OneToMany(() => FormFiles, (file) => file.form)
+  @JoinColumn({ name: 'id' }) // Specify the column name for the primary key
+  formFile?: FormFiles;  
 }

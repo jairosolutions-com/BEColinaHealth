@@ -31,6 +31,7 @@ export class CreateMedicationLogsInput {
 
   @Field()
   medicationLogStatus: string;
+  @Field()
 
   prescriptionUuid: string;
 }
