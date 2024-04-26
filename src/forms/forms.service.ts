@@ -37,6 +37,7 @@ export class FormsService {
     const uuid = this.idService.generateRandomUUID(uuidPrefix);
     newForm.uuid = uuid;
     newForm.patientId = patientId;
+    newForm.isArchived=false;
     Object.assign(newForm, formsData);
     const savedForm = await this.formsRepository.save(newForm);
     const result = { ...savedForm };
@@ -53,6 +54,7 @@ export class FormsService {
     page: number = 1,
     sortBy: string = 'nameOfDocument',
     sortOrder: 'ASC' | 'DESC' = 'ASC',
+    isArchived: boolean = false,
     perPage: number = 5,
   ): Promise<{
     data: Forms[];
@@ -76,9 +78,11 @@ export class FormsService {
         'forms.nameOfDocument',
         'forms.dateIssued',
         'forms.notes',
+        'forms.isArchived',
         'patient.uuid',
       ])
       .where('patient.uuid = :uuid', { uuid: patientUuid })
+      .andWhere('forms.isArchived = :isArchived', { isArchived })
       .orderBy(`forms.${sortBy}`, sortOrder)
       .offset(skip)
       .limit(perPage);

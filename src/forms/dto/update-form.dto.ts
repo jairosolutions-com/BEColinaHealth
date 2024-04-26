@@ -19,5 +19,7 @@ export class UpdateFormDto extends PartialType(CreateFormDto) {
     @Field()
     notes: string;
 
+    isArchived?: boolean;
+
 
 }
