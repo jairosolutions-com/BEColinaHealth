@@ -16,5 +16,7 @@ export class CreateFormDto {
   
     @Field()
     notes: string;
+
+    isArchived: boolean;
   
 }

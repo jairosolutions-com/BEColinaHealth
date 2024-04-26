@@ -84,6 +84,9 @@ export class AllergiesService {
         'allergies.notes',
         'allergies.createdAt',
         'patient.uuid',
+        'patient.firstName',
+        'patient.middleName',
+        'patient.lastName',
       ])
       .where('patient.uuid = :uuid', { uuid: patientUuid })
       .orderBy(`allergies.${sortBy}`, sortOrder)
