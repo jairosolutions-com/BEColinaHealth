@@ -22,53 +22,53 @@ export class CronjobsService {
     private idService: IdService,
   ) {}
 
-  // @Cron('* * * * * *') // Cron job to check appointments every minute
-  // async checkDailyAppointments() {
-  //     const currentDateTime = DateTime.local(); // Get current date and time using Luxon
+  @Cron('* */60 * * *') // Cron job to check appointments every minute
+  async checkDailyAppointments() {
+      const currentDateTime = DateTime.local(); // Get current date and time using Luxon
 
-  //     const formattedDate = currentDateTime.toFormat('yyyy-MM-dd');
-  //     console.log('Checking appointments for date:', formattedDate);
-  //     console.log('currentDate now', currentDateTime);
+      const formattedDate = currentDateTime.toFormat('yyyy-MM-dd');
+      console.log('Checking appointments for date:', formattedDate);
+      console.log('currentDate now', currentDateTime);
 
-  //     const appointments = await this.appointmentsRepository.find({
-  //         where: {
-  //             appointmentDate: formattedDate,
-  //             appointmentStatus: In(['Scheduled', 'On-going', 'Patient-IN']),
-  //         },
-  //     });
+      const appointments = await this.appointmentsRepository.find({
+          where: {
+              appointmentDate: formattedDate,
+              appointmentStatus: In(['Scheduled', 'On-going', 'Patient-IN']),
+          },
+      });
 
-  //     for (const appointment of appointments) {
-  //         const appointmentDateTime = this.parseDateTime(appointment.appointmentDate, appointment.appointmentTime);
-  //         const appointmentEndDateTime = this.parseDateTime(appointment.appointmentDate, appointment.appointmentEndTime);
-  //         console.log('appointmentDateTime:', appointmentDateTime);
-  //         console.log('appointmentEndDateTime:', appointmentEndDateTime);
-  //         console.log('currentDateTime:', currentDateTime);
-  //         if (currentDateTime > appointmentDateTime && currentDateTime < appointmentEndDateTime) {
-  //             if (appointment.appointmentStatus === 'Scheduled') {
-  //               await this.updateAppointmentStatus(appointment, 'On-going');
-  //               console.log('Marked ongoing for appointment:', appointment.id);
-  //             } else if (appointment.appointmentStatus === 'On-going') {
-  //               console.log('Appointment already ongoing:', appointment.id);
-  //             } else if (appointment.appointmentStatus === 'Patient-IN') {
-  //               console.log('Patient already checked in:', appointment.id);
-  //             }
-  //           } else if (currentDateTime > appointmentEndDateTime) {
-  //             if (appointment.appointmentStatus === 'On-going') {
-  //               await this.updateAppointmentStatus(appointment, 'Missed');
-  //               console.log('Marked missed for appointment:', appointment.id);
-  //             } else if (appointment.appointmentStatus === 'Patient-IN') {
-  //               await this.updateAppointmentStatus(appointment, 'Done');
-  //               console.log('Marked Done for appointment:', appointment.id);
-  //             } else if (appointment.appointmentStatus === 'Scheduled') {
-  //               await this.updateAppointmentStatus(appointment, 'Missed');
-  //               console.log('Marked missed for appointment:', appointment.id);
-  //             }
-  //           } else if (currentDateTime < appointmentDateTime && appointment.appointmentStatus !== 'Done') {
-  //             await this.updateAppointmentStatus(appointment, 'Scheduled');
-  //             console.log('Marked scheduled for appointment:', appointment.id);
-  //           }
-  //     }
-  // }
+      for (const appointment of appointments) {
+          const appointmentDateTime = this.parseDateTime(appointment.appointmentDate, appointment.appointmentTime);
+          const appointmentEndDateTime = this.parseDateTime(appointment.appointmentDate, appointment.appointmentEndTime);
+          console.log('appointmentDateTime:', appointmentDateTime);
+          console.log('appointmentEndDateTime:', appointmentEndDateTime);
+          console.log('currentDateTime:', currentDateTime);
+          if (currentDateTime > appointmentDateTime && currentDateTime < appointmentEndDateTime) {
+              if (appointment.appointmentStatus === 'Scheduled') {
+                await this.updateAppointmentStatus(appointment, 'On-going');
+                console.log('Marked ongoing for appointment:', appointment.id);
+              } else if (appointment.appointmentStatus === 'On-going') {
+                console.log('Appointment already ongoing:', appointment.id);
+              } else if (appointment.appointmentStatus === 'Patient-IN') {
+                console.log('Patient already checked in:', appointment.id);
+              }
+            } else if (currentDateTime > appointmentEndDateTime) {
+              if (appointment.appointmentStatus === 'On-going') {
+                await this.updateAppointmentStatus(appointment, 'Missed');
+                console.log('Marked missed for appointment:', appointment.id);
+              } else if (appointment.appointmentStatus === 'Patient-IN') {
+                await this.updateAppointmentStatus(appointment, 'Done');
+                console.log('Marked Done for appointment:', appointment.id);
+              } else if (appointment.appointmentStatus === 'Scheduled') {
+                await this.updateAppointmentStatus(appointment, 'Missed');
+                console.log('Marked missed for appointment:', appointment.id);
+              }
+            } else if (currentDateTime < appointmentDateTime && appointment.appointmentStatus !== 'Done') {
+              await this.updateAppointmentStatus(appointment, 'Scheduled');
+              console.log('Marked scheduled for appointment:', appointment.id);
+            }
+      }
+  }
 
   // @Cron('* * * * *') // Cron job to check appointments every minute
   // async checkDailyAppointments() {
