@@ -22,7 +22,7 @@ export class CronjobsService {
     private idService: IdService,
   ) {}
 
-  @Cron('* */60 * * * *') // Cron job to check appointments every minute
+  @Cron('* * * * *') // Cron job to check appointments every minute
   async checkDailyAppointments() {
       const currentDateTime = DateTime.local(); // Get current date and time using Luxon
 
