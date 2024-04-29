@@ -32,7 +32,15 @@ export class AuthService {
     const expiryToken = this.jwtService.sign(expiryPayload, {
       expiresIn: tokenExpiresIn,
     });
+
+    const userDetail = {
+      email: user.email,
+      uuid: user.uuid,
+      fName: user.fName,
+      lName: user.lName,
+      status: user.status,
+    }
     // Generate JWT token
-    return { expiryToken };
+    return { expiryToken, userDetail};
   }
 }

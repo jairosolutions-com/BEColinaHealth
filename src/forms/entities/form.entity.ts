@@ -31,6 +31,9 @@ export class Forms {
   @Column({ nullable: true })
   patientId: number;
 
+  @Column({ nullable: true })
+  isArchived: boolean;
+
   @UpdateDateColumn({ name: 'updatedAt', nullable: true })
   updatedAt: string;
 
