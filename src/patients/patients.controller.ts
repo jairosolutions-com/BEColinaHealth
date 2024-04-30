@@ -4,17 +4,23 @@ import {
   Param,
   Post,
   Body,
-  Query,
   Patch,
+  UseInterceptors,
+  UploadedFile,
 } from '@nestjs/common';
 import { CreatePatientsInput } from './dto/create-patients.input';
 import { UpdatePatientsInput } from './dto/update-patients.input';
 import { PatientsService } from './patients.service';
+import { PatientsProfileImageService } from '../patientsProfileImage/patientsProfileImage.service';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { Patients } from './entities/patients.entity';
 
 @Controller('patient-information')
 export class PatientsController {
-  constructor(private readonly patientsService: PatientsService) {}
+  constructor(
+    private readonly patientsService: PatientsService,
+    private readonly profileImageService: PatientsProfileImageService,
+  ) {}
 
   @Post('list')
   getPatientsByTerm(
@@ -67,5 +73,41 @@ export class PatientsController {
     return this.patientsService.softDeletePatient(id);
   }
 
-  //
+  //patient files
+  @Post(':id/upload-profile-image')
+  @UseInterceptors(FileInterceptor('profileimage'))
+  async addProfileImage(
+    @Param('id') patientUuid: string,
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    const { buffer, originalname } = file;
+    return await this.profileImageService.addProfileImage(patientUuid, buffer, originalname);
+  }
+
+  @Patch(':id/update-profile-image')
+  @UseInterceptors(FileInterceptor('profileimage'))
+  async updateProfileImage(
+    @Param('id') patientUuid: string,
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    const { buffer, originalname } = file;
+
+    // Soft delete the current profile image
+    await this.profileImageService.softDeleteProfileImage(patientUuid);
+
+    // Upload the new profile image
+    return await this.profileImageService.addProfileImage(patientUuid, buffer, originalname);
+  }
+
+
+  @Get(':id/profile-image')
+  async getProfileImage(@Param('id') patientUuid: string) {
+    return await this.profileImageService.getProfileImageByUuid(patientUuid);
+  }
+
+  @Get(':id/profile-image/count')
+  async getCurrentProfileImageCount(@Param('id') patientUuid: string) {
+    return await this.profileImageService.getCurrentImageCountFromDatabase(patientUuid);
+  }
 }
+  
