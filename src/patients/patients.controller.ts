@@ -7,6 +7,7 @@ import {
   Patch,
   UseInterceptors,
   UploadedFile,
+  BadRequestException,
 } from '@nestjs/common';
 import { CreatePatientsInput } from './dto/create-patients.input';
 import { UpdatePatientsInput } from './dto/update-patients.input';
@@ -20,7 +21,7 @@ export class PatientsController {
   constructor(
     private readonly patientsService: PatientsService,
     private readonly profileImageService: PatientsProfileImageService,
-  ) {}
+  ) { }
 
   @Post('list')
   getPatientsByTerm(
@@ -98,17 +99,25 @@ export class PatientsController {
     // Upload the new profile image
     return await this.profileImageService.addProfileImage(patientUuid, buffer, originalname);
   }
+  //for patient list
+  @Post('profile-images')
+  async getProfileImagesByUuids(@Body() body: { patientUuids: string[] }) {
+    if (!body.patientUuids || body.patientUuids.length === 0) {
+      throw new BadRequestException('Please provide patient UUIDs in the request body');
+    }
 
+    const profileImages = await this.profileImageService.getProfileImagesByUuids(body.patientUuids);
+    return profileImages;
+  }
 
   @Get(':id/profile-image')
   async getProfileImage(@Param('id') patientUuid: string) {
     return await this.profileImageService.getProfileImageByUuid(patientUuid);
   }
 
-  
+
   @Get(':id/profile-image/count')
   async getCurrentProfileImageCount(@Param('id') patientUuid: string) {
     return await this.profileImageService.getCurrentImageCountFromDatabase(patientUuid);
   }
 }
-  

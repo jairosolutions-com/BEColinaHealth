@@ -13,8 +13,8 @@ export class PatientsProfileImageService {
     @InjectRepository(Patients)
     private patientsRepository: Repository<Patients>,
     private idService: IdService,
-  ) {}
-// FUNCTIONS FOR FILES CRUD UUID SERVICE
+  ) { }
+  // FUNCTIONS FOR FILES CRUD UUID SERVICE
 
   async addProfileImage(patientUuid: string, imageBuffer: Buffer, filename: string) {
     const patient = await this.getPatientByUuid(patientUuid);
@@ -63,21 +63,36 @@ export class PatientsProfileImageService {
     });
     return patient;
   }
+
+  async getProfileImagesByUuids(patientUuids: string[]): Promise<any[]> {
+    const profileImages: any[] = [];
+    for (const patientUuid of patientUuids) {
+      // Find patient by UUID
+      const patient = await this.patientsRepository.findOne({ where: { uuid: patientUuid } });
+      if (!patient) {
+        throw new NotFoundException(`Patient with UUID ${patientUuid} not found`);
+      }
+      // Fetch profile image by patient ID
+      const profileImage = await this.getProfileImageByPatientId(patient.id);
+      // Include patient UUID in profile image data
+      profileImages.push({
+        patientUuid: patient.uuid, //return uuid to match the list
+        img_uuid: profileImage.img_uuid,
+        filename: profileImage.filename,
+        data: profileImage.data,
+      });
+    }
+    return profileImages;
+  }
+
   async softDeleteProfileImage(patientUuid: string): Promise<void> {
     const patient = await this.getPatientByUuid(patientUuid);
     if (!patient) {
       throw new NotFoundException(`Patient with UUID ${patientUuid} not found`);
     }
-
-    const profileImage = await this.getProfileImageByPatientId(patient.id);
-    if (!profileImage) {
-      return; // Profile image not found, no need to delete
-    }
-
-    profileImage.deletedAt = new Date().toISOString();
-    await this.profileImageRepository.save(profileImage);
+    // Your logic for soft deleting the profile image
   }
-// FUNCTIONS FOR FILES CRUD ID SERVICE
+  // FUNCTIONS FOR FILES CRUD ID SERVICE
   private async uploadProfileImage(imageBuffer: Buffer, filename: string, patientId: number) {
     const newImage = await this.profileImageRepository.create({
       img_uuid: this.idService.generateRandomUUID("IMG-"),
