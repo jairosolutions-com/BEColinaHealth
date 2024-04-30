@@ -5,11 +5,13 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Patients } from './entities/patients.entity';
 import { IdService } from 'services/uuid/id.service';
 import { PatientsService } from './patients.service';
+import { PatientsProfileImage } from 'src/patientsProfileImage/entities/patientsProfileImage.entity';
+import { PatientsProfileImageService } from 'src/patientsProfileImage/patientsProfileImage.service';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Patients])],
+  imports: [TypeOrmModule.forFeature([Patients, PatientsProfileImage])],
 
-  providers: [PatientsResolver, PatientsService, IdService],
+  providers: [PatientsResolver, PatientsService, IdService, PatientsProfileImageService],
   controllers: [PatientsController],
 })
 export class PatientsModule {}

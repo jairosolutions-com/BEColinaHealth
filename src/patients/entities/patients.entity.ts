@@ -25,6 +25,7 @@ import {
   CreateDateColumn,
 } from 'typeorm';
 import { from } from 'rxjs';
+import { PatientsProfileImage } from 'src/patientsProfileImage/entities/patientsProfileImage.entity';
 
 @Entity()
 @ObjectType()
@@ -154,4 +155,9 @@ export class Patients {
   @OneToMany(() => Forms, (forms) => forms.patient)
   @Field(() => [Forms], { nullable: true })
   forms: Forms[];
+
+  @OneToMany(() => PatientsProfileImage, (img) => img.patients)
+  @JoinColumn({ name: 'id' }) // Specify the column name for the primary key
+  patientProfileImage?: PatientsProfileImage;
+
 }
