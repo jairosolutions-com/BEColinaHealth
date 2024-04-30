@@ -3,9 +3,9 @@ import { Allergies } from 'src/allergies/entities/allergies.entity';
 import { Appointments } from 'src/appointments/entities/appointments.entity';
 import { Companies } from 'src/companies/entities/companies.entity';
 import { EmergencyContacts } from 'src/emergencyContacts/entities/emergencyContacts.entity';
+import { Forms } from 'src/forms/entities/form.entity';
 import { LabResults } from 'src/labResults/entities/labResults.entity';
 import { MedicationLogs } from 'src/medicationLogs/entities/medicationLogs.entity';
-
 
 import { Notes } from 'src/notes/entities/notes.entity';
 import { Prescriptions } from 'src/prescriptions/entities/prescriptions.entity';
@@ -24,6 +24,7 @@ import {
   UpdateDateColumn,
   CreateDateColumn,
 } from 'typeorm';
+import { from } from 'rxjs';
 
 @Entity()
 @ObjectType()
@@ -42,8 +43,14 @@ export class Patients {
   lastName: string;
 
   @Column({ nullable: true })
+  middleName: string;
+
+  @Column({ nullable: true })
   @Field((type) => Int)
   age: number;
+
+  @Column({ nullable: true })
+  email: string;
 
   @Column({ type: 'date', nullable: true })
   dateOfBirth: Date;
@@ -67,9 +74,14 @@ export class Patients {
   @Field()
   country: string;
 
-  @Column()
-  phoneNo: string;
+  @Column({ nullable: true })
+  address1: string;
 
+  @Column({ nullable: true })
+  address2: string;
+
+  @Column({ nullable: true })
+  phoneNo: string;
 
   @Column({ type: 'date', nullable: true })
   admissionDate: Date;
@@ -89,27 +101,19 @@ export class Patients {
   //RELATIONAL FIELDS
 
   //Patient information to table medicationLogs
-  @OneToMany(() => MedicationLogs, (medicationLogs) => medicationLogs.patients)
+  @OneToMany(() => MedicationLogs, (medicationlogs) => medicationlogs.patient)
   @Field(() => [MedicationLogs], { nullable: true })
-  medicationLogs: MedicationLogs[];
+  medicationlogs: MedicationLogs[];
 
   //Patient information to table PRESCRIPTION
-
-  @OneToMany(
-    () => Prescriptions,
-    (prescriptions) => prescriptions.patients,
-  )
+  @OneToMany(() => Prescriptions, (prescriptions) => prescriptions.patient)
+  @Field(() => [Prescriptions], { nullable: true })
   prescriptions: Prescriptions[];
 
   //Patient information to table VitalSigns
-  @OneToMany(() => VitalSigns, (vitalSigns) => vitalSigns.patient)
+  @OneToMany(() => VitalSigns, (vitalsign) => vitalsign.patient)
   @Field(() => [VitalSigns], { nullable: true })
-  vitalSigns: VitalSigns[];
-
-  // //Patient information to table MedicalHistory
-  // @OneToMany(() => MedicalHistory, (medical_history) => medical_history.patient)
-  // @Field(() => [MedicalHistory], { nullable: true })
-  // medical_history: MedicalHistory[];
+  vitalsign: VitalSigns[];
 
   //Patient information to table LabResults
   @OneToMany(() => LabResults, (lab_results) => lab_results.patient)
@@ -122,17 +126,14 @@ export class Patients {
   notes: Notes[];
 
   //Patient information to table Appointments
-  @OneToMany(() => Appointments, (appointments) => appointments.patients)
+  @OneToMany(() => Appointments, (appointments) => appointments.patient)
   @Field(() => [Appointments], { nullable: true })
   appointments: Appointments[];
 
   //Patient information to table Emergency Contact
-  @OneToMany(
-    () => EmergencyContacts,
-    (emergencyContacts) => emergencyContacts.patient,
-  )
+  @OneToMany(() => EmergencyContacts, (contact) => contact.patient)
   @Field(() => [EmergencyContacts], { nullable: true })
-  emergencyContacts: EmergencyContacts[];
+  contact: EmergencyContacts[];
 
   //Patient Information with FK patientId from Companies table
   @ManyToOne(() => Companies, (companies) => companies.patient)
@@ -148,4 +149,9 @@ export class Patients {
   //Patient information to table Allergies
   @OneToMany(() => Surgeries, (surgeries) => surgeries.patient)
   surgeries: Surgeries[];
+
+  //Patient information to table Forms
+  @OneToMany(() => Forms, (forms) => forms.patient)
+  @Field(() => [Forms], { nullable: true })
+  forms: Forms[];
 }

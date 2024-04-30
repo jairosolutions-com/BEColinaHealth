@@ -3,9 +3,6 @@ import { IsNotEmpty } from 'class-validator';
 
 @InputType()
 export class CreateMedicationLogsInput {
-  @Field((type) => Int)
-  id: number;
-
   @Field()
   uuid: string;
 
@@ -34,13 +31,7 @@ export class CreateMedicationLogsInput {
 
   @Field()
   medicationLogStatus: string;
-
   @Field()
-  updatedAt: string;
 
-  @Field()
-  createdAt: string;
-
-  @Field()
-  deletedAt: string;
+  prescriptionUuid: string;
 }

@@ -10,8 +10,8 @@ export class IdService {
     // Add the prefix to the UUID
     const prefixedUUID = prefix + randomUUID.substring(0, 8);
 
-    const toUpperCasePrexixUUID = prefixedUUID.toUpperCase();
+    const toUpperCasePrefixUUID = prefixedUUID.toUpperCase();
 
-    return toUpperCasePrexixUUID;
+    return toUpperCasePrefixUUID;
   }
 }

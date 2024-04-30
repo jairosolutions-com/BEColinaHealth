@@ -1,5 +1,6 @@
 import { Field, Int, ObjectType } from '@nestjs/graphql';
 import { Patients } from 'src/patients/entities/patients.entity';
+import LabResultsFiles from '../../labResultsFiles/entities/labResultsFiles.entity';
 
 import {
   Column,
@@ -8,6 +9,8 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
+  OneToMany,
+  OneToOne,
   PrimaryColumn,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
@@ -49,15 +52,12 @@ export class LabResults {
   patientId: number;
 
   @UpdateDateColumn({ name: 'updatedAt', nullable: true })
-  @Field()
   updatedAt: string;
 
   @CreateDateColumn({ name: 'createdAt', nullable: true })
-  @Field()
   createdAt: string;
 
   @DeleteDateColumn({ name: 'deletedAt', nullable: true })
-  @Field()
   deletedAt: string;
 
 
@@ -67,4 +67,23 @@ export class LabResults {
     name: 'patientId',
   })
   patient: Patients;
+
+  // @OneToOne(() => LabResultsFiles, (file) => file.lab)
+  // @JoinColumn({
+  //   name: 'labFileId',
+  // })
+  // labFile?: LabResultsFiles;
+
+  @OneToMany(() => LabResultsFiles, (file) => file.lab)
+  @JoinColumn({ name: 'id' }) // Specify the column name for the primary key
+  labFile?: LabResultsFiles;  
+
+  // @JoinColumn({ name: 'labFileId' })
+  // @OneToOne(
+  //   () => LabResultsFiles,
+  //   {
+  //     nullable: true
+  //   }
+  // )
+  // public labFile?: LabResultsFiles;
 }

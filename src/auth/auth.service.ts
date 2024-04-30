@@ -9,13 +9,12 @@ export class AuthService {
     private readonly jwtService: JwtService,
   ) {}
 
-  async signIn(username: string, password: string) {
+  async signIn(username: string, password: string, tokenExpiresIn: string) {
     const user = await this.usersService.getUserByEmail(username);
     if (!user) {
+      
       throw new UnauthorizedException('Invalid username or password');
     }
-
-    // Verify password
     const passwordMatch = await this.usersService.verifyPassword(
       user,
       password,
@@ -24,10 +23,24 @@ export class AuthService {
       throw new UnauthorizedException('Invalid username or password');
     }
 
-    // Generate JWT token
-    const payload = { email: user.email, sub: user.uuid };
-    const accessToken = this.jwtService.sign(payload);
+    // Verify password
+   
+    const expiryPayload = {
+      email: user.email,
+      sub: user.uuid,
+    };
+    const expiryToken = this.jwtService.sign(expiryPayload, {
+      expiresIn: tokenExpiresIn,
+    });
 
-    return { accessToken };
+    const userDetail = {
+      email: user.email,
+      uuid: user.uuid,
+      fName: user.fName,
+      lName: user.lName,
+      status: user.status,
+    }
+    // Generate JWT token
+    return { expiryToken, userDetail};
   }
 }

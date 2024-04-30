@@ -9,18 +9,20 @@ import { IdService } from 'services/uuid/id.service';
 import { JwtModule } from '@nestjs/jwt';
 import { Roles } from 'src/roles/entities/roles.entity';
 import { UserAccessLevels } from 'src/userAccessLevels/entities/userAccessLevels.entity';
-import { jwtConstants } from './constant';
+// import { jwtConstants } from './constant';
 import { APP_GUARD } from '@nestjs/core';
 import { AuthGuard } from './auth.guard';
+import { ConfigModule } from '@nestjs/config';
 // import { EmailService } from 'src/users/email.service';
 {
 }
 @Module({
   imports: [
+    ConfigModule.forRoot({ envFilePath: '.env.local' }),
     JwtModule.register({
       global: true,
-      secret: jwtConstants.secret, // Replace with your own secret key
-      signOptions: { expiresIn: '10hr' }, // Optional: Set expiration time for tokens
+      secret: process.env.JWT_SECRET, // Replace with your own secret key
+      signOptions: { expiresIn: '30d' }, // Optional: Set expiration time for tokens
     }),
     TypeOrmModule.forFeature([Users, Roles, UserAccessLevels]),
   ],
@@ -36,4 +38,4 @@ import { AuthGuard } from './auth.guard';
   ],
   controllers: [AuthController],
 })
-export class AuthModule { }
+export class AuthModule {}

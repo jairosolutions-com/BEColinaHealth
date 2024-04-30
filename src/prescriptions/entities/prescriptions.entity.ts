@@ -1,10 +1,21 @@
 import { ObjectType, Field, Int } from '@nestjs/graphql';
+import { MedicationLogs } from 'src/medicationLogs/entities/medicationLogs.entity';
 import { Patients } from 'src/patients/entities/patients.entity';
-import { ManyToOne, JoinColumn, Column, PrimaryGeneratedColumn, Entity, UpdateDateColumn, CreateDateColumn, DeleteDateColumn, Index, OneToMany } from 'typeorm';
+import { PrescriptionsFiles } from 'src/prescriptionsFiles/entities/prescriptionsFiles.entity';
+import {
+  ManyToOne,
+  JoinColumn,
+  Column,
+  PrimaryGeneratedColumn,
+  Entity,
+  UpdateDateColumn,
+  CreateDateColumn,
+  DeleteDateColumn,
+  Index,
+  OneToMany,
+} from 'typeorm';
 @Entity()
 @ObjectType()
-
-
 export class Prescriptions {
   @PrimaryGeneratedColumn()
   @Field((type) => Int)
@@ -35,7 +46,6 @@ export class Prescriptions {
   @Field(() => Int)
   patientId: number;
 
-
   @UpdateDateColumn({ name: 'updatedAt', nullable: true })
   @Field()
   updatedAt: string;
@@ -48,12 +58,21 @@ export class Prescriptions {
   @Field()
   deletedAt: string;
 
-  @ManyToOne(() => Patients, patients => patients.prescriptions)
+  @ManyToOne(() => Patients, (patient) => patient.prescriptions)
   @JoinColumn({ name: 'patientId' }) // FK attribute
-  patients: Patients;
+  patient: Patients;
 
   // @OneToMany(() => MedicationLogs, medicationLogs => medicationLogs.prescriptions)
   // @Field(() => [MedicationLogs], { nullable: true })
   // medicationLogs: MedicationLogs[];
+  @OneToMany(() => PrescriptionsFiles, (file) => file.prescription)
+  @JoinColumn({ name: 'id' }) // Specify the column name for the primary key
+  prescriptionFile?: PrescriptionsFiles;
 
-} 
+  //Prescription to MedicationLogs
+  @OneToMany(
+    () => MedicationLogs,
+    (medicationlogs) => medicationlogs.prescription,
+  )
+  medicationlogs: MedicationLogs[];
+}

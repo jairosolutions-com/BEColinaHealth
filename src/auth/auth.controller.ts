@@ -19,8 +19,13 @@ export class AuthController {
   @Public()
   @HttpCode(HttpStatus.OK)
   @Post('login')
-  signIn(@Body() signInDto: SignInDto) {
+  async signIn(@Body() signInDto: SignInDto) {
     // Use SignInDto here
-    return this.authService.signIn(signInDto.username, signInDto.password);
+    const expiryToken = await this.authService.signIn(
+      signInDto.username,
+      signInDto.password,
+      signInDto.tokenExpiresIn,
+    );
+    return expiryToken;
   }
 }

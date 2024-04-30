@@ -3,8 +3,6 @@ import { IsNotEmpty } from 'class-validator';
 
 @InputType()
 export class CreatePrescriptionsInput {
-  @Field((type) => Int)
-  id: number;
 
   @Field()
   uuid: string;
@@ -25,9 +23,6 @@ export class CreatePrescriptionsInput {
 
   @Field()
   interval: string;
-
-  @Field()
-  maintenance: boolean;
 
   @Field()
   patientId: number;

@@ -1,7 +1,6 @@
 import { Field, Int, ObjectType } from '@nestjs/graphql';
 import { Patients } from 'src/patients/entities/patients.entity';
-;
-
+import { Prescriptions } from 'src/prescriptions/entities/prescriptions.entity';
 import {
   Column,
   CreateDateColumn,
@@ -42,6 +41,10 @@ export class MedicationLogs {
   patientId: number;
 
   @Column({ nullable: true })
+  @Field(() => Int)
+  prescriptionId: number;
+
+  @Column({ nullable: true })
   medicationType: string;
 
   @Column({ nullable: true })
@@ -59,19 +62,20 @@ export class MedicationLogs {
   @Field()
   deletedAt: string;
 
-
-
-
   //MedicationLogs Table with FK patientId from Patients table
-  @ManyToOne(() => Patients, (patient) => patient.medicationLogs)
+  @ManyToOne(() => Patients, (patient) => patient.medicationlogs)
   @JoinColumn({
     name: 'patientId',
   })
-  patients: Patients;
+  patient: Patients;
+
+  @ManyToOne(() => Prescriptions, (prescription) => prescription.medicationlogs)
+  @JoinColumn({
+    name: 'prescriptionId',
+  })
+  prescription: Prescriptions;
   // // Foreign key reference to the Prescriptions entity
   // @ManyToOne(() => Prescriptions)
   // @JoinColumn({ name: 'prescriptionsId', referencedColumnName: 'id' }) // FK attribute
   // prescriptions: Prescriptions;
-
 }
-

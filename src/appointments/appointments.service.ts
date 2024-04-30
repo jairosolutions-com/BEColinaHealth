@@ -1,9 +1,14 @@
-import { ConflictException, Injectable, Logger, NotFoundException } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  Logger,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateAppointmentsInput } from './dto/create-appointments.input';
 import { UpdateAppointmentsInput } from './dto/update-appointments.input';
 import { InjectRepository } from '@nestjs/typeorm';
 import { IdService } from 'services/uuid/id.service';
-import { Repository } from 'typeorm';
+import { Brackets, Repository } from 'typeorm';
 import { Appointments } from './entities/appointments.entity';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { Patients } from 'src/patients/entities/patients.entity';
@@ -16,18 +21,25 @@ export class AppointmentsService {
 
     @InjectRepository(Patients)
     private patientsRepository: Repository<Patients>,
-    
+
     private idService: IdService, // Inject the IdService
-  ) { }
+  ) {}
 
-
-  async createAppointments(input: CreateAppointmentsInput): Promise<Appointments> {
+  async createAppointments(
+    patientUuid: string,
+    input: CreateAppointmentsInput,
+  ): Promise<Appointments> {
+    const { id: patientId } = await this.patientsRepository.findOne({
+      select: ['id'],
+      where: { uuid: patientUuid },
+    });
     const existingAppointment = await this.appointmentsRepository.findOne({
       where: {
-        appointmentDate: (input.appointmentDate),
-        appointmentStatus: (input.appointmentStatus),
-        appointmentTime: (input.appointmentTime),
-        appointmentEndTime: (input.appointmentEndTime),
+        patientId: patientId,
+        appointmentDate: input.appointmentDate,
+        appointmentStatus: input.appointmentStatus,
+        appointmentTime: input.appointmentTime,
+        appointmentEndTime: input.appointmentEndTime,
       },
     });
     if (existingAppointment) {
@@ -37,53 +49,243 @@ export class AppointmentsService {
     const uuidPrefix = 'APT-'; // Customize prefix as needed
     const uuid = this.idService.generateRandomUUID(uuidPrefix);
     newAppointments.uuid = uuid;
+    newAppointments.patientId = patientId;
     Object.assign(newAppointments, input);
-    return this.appointmentsRepository.save(newAppointments);
+    const savedAppointments =
+      await this.appointmentsRepository.save(newAppointments);
+    const result = { ...savedAppointments };
+    delete result.patientId;
+    delete result.deletedAt;
+    delete result.updatedAt;
+    delete result.id;
+
+    return result;
   }
 
-  async getAllAppointmentsByPatient(patientUuid: string, page: number = 1, sortBy: string = 'appointmentDate', sortOrder: 'ASC' | 'DESC' = 'ASC', perPage: number = 5): Promise<{ data: Appointments[], totalPages: number, currentPage: number, totalCount }> {
+  async getAllAppointmentsByPatient(
+    patientUuid: string,
+    term: string,
+    page: number = 1,
+    sortBy: string = 'appointmentStatus',
+    sortOrder: 'ASC' | 'DESC' = 'ASC',
+    perPage: number = 5,
+  ): Promise<{
+    data: Appointments[];
+    totalPages: number;
+    currentPage: number;
+    totalCount;
+  }> {
+    const searchTerm = `%${term}%`; // Add wildcards to the search term
 
     const skip = (page - 1) * perPage;
+    const patientExists = await this.patientsRepository.findOne({
+      where: { uuid: patientUuid },
+    });
 
-    const { id: patientId } = await this.patientsRepository.findOne({
-      select: ["id"],
-      where: { uuid: patientUuid }
-    }); 
-    const totalPatientAppointments = await this.appointmentsRepository.count({
-      where: {  patientId },
-      skip: skip,
-      take: perPage,
-    });
+    if (!patientExists) {
+      throw new NotFoundException('Patient not found');
+    }
+    const appointmentsQueryBuilder = this.appointmentsRepository
+      .createQueryBuilder('appointments')
+      .innerJoinAndSelect('appointments.patient', 'patient')
+      .select([
+        'appointments.uuid',
+        'appointments.dateCreated',
+        'appointments.details',
+        'appointments.appointmentTime',
+        'appointments.appointmentStatus',
+        'appointments.appointmentEndTime',
+        'appointments.appointmentDate',
+        'patient.uuid',
+      ])
+      .where('patient.uuid = :uuid', { uuid: patientUuid })
+
+      .orderBy(`appointments.${sortBy}`, sortOrder)
+      .offset(skip)
+      .limit(perPage);
+    console.log('PATIENT ID:', patientUuid);
+
+    if (term !== '') {
+      console.log('term', term);
+      appointmentsQueryBuilder
+        .where(
+          new Brackets((qb) => {
+            qb.andWhere('patient.uuid = :uuid', { uuid: patientUuid });
+          }),
+        )
+        .andWhere(
+          new Brackets((qb) => {
+            qb.andWhere('appointments.uuid ILIKE :searchTerm', { searchTerm })
+              .orWhere('appointments.appointmentStatus ILIKE :searchTerm', {
+                searchTerm,
+              })
+              .orWhere('appointments.details ILIKE :searchTerm', {
+                searchTerm,
+              });
+          }),
+        );
+    }
+    const appointmentsList = await appointmentsQueryBuilder.getRawMany();
+
+    const totalPatientAppointments = await appointmentsQueryBuilder.getCount();
     const totalPages = Math.ceil(totalPatientAppointments / perPage);
-    const appointmentsList = await this.appointmentsRepository.find({
-      where: { patientId },
-      skip: skip,
-      take: perPage,
-    });
+
     return {
       data: appointmentsList,
       totalPages: totalPages,
       currentPage: page,
-      totalCount: totalPatientAppointments
+      totalCount: totalPatientAppointments,
     };
   }
 
-  async getAllAppointments(): Promise<Appointments[]> {
-    const currentTimeFormatted = this.getCurrentTimeFormatted();
-    const currentDate = new Date(); // Get current date
-    const formattedDate = this.formatDate(currentDate);
-    console.log('Current Time:', currentTimeFormatted); // Log current time
-    console.log('Current Date:', formattedDate); // Log current time
+  async getUpcomingAppointments(
+    term: string,
+    page: number = 1,
+    sortBy: string = 'appointmentStatus',
+    sortOrder: 'ASC' | 'DESC' = 'ASC',
+    perPage: number = 5,
+  ): Promise<{
+    data: Appointments[];
+    totalPages: number;
+    currentPage: number;
+    totalCount;
+  }> {
+    const searchTerm = `%${term}%`; // Add wildcards to the search term
+    const todayDate = new Date();
+    todayDate.setUTCHours(0, 0, 0, 0);
+    const skip = (page - 1) * perPage;
 
-    return this.appointmentsRepository.find();
+    const appointmentsQueryBuilder = this.appointmentsRepository
+      .createQueryBuilder('appointments')
+      .innerJoinAndSelect('appointments.patient', 'patient')
+      .select([
+        'appointments.uuid',
+        'appointments.appointmentTime',
+        'appointments.appointmentStatus',
+        'appointments.appointmentEndTime',
+        'appointments.appointmentDate',
+        'patient.uuid',
+        'patient.firstName',
+        'patient.lastName',
+        'patient.middleName',
+      ])
+      .where('appointments.appointmentDate >= :todayDate', {
+        todayDate: todayDate.toISOString().split('T')[0],
+      })
+      .andWhere('appointments.appointmentStatus = :appointmentStatus', {
+        appointmentStatus: 'Scheduled',
+      })
+      .orderBy(`appointments.${sortBy}`, sortOrder)
+      .offset(skip)
+      .limit(perPage);
 
+    if (term !== '') {
+      console.log('term', term);
+      appointmentsQueryBuilder.where(
+        new Brackets((qb) => {
+          qb.andWhere('appointments.uuid ILIKE :searchTerm', { searchTerm })
+            .orWhere('appointments.appointmentStatus ILIKE :searchTerm', {
+              searchTerm,
+            })
+            .orWhere('appointments.details ILIKE :searchTerm', {
+              searchTerm,
+            });
+        }),
+      );
+    }
+    const appointmentsList = await appointmentsQueryBuilder.getRawMany();
+
+    const totalPatientAppointments = await appointmentsQueryBuilder.getCount();
+    const totalPages = Math.ceil(totalPatientAppointments / perPage);
+
+    return {
+      data: appointmentsList,
+      totalPages: totalPages,
+      currentPage: page,
+      totalCount: totalPatientAppointments,
+    };
   }
 
-  async updateAppointment(id: string,
+  async getAllAppointments(
+    term: string,
+    page: number = 1,
+    sortBy: string = 'appointmentStatus',
+    sortOrder: 'ASC' | 'DESC' = 'ASC',
+    startDate: string = '2021-01-01',
+    endDate: string = '2300-01-01',
+    perPage: number = 6,
+  ): Promise<{
+    data: Appointments[];
+    totalPages: number;
+    currentPage: number;
+    totalCount;
+  }> {
+    const searchTerm = `%${term}%`; // Add wildcards to the search term
+    const todayDate = new Date();
+    todayDate.setUTCHours(0, 0, 0, 0);
+    const skip = (page - 1) * perPage;
+
+    const appointmentsQueryBuilder = this.appointmentsRepository
+      .createQueryBuilder('appointments')
+      .innerJoinAndSelect('appointments.patient', 'patient')
+      .select([
+        'appointments.uuid',
+        'appointments.appointmentTime',
+        'appointments.appointmentStatus',
+        'appointments.appointmentEndTime',
+        'appointments.appointmentDate',
+        'patient.uuid',
+        'patient.firstName',
+        'patient.lastName',
+        'patient.middleName',
+      ])
+      .where('appointments.appointmentDate >= :startDate', {
+        startDate: startDate,
+      })
+      .andWhere('appointments.appointmentDate <= :endDate', {
+        endDate: endDate,
+      })
+      .orderBy(`appointments.${sortBy}`, sortOrder)
+      .offset(skip)
+      .limit(perPage);
+
+    if (term !== '') {
+      console.log('term', term);
+      appointmentsQueryBuilder.where(
+        new Brackets((qb) => {
+          qb.andWhere('appointments.uuid ILIKE :searchTerm', { searchTerm })
+            .orWhere('appointments.appointmentStatus ILIKE :searchTerm', {
+              searchTerm,
+            })
+            .orWhere('patient.firstName ILIKE :searchTerm', { searchTerm })
+            .orWhere('patient.lastName ILIKE :searchTerm', { searchTerm })
+            .orWhere('appointments.details ILIKE :searchTerm', {
+              searchTerm,
+            });
+        }),
+      );
+    }
+    const appointmentsList = await appointmentsQueryBuilder.getRawMany();
+
+    const totalPatientAppointments = await appointmentsQueryBuilder.getCount();
+    const totalPages = Math.ceil(totalPatientAppointments / perPage);
+
+    return {
+      data: appointmentsList,
+      totalPages: totalPages,
+      currentPage: page,
+      totalCount: totalPatientAppointments,
+    };
+  }
+
+  async updateAppointment(
+    id: string,
     updateLabResultsInput: UpdateAppointmentsInput,
   ): Promise<Appointments> {
     const { ...updateData } = updateLabResultsInput;
-    const labResults = await this.appointmentsRepository.findOne({ where: { uuid: id } });
+    const labResults = await this.appointmentsRepository.findOne({
+      where: { uuid: id },
+    });
     if (!Appointments) {
       throw new NotFoundException(`Lab Result ID-${id}  not found.`);
     }
@@ -91,19 +293,26 @@ export class AppointmentsService {
     return this.appointmentsRepository.save(labResults);
   }
 
-  async softDeleteAppointment(id: string): Promise<{ message: string, deletedLabResult: Appointments }> {
-    const appointments = await this.appointmentsRepository.findOne({ where: { uuid: id } });
+  async softDeleteAppointment(
+    id: string,
+  ): Promise<{ message: string; deletedLabResult: Appointments }> {
+    const appointments = await this.appointmentsRepository.findOne({
+      where: { uuid: id },
+    });
     if (!Appointments) {
       throw new NotFoundException(`Appointment ID-${id} does not exist.`);
     }
     appointments.deletedAt = new Date().toISOString();
 
     // Save and return the updated patient record
-    const deletedLabResult = await this.appointmentsRepository.save(appointments);
+    const deletedLabResult =
+      await this.appointmentsRepository.save(appointments);
 
-    return { message: `Appointment with ID ${id} has been soft-deleted.`, deletedLabResult };
+    return {
+      message: `Appointment with ID ${id} has been soft-deleted.`,
+      deletedLabResult,
+    };
   }
-
 
   getCurrentTimeFormatted(): string {
     const currentTime = new Date();
@@ -140,10 +349,15 @@ export class AppointmentsService {
     console.log('Current Date:', formattedDate); // Log current time
 
     for (const appointment of appointments) {
-      if (formattedDate == appointment.appointmentDate && currentTimeFormatted <= appointment.appointmentEndTime) {
+      if (
+        formattedDate == appointment.appointmentDate &&
+        currentTimeFormatted <= appointment.appointmentEndTime
+      ) {
         appointment.appointmentStatus = 'ongoing';
-      }
-      else if (currentTimeFormatted > appointment.appointmentEndTime && appointment.appointmentStatus !== 'Successful') {
+      } else if (
+        currentTimeFormatted > appointment.appointmentEndTime &&
+        appointment.appointmentStatus !== 'Successful'
+      ) {
         appointment.appointmentStatus = 'Missed';
       }
       console.log('Current Time:', currentTimeFormatted); // Log current time
@@ -152,12 +366,13 @@ export class AppointmentsService {
     }
   }
   async markAppointmentAsSuccessful(id: string) {
-    const appointment = await this.appointmentsRepository.findOne({ where: { uuid: id } });
+    const appointment = await this.appointmentsRepository.findOne({
+      where: { uuid: id },
+    });
     if (!appointment) {
       throw new NotFoundException(`Appointment with ID ${id} not found`);
     }
     appointment.appointmentStatus = 'Successful';
     await this.appointmentsRepository.save(appointment);
   }
-
 }

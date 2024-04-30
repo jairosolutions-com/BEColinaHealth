@@ -8,8 +8,15 @@ import { IdService } from 'services/uuid/id.service';
 import { Patients } from 'src/patients/entities/patients.entity';
 import { PatientsService } from 'src/patients/patients.service';
 
-@Module({  imports: [TypeOrmModule.forFeature([EmergencyContacts, Patients])],
-  providers: [EmergencyContactsResolver, EmergencyContactsService, PatientsService, IdService],
+@Module({
+  imports: [TypeOrmModule.forFeature([EmergencyContacts, Patients])],
+  providers: [
+    EmergencyContactsResolver,
+    EmergencyContactsService,
+    PatientsService,
+    IdService,
+  ],
+
   controllers: [EmergencyContactsController],
 })
-export class EmergencyContactsModule { }
+export class EmergencyContactsModule {}

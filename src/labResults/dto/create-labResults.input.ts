@@ -2,8 +2,6 @@ import { InputType, Int, Field } from '@nestjs/graphql';
 
 @InputType()
 export class CreateLabResultInput {
-  @Field((type) => Int)
-  id: number;
 
   @Field()
   uuid: string;
@@ -32,12 +30,4 @@ export class CreateLabResultInput {
   @Field()
   patientId: number;
 
-  @Field()
-  updatedAt: string;
-
-  @Field()
-  createdAt: string;
-
-  @Field()
-  deletedAt: string;
 }

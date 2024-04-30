@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { CreatePatientsInput } from './dto/create-patients.input';
 import { UpdatePatientsInput } from './dto/update-patients.input';
 import { Patients } from './entities/patients.entity';
-import { ILike, Repository } from 'typeorm';
+import { Brackets, ILike, In, Like, Repository } from 'typeorm';
 import { IdService } from 'services/uuid/id.service'; //
 import {
   HttpException,
@@ -22,16 +22,20 @@ export class PatientsService {
   constructor(
     @InjectRepository(Patients)
     private patientsRepository: Repository<Patients>,
+    // @InjectRepository(Prescriptions)
+    // private prescriptionRepository: Repository<Prescriptions>,
+
     private idService: IdService, // Inject the IdService
   ) {}
+
   //CREATE PATIENT INFO
   async createPatients(input: CreatePatientsInput): Promise<Patients> {
     // Check if a patient with similar information already exists
     const existingLowercaseboth = await this.patientsRepository.findOne({
       where: {
-        firstName: ILike(`%${input.firstName}%`),
-        lastName: ILike(`%${input.lastName}%`),
-        dateOfBirth: input.dateOfBirth, // Check for exact match
+        firstName: Like(`%${input.firstName}%`),
+        middleName: Like(`%${input.middleName}%`),
+        lastName: Like(`%${input.lastName}%`),
       },
     });
     // If a patient with similar information exists, throw an error
@@ -50,11 +54,13 @@ export class PatientsService {
 
     // Copy the properties from the input object to the new patient information
     Object.assign(newPatients, input);
-
-    // Save the new patient information to the database
-    return this.patientsRepository.save(newPatients);
+    const savedPatient = await this.patientsRepository.save(newPatients);
+    const result = { ...savedPatient };
+    delete result.id;
+    delete result.deletedAt;
+    delete result.updatedAt;
+    return result;
   }
-
   //GET FULL PATIENT INFORMATION
   async getAllPatientsFullInfo(): Promise<Patients[]> {
     return this.patientsRepository.find();
@@ -66,80 +72,65 @@ export class PatientsService {
       select: [
         'uuid',
         'firstName',
+        'middleName',
         'lastName',
         'age',
         'gender',
         'codeStatus',
-        'medicalCondition',
       ],
       where: { uuid: id },
       relations: ['allergies'],
     });
 
     const processedPatientList = patientList.map((patient) => {
-      const allergies = patient.allergies
-        .map((allergies) => allergies.type)
-        .join(', ');
-      return { ...patient, allergies };
+      // const allergies = patient.allergies
+      //   .map((allergies) => allergies.type)
+      //   .join(', ');
+      // return { ...patient, allergies };
+      const uniqueAllergyTypes = [
+        ...new Set(patient.allergies.map((allergy) => allergy.type)),
+      ];
+
+      return {
+        ...patient,
+        allergies: uniqueAllergyTypes.join(', '), // Join unique allergy types into a single string
+      };
     });
     return processedPatientList;
   }
-  async getPatientFullInfoById(id: string): Promise<fullPatientInfo[]> {
 
-    
+  async getPatientFullInfoById(id: string): Promise<fullPatientInfo[]> {
     const patientList = await this.patientsRepository.find({
       where: { uuid: id },
       relations: ['allergies'],
     });
 
     const processedPatientList = patientList.map((patient) => {
-      const allergies = patient.allergies
-        .map((allergies) => allergies.type)
-        .join(', ');
-      return { ...patient, allergies };
+      const uniqueAllergyTypes = [
+        ...new Set(patient.allergies.map((allergy) => allergy.type)),
+      ];
+
+      // Creating a copy of patient object to avoid mutating original data
+      const processedPatient = { ...patient };
+
+      // Deleting the uuid property from the copied object
+      delete processedPatient.id;
+      return {
+        ...processedPatient,
+        allergies: uniqueAllergyTypes.join(', '), // Join unique allergy types into a single string
+      };
     });
+    console.log(processedPatientList, 'pp');
     return processedPatientList;
   }
 
   //GET PAGED PATIENT LIST basic info for patient list with return to pages
-
   async getAllPatientsBasicInfo(
-    page: number = 1,
-    sortBy: string = 'lastName',
-    sortOrder: 'ASC' | 'DESC' = 'DESC',
-    perPage: number = 5,
-  ): Promise<{
-    data: Patients[];
-    totalPages: number;
-    currentPage: number;
-    totalCount;
-  }> {
-    const skip = (page - 1) * perPage;
-    const totalPatients = await this.patientsRepository.count();
-
-    const totalPages = Math.ceil(totalPatients / perPage);
-
-    const patientList = await this.patientsRepository.find({
-      select: ['uuid', 'firstName', 'lastName', 'age', 'gender', 'codeStatus'],
-      skip: skip,
-      take: perPage,
-      order: { [sortBy]: sortOrder },
-    });
-
-    return {
-      data: patientList,
-      totalPages: totalPages,
-      currentPage: page,
-      totalCount: totalPatients,
-    };
-  }
-
-  async searchAllPatientInfoByTerm(
     term: string,
     page: number = 1,
     sortBy: string = 'lastName',
     sortOrder: 'ASC' | 'DESC' = 'DESC',
-    perPage: number = 5,
+    perPage: number = 6,
   ): Promise<{
     data: Patients[];
     totalPages: number;
@@ -161,6 +152,7 @@ export class PatientsService {
 
     //find the data
     const patientList = await this.patientsRepository.find({
+      select: ['uuid', 'firstName', 'lastName', 'age', 'gender', 'codeStatus'],
       where: [
         { firstName: ILike(searchTerm) },
         { lastName: ILike(searchTerm) },
@@ -239,8 +231,4 @@ export class PatientsService {
       deletedPatient,
     };
   }
-
-  // async restore(id: number): Promise<void> {
-  //   await this.prescriptionsRepository.restore(id);
-  // }
 }

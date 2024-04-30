@@ -31,7 +31,7 @@ export class UpdateEmergencyContactsInput extends PartialType(CreateEmergencyCon
   zip: string;
 
   @Field()
-  countries: string;
+  country: string;
 
   @Field()
   patientId: number;

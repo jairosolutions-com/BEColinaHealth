@@ -23,12 +23,6 @@ export class VitalSigns {
   @Column()
   uuid: string;
 
-  @Column()
-  date: string;
-
-  @Column({ nullable: true })
-  time: string;
-
   @Column({ nullable: true })
   bloodPressure: string;
 
@@ -40,6 +34,12 @@ export class VitalSigns {
 
   @Column({ nullable: true })
   respiratoryRate: string;
+
+  @Column({ nullable: true })
+  date: string;
+
+  @Column({ nullable: true })
+  time: string;
 
   @Column({ nullable: true })
   @Field(() => Int)
@@ -56,7 +56,7 @@ export class VitalSigns {
 
 
   //vitalSigns Table with FK patientId from Patients table
-  @ManyToOne(() => Patients, (patient) => patient.vitalSigns)
+  @ManyToOne(() => Patients, (patient) => patient.vitalsign)
   @JoinColumn({
     name: 'patientId',
   })

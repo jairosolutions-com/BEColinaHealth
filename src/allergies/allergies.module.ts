@@ -9,7 +9,8 @@ import { PatientsService } from 'src/patients/patients.service';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Allergies, Patients])],
+
   controllers: [AllergiesController],
   providers: [AllergiesService, IdService, PatientsService],
 })
-export class AllergiesModule { }
+export class AllergiesModule {}

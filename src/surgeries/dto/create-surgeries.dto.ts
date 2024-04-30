@@ -1,11 +1,21 @@
+import { Field } from '@nestjs/graphql';
 import { IsNotEmpty } from 'class-validator';
 
 export class CreateSurgeriesDto {
+  @Field()
   @IsNotEmpty()
   uuid: string;
+  @Field()
   @IsNotEmpty()
-  typeOfSurgeries: string;
+  typeOfSurgery: string;
+  @Field()
   @IsNotEmpty()
-  dateOfSurgeries: Date;
+  dateOfSurgery: Date;
+  @Field()
+  @IsNotEmpty()
+  surgery: string;
   notes: string;
+  @Field()
+  @IsNotEmpty()
+  patientId: number;
 }

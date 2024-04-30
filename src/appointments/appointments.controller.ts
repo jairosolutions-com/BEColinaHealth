@@ -14,22 +14,77 @@ import { UpdateAppointmentsInput } from './dto/update-appointments.input';
 @Controller('appointments')
 export class AppointmentsController {
   constructor(private readonly appointmentService: AppointmentsService) {}
-  @Post()
-  createAppointments(@Body() createAppointmentsInput: CreateAppointmentsInput) {
-    return this.appointmentService.createAppointments(createAppointmentsInput);
-  }
-  @Post('getAll')
-  getAppointments() {
-    return this.appointmentService.getAllAppointments();
+
+  @Post('upcoming-appointments')
+  getUpcomingAppointments(
+    @Body()
+    body: {
+      term: string;
+      page: number;
+      sortBy: string;
+      sortOrder: 'ASC' | 'DESC';
+    },
+  ) {
+    const { term = '', page, sortBy, sortOrder } = body;
+    return this.appointmentService.getUpcomingAppointments(
+      term,
+      page,
+      sortBy,
+      sortOrder,
+    );
   }
   @Post(':id')
-  findAllAppointmentsByPatient(
-      @Param('id') patientId: string,
-      @Body() body: { page: number, sortBy: string , sortOrder: 'ASC' | 'DESC' }
+  createAppointments(
+    @Param('id') patientId: string,
+    @Body() createAppointmentsInput: CreateAppointmentsInput,
   ) {
-    const { page, sortBy, sortOrder } = body;
-    return this.appointmentService.getAllAppointmentsByPatient(patientId, page, sortBy, sortOrder);
-
+    return this.appointmentService.createAppointments(
+      patientId,
+      createAppointmentsInput,
+    );
+  }
+  @Post('get/all')
+  getAllAppointments(
+    @Body()
+    body: {
+      term: string;
+      page: number;
+      sortBy: string;
+      sortOrder: 'ASC' | 'DESC';
+      startDate: string;
+      endDate: string;
+    },
+  ) {
+    const { term = '', page, sortBy, sortOrder,startDate,endDate } = body;
+    return this.appointmentService.getAllAppointments(
+      term,
+      page,
+      sortBy,
+      sortOrder,
+      startDate,
+      endDate,
+    );
+  }
+  
+  @Post('list/:id')
+  findAllAppointmentsByPatient(
+    @Param('id') patientId: string,
+    @Body()
+    body: {
+      term: string;
+      page: number;
+      sortBy: string;
+      sortOrder: 'ASC' | 'DESC';
+    },
+  ) {
+    const { term = '', page, sortBy, sortOrder } = body;
+    return this.appointmentService.getAllAppointmentsByPatient(
+      patientId,
+      term,
+      page,
+      sortBy,
+      sortOrder,
+    );
   }
   @Patch('update/:id')
   updateAppointments(
@@ -43,7 +98,6 @@ export class AppointmentsController {
   }
   @Patch(':id/mark-successful')
   async markAppointmentAsSuccessful(@Param('id') id: string) {
-
     await this.appointmentService.markAppointmentAsSuccessful(id);
     return { message: 'Appointment marked as successful' };
   }

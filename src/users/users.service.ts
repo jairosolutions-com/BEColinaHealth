@@ -75,6 +75,7 @@ export class UsersService {
   }
 
   async getUserByEmail(email: string): Promise<Users | undefined> {
+    
     return this.usersRepository.findOne({ where: { email } });
   }
 
@@ -195,7 +196,7 @@ export class UsersService {
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
-
+    delete savedUser.id
     return savedUser;
   }
 
