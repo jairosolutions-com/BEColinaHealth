@@ -67,23 +67,37 @@ export class PatientsProfileImageService {
   async getProfileImagesByUuids(patientUuids: string[]): Promise<any[]> {
     const profileImages: any[] = [];
     for (const patientUuid of patientUuids) {
-      // Find patient by UUID
-      const patient = await this.patientsRepository.findOne({ where: { uuid: patientUuid } });
-      if (!patient) {
-        throw new NotFoundException(`Patient with UUID ${patientUuid} not found`);
-      }
-      // Fetch profile image by patient ID
-      const profileImage = await this.getProfileImageByPatientId(patient.id);
-      // Include patient UUID in profile image data
-      profileImages.push({
-        patientUuid: patient.uuid, //return uuid to match the list
-        img_uuid: profileImage.img_uuid,
-        filename: profileImage.filename,
-        data: profileImage.data,
-      });
+        // Find patient by UUID
+        const patient = await this.patientsRepository.findOne({ where: { uuid: patientUuid } });
+        if (!patient) {
+            throw new NotFoundException(`Patient with UUID ${patientUuid} not found`);
+        }
+
+        // Fetch profile image by patient ID
+        const profileImage = await this.getProfileImageByPatientId(patient.id);
+
+        // Check if profile image is null or empty
+        if (profileImage && profileImage.data) {
+            // Include patient UUID in profile image data
+            profileImages.push({
+                patientUuid: patient.uuid,
+                img_uuid: profileImage.img_uuid,
+                filename: profileImage.filename,
+                data: profileImage.data,
+            });
+        } else {
+            // If profile image is null or empty, push an empty object
+            profileImages.push({
+                patientUuid: patient.uuid,
+                img_uuid: null,
+                filename: null,
+                data: null,
+            });
+        }
     }
     return profileImages;
-  }
+}
+
 
   async softDeleteProfileImage(patientUuid: string): Promise<void> {
     const patient = await this.getPatientByUuid(patientUuid);
