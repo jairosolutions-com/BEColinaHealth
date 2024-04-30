@@ -105,6 +105,7 @@ export class PatientsController {
     return await this.profileImageService.getProfileImageByUuid(patientUuid);
   }
 
+  
   @Get(':id/profile-image/count')
   async getCurrentProfileImageCount(@Param('id') patientUuid: string) {
     return await this.profileImageService.getCurrentImageCountFromDatabase(patientUuid);
