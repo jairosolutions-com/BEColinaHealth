@@ -33,7 +33,8 @@ import { PrescriptionFilesModule } from './prescriptionsFiles/prescriptionsFiles
 
 import { FormsModule } from './forms/forms.module';
 import { FormFilesModule } from './formFiles/formFiles.module';
-
+import * as dotenv from 'dotenv';
+dotenv.config();
 @Module({
   imports: [
     ConfigModule.forRoot({ envFilePath: '.env.local' }),
@@ -41,7 +42,7 @@ import { FormFilesModule } from './formFiles/formFiles.module';
     MulterModule.register({
       dest: './uploads',
     }),
-    TypeOrmModule.forRoot({
+  TypeOrmModule.forRoot({
       type: 'postgres',
       host: process.env.PGHOST,
       port: parseInt(process.env.PGPORT, 10),
