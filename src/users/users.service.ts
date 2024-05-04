@@ -22,20 +22,20 @@ import { UpdateUserInput } from './dto/update-user.input';
 import { UserAccessLevels } from 'src/userAccessLevels/entities/userAccessLevels.entity';
 import { Roles } from 'src/roles/entities/roles.entity';
 import { Users } from './entities/users.entity';
-// import { randomBytes } from 'crypto';
-// import { EmailService } from './email.service';
+import { EmailService } from 'services/email/email.service';
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectRepository(Users)
     private readonly usersRepository: Repository<Users>,
-    @InjectRepository(Roles) private readonly rolesRepository: Repository<Roles>,
+    @InjectRepository(Roles)
+    private readonly rolesRepository: Repository<Roles>,
     @InjectRepository(UserAccessLevels)
     private readonly ualRepository: Repository<Roles>,
-    // private readonly emailService: EmailService,
+    private readonly emailService: EmailService,
     private readonly idService: IdService,
-  ) { }
+  ) {}
 
   async getUserById(id: number): Promise<Users | undefined> {
     return this.usersRepository.findOne({ where: { id: id } });
@@ -75,7 +75,6 @@ export class UsersService {
   }
 
   async getUserByEmail(email: string): Promise<Users | undefined> {
-    
     return this.usersRepository.findOne({ where: { email } });
   }
 
@@ -196,7 +195,7 @@ export class UsersService {
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
-    delete savedUser.id
+    delete savedUser.id;
     return savedUser;
   }
 
@@ -228,13 +227,44 @@ export class UsersService {
 
   // UPDATE
 
-  async updateUser(
-    id: number,
-    updateUserInput: UpdateUserInput,
-  ): Promise<Users> {
+  async updateOTP(id: number, otp: string): Promise<Users> {
     const user = await this.usersRepository.findOne({ where: { id } });
     if (!user) {
       throw new Error(`User with id ${id} not found`);
+    }
+
+    user.otp = otp;
+
+    return this.usersRepository.save(user);
+  }
+
+  async getOTP(email: string): Promise<string | undefined> {
+    const user = await this.usersRepository.findOne({ where: { email } });
+    if (!user) {
+      throw new Error(`User with email ${email} not found`);
+    }
+
+    return user.otp;
+  }
+
+  async sendPasswordResetEmail(emailAddress: string, otp: string) {
+    const subject = 'Password Reset Request';
+    const message = `Your OTP Code is ${otp}.\n\nIf you did not request a password reset, please ignore this email.\n\nThanks,`;
+    await this.emailService.sendEmail(
+      emailAddress,
+      subject,
+      emailAddress,
+      message,
+    );
+  }
+
+  async updateUser(
+    email: string,
+    updateUserInput: UpdateUserInput,
+  ): Promise<Users> {
+    const user = await this.usersRepository.findOne({ where: { email } });
+    if (!user) {
+      throw new Error(`User with email ${email} not found`);
     }
 
     // Update user properties if provided in updateUserInput
@@ -242,7 +272,8 @@ export class UsersService {
       user.email = updateUserInput.email;
     }
     if (updateUserInput.password !== undefined) {
-      user.password = updateUserInput.password;
+      const newPassword = await this.hashPassword(updateUserInput.password);
+      user.password = newPassword;
     }
     if (updateUserInput.fName !== undefined) {
       user.fName = updateUserInput.fName;

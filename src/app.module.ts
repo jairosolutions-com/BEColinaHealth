@@ -33,10 +33,14 @@ import { PrescriptionFilesModule } from './prescriptionsFiles/prescriptionsFiles
 
 import { FormsModule } from './forms/forms.module';
 import { FormFilesModule } from './formFiles/formFiles.module';
+import { EmailModule } from '../services/email/email.module';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ envFilePath: '.env.local' }),
+    ConfigModule.forRoot({
+      isGlobal: true,
+      envFilePath: '.env.local',
+    }),
     ScheduleModule.forRoot(),
     MulterModule.register({
       dest: './uploads',
@@ -75,6 +79,7 @@ import { FormFilesModule } from './formFiles/formFiles.module';
     LabResultsFilesModule,
     FormsModule,
     FormFilesModule,
+    EmailModule,
   ],
   controllers: [AppController],
   providers: [
