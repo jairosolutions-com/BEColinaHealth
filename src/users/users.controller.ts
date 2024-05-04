@@ -5,7 +5,7 @@ import {
   Get,
   Param,
   HttpStatus,
-  HttpException, 
+  HttpException,
   UsePipes,
   ValidationPipe,
   Query,
@@ -21,13 +21,19 @@ import { UpdateUserInput } from './dto/update-user.input';
 import { ApiKeyGuard } from 'src/auth/api-key/api-key.guard';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { Public } from 'src/auth/decorators/public.decorator';
+import { OtpService } from 'services/otp/otp.service';
+import { JwtService } from '@nestjs/jwt';
 
 @Controller('users')
 @UseGuards(AuthGuard)
 export class UsersController {
   private readonly logger = new Logger(UsersService.name);
 
-  constructor(private readonly usersService: UsersService) {}
+  constructor(
+    private readonly usersService: UsersService,
+    private readonly otpService: OtpService,
+    private readonly jwtService: JwtService,
+  ) {}
 
   @Get('search')
   async searchUsers(
@@ -149,8 +155,8 @@ export class UsersController {
   ): Promise<{ users: Users[]; total: number }> {
     return this.usersService.getAllUsers(page, limit);
   }
-@Public()
- @Post()
+  @Public()
+  @Post()
   @UsePipes(new ValidationPipe({ transform: true })) // Apply ValidationPipe
   async createUser(@Body() createUserInput: CreateUserInput): Promise<any> {
     // Validate email and password
@@ -212,15 +218,75 @@ export class UsersController {
   //   }
   // }
 
-  @Patch('update/:Id')
-  async updateUser(
-    @Param('Id') Id: number,
+  @Public()
+  @Post('/generate-otp')
+  async generateOTP(@Body('email') email: string) {
+    const users = await this.usersService.searchUsersByEmail(email, 0, 1);
+    if (users.length === 0) {
+      throw new Error('User not found');
+    }
+
+    try {
+      const user = users[0];
+      const otpWithTimestamp = this.otpService.generateOTP();
+      const { otp, timestamp } = otpWithTimestamp;
+
+      await this.usersService.updateOTP(user.id, otp);
+      await this.usersService.sendPasswordResetEmail(email, otp);
+
+      return true;
+    } catch (error) {
+      return false;
+    }
+  }
+  @Public()
+  @Post('/verify-otp')
+  async verifyOTP(
+    @Body('userOTP') userOTP: string,
+    @Body('email') email: string,
+  ): Promise<{ isValid: boolean }> {
+    const generatedOTP = await this.usersService.getOTP(email);
+
+    if (!generatedOTP) {
+      throw new NotFoundException('Generated OTP not found for the user');
+    }
+    console.log(userOTP, 'userotps')
+    console.log(email, 'emails')
+    const isValid = this.otpService.verifyOTP(userOTP, generatedOTP);
+    const expiryPayload = {
+      email: email,
+    };
+    if (isValid) {
+      // If OTP is valid, generate JWT token
+      const expiryToken = this.jwtService.sign(expiryPayload, {
+        expiresIn: '5m',
+      });
+      return { isValid: true, expiryToken } as {
+        isValid: boolean;
+        expiryToken: string;
+      };
+    } else {
+      return { isValid: false };
+    }
+  }
+
+  @Patch('reset-pass/:email')
+  async updateUserPassword(
+    @Param('email') email: string,
     @Body() updateUserInput: UpdateUserInput,
   ): Promise<Users> {
-    const updatedUser = await this.usersService.updateUser(Id, updateUserInput);
+    const updatedUser = await this.usersService.updateUser(
+      email,
+      updateUserInput,
+    );
     if (!updatedUser) {
-      throw new NotFoundException(`User with ID ${Id} not found`);
+      throw new NotFoundException(`User with ID ${email} not found`);
     }
+    delete updatedUser.password;
+    delete updatedUser.otp;
+    delete updatedUser.id;
+    delete updatedUser.resetToken;
+    delete updatedUser.resetTokenExpires;
     return updatedUser;
   }
 
