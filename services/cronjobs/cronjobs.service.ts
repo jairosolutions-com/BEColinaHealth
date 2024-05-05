@@ -154,7 +154,6 @@ export class CronjobsService {
   ///
 
   // @Cron('*/5 * * * * *') // Cron job to run every 5 seconds
-
   @Cron('0 0 * * * *') // Cron job to run every 12am
   async checkDailyPrescription(medicationLogData: CreateMedicationLogsInput) {
     const todayDate = new Date();
