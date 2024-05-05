@@ -248,8 +248,8 @@ export class UsersService {
   }
 
   async sendPasswordResetEmail(emailAddress: string, otp: string) {
-    const subject = 'Password Reset Request';
-    const message = `Your OTP Code is ${otp}.\n\nIf you did not request a password reset, please ignore this email.\n\nThanks,`;
+    const subject = 'Password Reset Request (OTP)';
+    const message = `${otp}`
     await this.emailService.sendEmail(
       emailAddress,
       subject,
