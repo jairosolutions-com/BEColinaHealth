@@ -276,7 +276,7 @@ export class MedicationLogsService {
     page: number = 2,
     sortBy: string = 'medicationlogs.medicationLogsTime',
     sortOrder: 'ASC' | 'DESC' = 'ASC',
-    perPage: number = 6,
+    perPage: number = 5,
   ): Promise<{
     data: MedicationLogs[];
     totalPages: number;
