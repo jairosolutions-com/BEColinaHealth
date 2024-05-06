@@ -6,27 +6,24 @@ import { IdService } from 'services/uuid/id.service';
 import { Users } from './entities/users.entity';
 import { Roles } from 'src/roles/entities/roles.entity';
 import { UserAccessLevels } from 'src/userAccessLevels/entities/userAccessLevels.entity';
-// import { MailerModule } from '@nestjs-modules/mailer';
-// import { EmailService } from './email.service';
+import { OtpService } from 'services/otp/otp.service';
+import { ConfigModule } from '@nestjs/config';
+import { EmailService } from 'services/email/email.service';
 
 @Module({
   imports: [
+    ConfigModule.forRoot({ envFilePath: '.env.local' }),
     TypeOrmModule.forFeature([Users, Roles, UserAccessLevels]),
-    // MailerModule.forRoot({
-    //   transport: {
-    //     service: 'gmail',
-    //     auth: {
-    //       user: 'kentjohnliloc@yahoo.com',
-    //       pass: 'yqiwjkjseyubyxxt',
-    //     },
-    //   },
-    // }),
   ],
-  providers: [UsersService, IdService, Roles, UserAccessLevels],
-  controllers: [UsersController],
-  exports: [
+  providers: [
     UsersService,
-    // EmailService
+    IdService,
+    Roles,
+    UserAccessLevels,
+    OtpService,
+    EmailService,
   ],
+  controllers: [UsersController],
+  exports: [UsersService],
 })
-export class UsersModule { }
+export class UsersModule {}

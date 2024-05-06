@@ -53,6 +53,11 @@ export class Users {
   @Field({ nullable: true })
   resetTokenExpires: Date;
 
+  @Column({ nullable: true }) 
+  @Field({ nullable: true })
+  otp : string
+
+
   @UpdateDateColumn({ name: 'updatedAt', nullable: true })
   @Field()
   updatedAt: string;
