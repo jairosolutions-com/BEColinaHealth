@@ -213,7 +213,7 @@ export class AppointmentsService {
     sortOrder: 'ASC' | 'DESC' = 'ASC',
     startDate: string = '2021-01-01',
     endDate: string = '2300-01-01',
-    perPage: number = 6,
+    perPage: number = 5,
   ): Promise<{
     data: Appointments[];
     totalPages: number;

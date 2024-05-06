@@ -9,6 +9,9 @@ export class UpdateUserInput {
   password?: string;
 
   @IsOptional()
+  confirmPassword?: string;
+
+  @IsOptional()
   fName?: string;
 
   @IsOptional()

@@ -92,13 +92,16 @@ export class PatientsController {
     @UploadedFile() file: Express.Multer.File,
   ) {
     const { buffer, originalname } = file;
-
-    // Soft delete the current profile image
-    await this.profileImageService.softDeleteProfileImage(patientUuid);
-
-    // Upload the new profile image
-    return await this.profileImageService.addProfileImage(patientUuid, buffer, originalname);
+  
+    try {
+      // Call the service method to update profile image
+      await this.profileImageService.UpdateProfileImage(patientUuid, buffer, originalname);
+      return { success: true, message: 'Profile image updated successfully.' };
+    } catch (error) {
+      return { success: false, message: error.message };
+    }
   }
+  
   //for patient list
   @Post('profile-images')
   async getProfileImagesByUuids(@Body() body: { patientUuids: string[] }) {
