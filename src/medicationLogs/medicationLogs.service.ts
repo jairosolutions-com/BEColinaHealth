@@ -274,9 +274,9 @@ export class MedicationLogsService {
   async getAllDueMedication(
     term: string,
     page: number = 2,
-    sortBy: string = 'medicationLogsTime',
+    sortBy: string = 'medicationlogs.medicationLogsTime',
     sortOrder: 'ASC' | 'DESC' = 'ASC',
-    perPage: number = 6,
+    perPage: number = 5,
   ): Promise<{
     data: MedicationLogs[];
     totalPages: number;
@@ -309,8 +309,7 @@ export class MedicationLogsService {
       .andWhere('medicationlogs.createdAt >= :todayDate', {
         todayDate: todayDate.toISOString().split('T')[0],
       }) // Filter by today's date
-      .orderBy(`medicationlogs.${sortBy}`, sortOrder)
-      .addOrderBy('patient.firstName', sortOrder)
+      .orderBy(`${sortBy}`, sortOrder)
       .offset(skip)
       .limit(perPage);
 

@@ -130,7 +130,7 @@ export class PatientsService {
     page: number = 1,
     sortBy: string = 'lastName',
     sortOrder: 'ASC' | 'DESC' = 'DESC',
-    perPage: number = 6,
+    perPage: number = 5,
   ): Promise<{
     data: Patients[];
     totalPages: number;
