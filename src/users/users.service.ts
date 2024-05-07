@@ -248,7 +248,7 @@ export class UsersService {
   }
 
   async sendPasswordResetEmail(emailAddress: string, otp: string, variant:string) {
-    const subject = 'Password Reset Request (OTP)';
+    const subject = `${variant==="signIn"?"Login 2FA OTP":"Password Reset Request (OTP)"}`;
     const message = `${otp}`
     await this.emailService.sendEmail(
       emailAddress,
