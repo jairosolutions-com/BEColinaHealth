@@ -273,7 +273,7 @@ export class MedicationLogsService {
 
   async getAllDueMedication(
     term: string,
-    page: number = 2,
+    page: number = 1,
     sortBy: string = 'medicationlogs.medicationLogsTime',
     sortOrder: 'ASC' | 'DESC' = 'ASC',
     perPage: number = 5,
@@ -402,73 +402,5 @@ export class MedicationLogsService {
       message: `MedicationLogs with ID ${id} has been soft-deleted.`,
       deletedMedicationLogs,
     };
-
-    return {
-      message: `MedicationLogs with ID ${id} has been soft-deleted.`,
-      deletedMedicationLogs,
-    };
   }
-
-  /////
-
-  // async fetchPatientForTimeChart(
-  //   patientUuid: string,
-  //   term: string,
-  //   page: number = 1,
-  //   sortBy: string = 'medicationLogsDate',
-  //   sortOrder: 'ASC' | 'DESC' = 'ASC',
-  //   perPage: number = 5
-  // ): Promise<{ data: MedicationLogs[]; totalPages: number; currentPage: number; totalCount: number }> {
-  //   const skip = (page - 1) * perPage;
-  //   const searchTerm = `%${term}%`;
-  //   const patientExists = await this.patientsRepository.findOne({ where: { uuid: patientUuid } });
-  //   if (!patientExists) {
-  //     throw new NotFoundException('Patient not found');
-  //   }
-
-  //   // Extracting today's date without time
-  //   const todayDate = new Date();
-  //   todayDate.setUTCHours(0, 0, 0, 0);
-
-  //   const aschMedicationQueryBuilder = this.medicationLogsRepository
-  //     .createQueryBuilder('medicationlogs')
-  //     .innerJoinAndSelect('medicationlogs.patient', 'patient')
-  //     .select([
-  //       'medicationlogs.uuid',
-  //       'medicationlogs.medicationLogsName',
-  //       'medicationlogs.notes',
-  //       'medicationlogs.medicationType',
-  //       'medicationlogs.medicationLogsDate',
-  //       'medicationlogs.medicationLogsTime',
-  //       'medicationlogs.medicationLogStatus',
-  //       'patient.uuid',
-  //       'patient.firstName',
-  //       'patient.lastName',
-  //     ])
-  //     .where('medicationlogs.createdAt >= :todayDate', { todayDate: todayDate.toISOString() }) // Filter by today's date
-
-  //   if (term !== "") {
-  //     aschMedicationQueryBuilder
-  //       .andWhere(new Brackets((qb) => {
-  //         qb.andWhere("medicationlogs.medicationLogsName ILIKE :searchTerm", { searchTerm })
-  //           .orWhere("medicationlogs.medicationLogStatus ILIKE :searchTerm", { searchTerm })
-  //           .orWhere("medicationlogs.uuid ILIKE :searchTerm", { searchTerm });
-  //       }));
-  //   }
-
-  //   aschMedicationQueryBuilder
-  //     .orderBy(`medicationlogs.${sortBy} OR patient.${sortBy}`, sortOrder)
-  //     .offset(skip)
-  //     .limit(perPage);
-
-  //   const [aschMedicationList, totalPatientASCHMedication] = await aschMedicationQueryBuilder.getManyAndCount();
-  //   const totalPages = Math.ceil(totalPatientASCHMedication / perPage);
-
-  //   return {
-  //     data: aschMedicationList,
-  //     totalPages: totalPages,
-  //     currentPage: page,
-  //     totalCount: totalPatientASCHMedication,
-  //   };
-  // }
 }

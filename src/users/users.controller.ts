@@ -220,7 +220,7 @@ export class UsersController {
 
   @Public()
   @Post('/generate-otp')
-  async generateOTP(@Body('email') email: string) {
+  async generateOTP(@Body('email') email: string, @Body('variant') variant:string) {
     const users = await this.usersService.searchUsersByEmail(email, 0, 1);
     if (users.length === 0) {
       throw new HttpException('User not found', HttpStatus.NOT_FOUND);
@@ -233,7 +233,7 @@ export class UsersController {
       const { otp, timestamp } = otpWithTimestamp;
 
       await this.usersService.updateOTP(user.id, otp);
-      await this.usersService.sendPasswordResetEmail(email, otp);
+      await this.usersService.sendPasswordResetEmail(email, otp, variant);
 
       return true;
     } catch (error) {

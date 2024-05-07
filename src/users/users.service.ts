@@ -247,7 +247,7 @@ export class UsersService {
     return user.otp;
   }
 
-  async sendPasswordResetEmail(emailAddress: string, otp: string) {
+  async sendPasswordResetEmail(emailAddress: string, otp: string, variant:string) {
     const subject = 'Password Reset Request (OTP)';
     const message = `${otp}`
     await this.emailService.sendEmail(
@@ -255,6 +255,7 @@ export class UsersService {
       subject,
       emailAddress,
       message,
+      variant
     );
   }
 
