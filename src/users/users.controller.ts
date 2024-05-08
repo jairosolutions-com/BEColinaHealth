@@ -245,7 +245,8 @@ export class UsersController {
   async verifyOTP(
     @Body('userOTP') userOTP: string,
     @Body('email') email: string,
-    @Body('variant') variant:string
+    @Body('variant') variant:string,
+    @Body('expiresIn') expiresIn:string
   ): Promise<{ isValid: boolean }> {
     const generatedOTP = await this.usersService.getOTP(email);
 
@@ -261,7 +262,7 @@ export class UsersController {
     if (isValid) {
       // If OTP is valid, generate JWT token
       const expiryToken = this.jwtService.sign(expiryPayload, {
-        expiresIn: variant==="signIn"?"1d":"5m",
+        expiresIn: variant==="signIn"?expiresIn:"5m",
       });
       const users = await this.usersService.searchUsersByEmail(email, 0, 1);
       const user = users[0];
