@@ -172,6 +172,17 @@ export class PatientsService {
     };
   }
 
+  async getAllPatientsFullName(): Promise<{
+    data: Patients[];
+  }> {
+    const patientList = await this.patientsRepository.find({
+      select: ['uuid', 'firstName', 'lastName'],
+    });
+    return {
+      data: patientList,
+    };
+  }
+
   async getAllPatientsWithDetails(): Promise<Patients[]> {
     return this.patientsRepository.find({
       relations: [

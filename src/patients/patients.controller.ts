@@ -21,7 +21,7 @@ export class PatientsController {
   constructor(
     private readonly patientsService: PatientsService,
     private readonly profileImageService: PatientsProfileImageService,
-  ) { }
+  ) {}
 
   @Post('list')
   getPatientsByTerm(
@@ -45,6 +45,11 @@ export class PatientsController {
       sortBy,
       sortOrder,
     );
+  }
+
+  @Get('select')
+  getAllPatientsFullName() {
+    return this.patientsService.getAllPatientsFullName();
   }
 
   @Get('overview/:id')
@@ -82,7 +87,11 @@ export class PatientsController {
     @UploadedFile() file: Express.Multer.File,
   ) {
     const { buffer, originalname } = file;
-    return await this.profileImageService.addProfileImage(patientUuid, buffer, originalname);
+    return await this.profileImageService.addProfileImage(
+      patientUuid,
+      buffer,
+      originalname,
+    );
   }
 
   @Patch(':id/update-profile-image')
@@ -92,24 +101,31 @@ export class PatientsController {
     @UploadedFile() file: Express.Multer.File,
   ) {
     const { buffer, originalname } = file;
-  
+
     try {
       // Call the service method to update profile image
-      await this.profileImageService.UpdateProfileImage(patientUuid, buffer, originalname);
+      await this.profileImageService.UpdateProfileImage(
+        patientUuid,
+        buffer,
+        originalname,
+      );
       return { success: true, message: 'Profile image updated successfully.' };
     } catch (error) {
       return { success: false, message: error.message };
     }
   }
-  
+
   //for patient list
   @Post('profile-images')
   async getProfileImagesByUuids(@Body() body: { patientUuids: string[] }) {
     if (!body.patientUuids || body.patientUuids.length === 0) {
-      throw new BadRequestException('Please provide patient UUIDs in the request body');
+      throw new BadRequestException(
+        'Please provide patient UUIDs in the request body',
+      );
     }
 
-    const profileImages = await this.profileImageService.getProfileImagesByUuids(body.patientUuids);
+    const profileImages =
+      await this.profileImageService.getProfileImagesByUuids(body.patientUuids);
     return profileImages;
   }
 
@@ -118,9 +134,10 @@ export class PatientsController {
     return await this.profileImageService.getProfileImageByUuid(patientUuid);
   }
 
-
   @Get(':id/profile-image/count')
   async getCurrentProfileImageCount(@Param('id') patientUuid: string) {
-    return await this.profileImageService.getCurrentImageCountFromDatabase(patientUuid);
+    return await this.profileImageService.getCurrentImageCountFromDatabase(
+      patientUuid,
+    );
   }
 }
