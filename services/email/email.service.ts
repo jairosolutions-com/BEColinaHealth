@@ -1,3 +1,5 @@
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
+
 import { Injectable } from '@nestjs/common';
 import * as nodemailer from 'nodemailer';
 const currentDate = new Date(); // Get the current date
