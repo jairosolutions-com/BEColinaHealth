@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Res, UseInterceptors, UploadedFiles, BadRequestException, HttpStatus } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Res, UseInterceptors, UploadedFiles, BadRequestException, HttpStatus, NotFoundException } from '@nestjs/common';
 import { FormsService } from './forms.service';
 import { CreateFormDto } from './dto/create-form.dto';
 import { UpdateFormDto } from './dto/update-form.dto';
@@ -87,28 +87,37 @@ export class FormsController {
   }
   @Get(':id/files') //get a list of files of that lab result
   async getDatabaseFilesById(@Param('id') id: string, response: Response) {
-      const files = await this.formsService.getFormFilesByUuid(id);
-
-      if (files.length === 0) {
-          return (`No files found for with UUID ${id}`);
+      try {
+          const files = await this.formsService.getFormFilesByUuid(id);
+  
+          // Return an array of file metadata (e.g., file IDs, filenames, file types)
+          const fileMetadataArray = files.map(file => ({
+              fileId: file.file_uuid,
+              filename: file.filename,
+              data: file.data,
+          }));
+  
+          return fileMetadataArray;
+      } catch (error) {
+          if (error instanceof NotFoundException) {
+              return {'Error': 'No files found'};
+          }
+          throw error; // Re-throw other errors
       }
-
-      // Return an array of file metadata (e.g., file IDs, filenames, file types)
-      const fileMetadataArray = files.map(file => ({
-          fileId: file.file_uuid,
-          filename: file.filename,
-          data: file.data,
-
-      }));
-
-      return fileMetadataArray;
   }
   @Get(':id/files/count')
   async getCurrentFileCountFromDatabase(@Param('id') id: string, @Res() response: Response) {
-    const files = await this.formsService.getCurrentFileCountFromDatabase(id);
-    return files;
-  }
+      try {
+          const filesCount = await this.formsService.getCurrentFileCountFromDatabase(id);
+          return response.status(HttpStatus.OK).json({ count: filesCount });
+      } catch (error) {
+          if (error instanceof NotFoundException) {
+            return {'Error': 'No files found'};
 
+          }
+          return response.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: 'Internal server error' });
+      }
+  }
   async getFileById(@Param('id') id: string, @Param('fileId') fileId: string, @Res() response: Response): Promise<Response> {
 
     const file = await this.formsFilesService.getFileByFormFileUuid(fileId);

@@ -23,14 +23,16 @@ export class MedicationLogsController {
       page: number;
       sortBy: string;
       sortOrder: 'ASC' | 'DESC';
+      perPage: number;
     },
   ) {
-    const { term = '', page, sortBy, sortOrder } = body;
+    const { term = '', page, sortBy, sortOrder, perPage } = body;
     return this.medicationLogsService.getAllDueMedication(
       term,
       page,
       sortBy,
       sortOrder,
+      perPage,
     );
   }
 
