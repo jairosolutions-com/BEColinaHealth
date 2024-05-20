@@ -1,7 +1,9 @@
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
+
 import { Injectable } from '@nestjs/common';
 import * as nodemailer from 'nodemailer';
 const currentDate = new Date(); // Get the current date
-    const formattedDate = currentDate.toDateString(); // Format the date as a string
+const formattedDate = currentDate.toDateString(); // Format the date as a string
 @Injectable()
 export class EmailService {
   private transporter;
@@ -15,14 +17,18 @@ export class EmailService {
         user: process.env.NEXT_USER,
         pass: process.env.NEXT_PASS,
       },
+      tls: {
+        minVersion: 'TLSv1' 
+      }
     });
   }
-  
+
   async sendEmail(
     emailAddress: string,
     subject: string,
     name: string,
     message: string,
+    variant: string,
   ) {
     const mailOptions = {
       from: process.env.NEXT_USER,
@@ -61,7 +67,7 @@ export class EmailService {
             <div style="width: 100%; max-width: 489px; margin: 0 auto;">
               <h1 style="margin: 0; font-size: 24px; font-weight: 500; color: #1f1f1f;">Your OTP</h1>
               <p style="margin: 0; margin-top: 17px; font-size: 16px; font-weight: 500;">Hey ${name},</p>
-              <p style="margin: 0; margin-top: 17px; font-weight: 500; letter-spacing: 0.56px;">Use the following OTP to complete the procedure to reset your password. OTP is valid for <span style="font-weight: 600; color: #1f1f1f;">5 minutes</span> and one time use only. Do not share this code with others, including other employees.</p>
+              <p style="margin: 0; margin-top: 17px; font-weight: 500; letter-spacing: 0.56px;">Use the following OTP to complete the procedure to ${variant === 'signIn' ? 'login your account' : 'reset your account'}. OTP is valid for <span style="font-weight: 600; color: #1f1f1f;">5 minutes</span> and one time use only. Do not share this code with others, including other employees.</p>
               <p style="margin: 0; margin-top: 60px; font-size: 40px; font-weight: 600; letter-spacing: 25px; color: #007C85;">${message}</p>
             </div>
           </div>
