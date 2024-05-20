@@ -218,7 +218,7 @@ export class AppointmentsService {
     data: Appointments[];
     totalPages: number;
     currentPage: number;
-    totalCount;
+    totalCount: number;
   }> {
     const searchTerm = `%${term}%`; // Add wildcards to the search term
     const todayDate = new Date();
