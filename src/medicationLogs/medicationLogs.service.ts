@@ -315,6 +315,7 @@ export class MedicationLogsService {
 
     if (term !== '') {
       console.log('term', term);
+      const searchWords = term.split(' ').map((word) => `%${word}%`);
       dueMedicationQueryBuilder
         .where(
           new Brackets((qb) => {
@@ -334,15 +335,38 @@ export class MedicationLogsService {
         )
         .andWhere(
           new Brackets((qb) => {
-            qb.andWhere('medicationlogs.medicationLogsName ILIKE :searchTerm', {
-              searchTerm,
-            })
-              .orWhere('patient.firstName ILIKE :searchTerm', { searchTerm })
-              .orWhere('patient.lastName ILIKE :searchTerm', { searchTerm })
-              .orWhere('medicationlogs.medicationLogStatus ILIKE :searchTerm', {
-                searchTerm,
-              })
-              .orWhere('medicationlogs.uuid ILIKE :searchTerm', { searchTerm });
+            qb.andWhere(
+              new Brackets((subQb) => {
+                subQb
+                  .where(
+                    'medicationlogs.medicationLogsName ILIKE :searchTerm',
+                    {
+                      searchTerm,
+                    },
+                  )
+                  .orWhere(
+                    'medicationlogs.medicationLogStatus ILIKE :searchTerm',
+                    {
+                      searchTerm,
+                    },
+                  )
+                  .orWhere('medicationlogs.uuid ILIKE :searchTerm', {
+                    searchTerm,
+                  });
+              }),
+            ).orWhere(
+              new Brackets((subQb) => {
+                for (const word of searchWords) {
+                  subQb.andWhere(
+                    new Brackets((subSubQb) => {
+                      subSubQb
+                        .where('patient.firstName ILIKE :word', { word })
+                        .orWhere('patient.lastName ILIKE :word', { word });
+                    }),
+                  );
+                }
+              }),
+            );
           }),
         );
     } else {
