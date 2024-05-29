@@ -21,14 +21,14 @@ export class CronjobsService {
     private medicationLogsRepository: Repository<MedicationLogs>,
     private idService: IdService,
   ) { }
+  
   @Cron('* * * * *') // Cron job to check appointments every minute
 
   async checkDailyAppointments() {
     const currentDateTime = DateTime.local(); // Get current date and time using Luxon
     const formattedDate = currentDateTime.toFormat('yyyy-MM-dd');
-
-    console.log('Checking appointments for date:', formattedDate);
-    console.log('Current date time:', currentDateTime);
+    const currentTime = currentDateTime.toFormat('HH:mm:ss');
+    console.log('Current time:', currentTime);
 
     const allAppointments = await this.appointmentsRepository.find({
       where: {
@@ -129,6 +129,7 @@ export class CronjobsService {
     await this.appointmentsRepository.save(appointment);
   }
 
+
   parseDateTime(dateString: string, timeString: string): DateTime {
     const [year, month, day] = dateString.split('-').map(Number);
     const [hoursString, minutesString] = timeString.split(':');
@@ -156,6 +157,10 @@ export class CronjobsService {
     const todayDate = new Date();
     todayDate.setUTCHours(0, 0, 0, 0);
 
+    const currentDateTime = DateTime.local(); // Get current date and time using Luxon
+    const formattedDate = currentDateTime.toFormat('yyyy-MM-dd');
+    const currentTime = currentDateTime.toFormat('HH:mm:ss');
+    console.log('Current time:', currentTime);
     console.log('currentDate now', todayDate);
 
     const prescriptions = await this.prescriptionsRepository.find({
@@ -207,9 +212,7 @@ export class CronjobsService {
             const uuid = this.idService.generateRandomUUID(uuidPrefix);
             newMedicationLogs.uuid = uuid;
             newMedicationLogs.medicationLogsName = prescription.name;
-            newMedicationLogs.medicationLogsDate = todayDate
-              .toISOString()
-              .split('T')[0];
+            newMedicationLogs.medicationLogsDate = formattedDate;
             // Calculate medicationLogsTime based on interval
             newMedicationLogs.medicationLogsTime = this.calculateMedicationTime(
               prescription.frequency,
@@ -221,6 +224,7 @@ export class CronjobsService {
             newMedicationLogs.patientId = prescription.patientId;
             newMedicationLogs.prescriptionId = prescription.id;
             newMedicationLogs.medicationLogStatus = 'pending';
+            newMedicationLogs.createdAt = formattedDate;
             Object.assign(newMedicationLogs, medicationLogData);
             const savedMedicationLogs =
               await this.medicationLogsRepository.save(newMedicationLogs);
