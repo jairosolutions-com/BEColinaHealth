@@ -135,11 +135,12 @@ export class PatientsService {
     data: Patients[];
     totalPages: number;
     currentPage: number;
-    totalCount;
+    totalCount: number;
   }> {
     const searchTerm = `%${term}%`; // Add wildcards to the search term
     const skip = (page - 1) * perPage;
-    //count the total rows searched
+
+    // Count the total rows searched
     const totalPatients = await this.patientsRepository.count({
       where: [
         { firstName: ILike(searchTerm) },
@@ -147,22 +148,49 @@ export class PatientsService {
         { uuid: ILike(`${searchTerm}%`) },
       ],
     });
-    //total number of pages
+
+    // Total number of pages
     const totalPages = Math.ceil(totalPatients / perPage);
 
-    //find the data
-    const patientList = await this.patientsRepository.find({
-      select: ['uuid', 'firstName', 'lastName', 'age', 'gender', 'codeStatus'],
-      where: [
-        { firstName: ILike(searchTerm) },
-        { lastName: ILike(searchTerm) },
-        { uuid: ILike(`%${searchTerm}%`) },
-        //ptn prefix
-      ],
-      skip: skip,
-      take: perPage,
-      order: { [sortBy]: sortOrder },
-    });
+    const searchWords = term.split(' ').map((word) => `%${word}%`);
+
+    // Find the data
+    const patientList = await this.patientsRepository
+      .createQueryBuilder('patient')
+      .select([
+        'patient.uuid',
+        'patient.firstName',
+        'patient.lastName',
+        'patient.age',
+        'patient.gender',
+        'patient.codeStatus',
+      ])
+      .where(
+        new Brackets((qb) => {
+          qb.where('patient.firstName ILIKE :searchTerm', { searchTerm })
+            .orWhere('patient.lastName ILIKE :searchTerm', { searchTerm })
+            .orWhere('patient.uuid ILIKE :searchTerm', {
+              searchTerm: `${searchTerm}%`,
+            });
+        }),
+      )
+      .orWhere(
+        new Brackets((qb) => {
+          for (const word of searchWords) {
+            qb.andWhere(
+              new Brackets((subQb) => {
+                subQb
+                  .where('patient.firstName ILIKE :word', { word })
+                  .orWhere('patient.lastName ILIKE :word', { word });
+              }),
+            );
+          }
+        }),
+      )
+      .skip(skip)
+      .take(perPage)
+      .orderBy(`patient.${sortBy}`, sortOrder)
+      .getMany();
 
     return {
       data: patientList,
