@@ -279,7 +279,7 @@ export class PatientsService {
       .leftJoin('patient.vitalsign', 'vitalsign')
       .leftJoin('patient.medicationlogs', 'medicationlogs')
       .leftJoin('patient.allergies', 'allergies')
-      .select(['patient.firstName', 'patient.lastName', 'patient.middleName', 'patient.age', 'patient.admissionDate' , 'patient.gender' , 'patient.age' ,'patient.dateOfBirth','patient.address1','patient.phoneNo'])
+      .select(['patient.firstName', 'patient.lastName', 'patient.age', 'patient.admissionDate' , 'patient.gender' , 'patient.age' ,'patient.dateOfBirth','patient.address1','patient.phoneNo'])
       .addSelect('COALESCE(medicationlogs.medicationLogsName, \'No Name\')', 'medicationLogsName')
       .addSelect('COALESCE(medicationlogs.medicationLogsTime, \'No Time\')', 'medicationLogsTime')
       .addSelect('COALESCE(medicationlogs.medicationLogsDate, \'No Date\')', 'medicationLogsDate')
