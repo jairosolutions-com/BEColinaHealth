@@ -47,6 +47,11 @@ export class PatientsController {
     );
   }
 
+  @Post('recent-info/:id')
+  getPatientRecentInfo(@Param('id') id: string) {
+    return this.patientsService.getPatientRecentInfo(id);
+  }
+
   @Get('select')
   getAllPatientsFullName() {
     return this.patientsService.getAllPatientsFullName();
