@@ -246,7 +246,7 @@ export class CronjobsService {
     index: number,
     intervals: string,
   ): string {
-    let hour = 8; // Default hour for medicationLogsTime
+    let hour = 9; // Default hour for medicationLogsTime
     const interval = parseInt(intervals); // Default interval in hours
 
     // Adjust hour based on index and frequency
