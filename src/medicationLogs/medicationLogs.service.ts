@@ -303,6 +303,7 @@ export class MedicationLogsService {
     const dueMedicationQueryBuilder = this.medicationLogsRepository
       .createQueryBuilder('medicationlogs')
       .innerJoinAndSelect('medicationlogs.patient', 'patient')
+      .innerJoin('medicationlogs.prescription', 'prescription')
       .select([
         'medicationlogs.uuid',
         'medicationlogs.medicationLogsName',
@@ -322,6 +323,7 @@ export class MedicationLogsService {
       .andWhere('medicationlogs.createdAt >= :todayDate', {
         todayDate: todayDate.toISOString().split('T')[0],
       }) // Filter by today's date
+      .andWhere('prescription.status = :status', {status: 'active'})
       .orderBy(`${sortBy}`, sortOrder)
       .offset(skip)
       .limit(perPage);
