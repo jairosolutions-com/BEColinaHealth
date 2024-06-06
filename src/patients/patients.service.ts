@@ -225,6 +225,85 @@ export class PatientsService {
       ],
     });
   }
+  
+  async getPatientRecentInfo(id: string): Promise<{
+    data: Patients[];
+    totalMedicationDue: number
+    totalMedicationDone: number
+  }> {
+    const patientExists = await this.patientsRepository.findOne({
+      where: { uuid: id },
+      select: ['id']
+    });
+    if (!patientExists) {
+      throw new NotFoundException('Patient not found');
+    }
+  
+    const today = new Date();
+    const formattedToday = today.toISOString().split('T')[0]; // Format date as YYYY-MM-DD
+  
+    const medicationCountSubQuery = this.patientsRepository
+      .createQueryBuilder('patient')
+      .innerJoin('patient.medicationlogs', 'medicationlogs')
+      .select('COUNT(medicationlogs.id)', 'medicationCount')
+      .where('medicationlogs.patientId = :id',{id:patientExists.id})
+      .andWhere('medicationlogs.medicationType = :medicationType', {
+        medicationType: 'ASCH',
+      })
+      .andWhere(
+        'medicationlogs.medicationLogStatus = :medicationLogStatus',
+        {
+          medicationLogStatus: 'pending',
+        },
+      )
+      .andWhere('medicationlogs.medicationLogsDate = :today', { today: formattedToday });
+  
+      const medicationDoneCount = this.patientsRepository
+      .createQueryBuilder('patient')
+      .innerJoin('patient.medicationlogs', 'medicationlogs')
+      .select('COUNT(medicationlogs.id)', 'medicationCount')
+      .where('medicationlogs.patientId = :id',{id:patientExists.id})
+      .andWhere('medicationlogs.medicationType = :medicationType', {
+        medicationType: 'ASCH',
+      })
+      .andWhere(
+        'medicationlogs.medicationLogStatus != :medicationLogStatus',
+        {
+          medicationLogStatus: 'pending',
+        },
+      )
+      .andWhere('medicationlogs.medicationLogsDate = :today', { today: formattedToday });
+  
+      const patientRecentInfo = this.patientsRepository
+      .createQueryBuilder('patient')
+      .leftJoin('patient.vitalsign', 'vitalsign')
+      .leftJoin('patient.medicationlogs', 'medicationlogs')
+      .leftJoin('patient.allergies', 'allergies')
+      .select(['patient.firstName', 'patient.lastName', 'patient.middleName','patient.age', 'patient.admissionDate' , 'patient.gender' , 'patient.age' ,'patient.dateOfBirth','patient.address1','patient.phoneNo'])
+      .addSelect('COALESCE(medicationlogs.medicationLogsName, \'No Medication Taken\')', 'medicationLogsName')
+      .addSelect('COALESCE(medicationlogs.medicationLogsTime, \'No Time\')', 'medicationLogsTime')
+      .addSelect('COALESCE(medicationlogs.medicationLogsDate, \'No Date\')', 'medicationLogsDate')
+      .addSelect('COALESCE(vitalsign.bloodPressure, \'No Blood Pressure\')', 'bloodPressure')
+      .addSelect('COALESCE(vitalsign.heartRate, \'No Heart Rate\')', 'heartRate')
+      .addSelect('COALESCE(vitalsign.temperature, \'No Temperature\')', 'temperature')
+      .addSelect('COALESCE(vitalsign.respiratoryRate, \'No Respiratory Rate\')', 'respiratoryRate')
+      .addSelect('COALESCE(allergies.allergen, \'No Allergen\')', 'allergen')
+      .where('patient.uuid = :uuid', { uuid: id })
+      .orderBy('medicationlogs.createdAt', 'DESC')
+      .addOrderBy('vitalsign.createdAt', 'DESC')
+      .limit(1);
+    
+  
+    const patientRecentInfoList = await patientRecentInfo.getRawMany();
+      const totalMedicationCount = await medicationCountSubQuery.getRawOne();
+      const totalMedicationDoneCount = await medicationDoneCount.getRawOne();
+    return {
+      data: patientRecentInfoList,
+      totalMedicationDue: totalMedicationCount,
+      totalMedicationDone: totalMedicationDoneCount
+    };
+  }
+
   async updatePatients(
     id: string,
     updatePatientsInput: UpdatePatientsInput,

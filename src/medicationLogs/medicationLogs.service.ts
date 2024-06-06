@@ -282,14 +282,28 @@ export class MedicationLogsService {
     totalPages: number;
     currentPage: number;
     totalCount: number;
+    totalDone: number;
   }> {
     const todayDate = new Date();
     const skip = (page - 1) * perPage;
     todayDate.setUTCHours(0, 0, 0, 0);
     const searchTerm = `%${term}%`;
+    const dueMedicationDoneQueryBuilder = this.medicationLogsRepository
+      .createQueryBuilder('medicationlogs')
+      .where('medicationlogs.medicationLogStatus != :medicationLogStatus', {
+        medicationLogStatus: 'pending',
+      })
+      .andWhere('medicationlogs.createdAt >= :todayDate', {
+        todayDate: todayDate.toISOString().split('T')[0],
+      })
+      .andWhere('medicationlogs.medicationType = :medicationType', {
+        medicationType: 'ASCH',
+      })
+      
     const dueMedicationQueryBuilder = this.medicationLogsRepository
       .createQueryBuilder('medicationlogs')
       .innerJoinAndSelect('medicationlogs.patient', 'patient')
+      .innerJoin('medicationlogs.prescription', 'prescription')
       .select([
         'medicationlogs.uuid',
         'medicationlogs.medicationLogsName',
@@ -309,6 +323,7 @@ export class MedicationLogsService {
       .andWhere('medicationlogs.createdAt >= :todayDate', {
         todayDate: todayDate.toISOString().split('T')[0],
       }) // Filter by today's date
+      .andWhere('prescription.status = :status', {status: 'active'})
       .orderBy(`${sortBy}`, sortOrder)
       .offset(skip)
       .limit(perPage);
@@ -384,11 +399,15 @@ export class MedicationLogsService {
     const dueMedicationList = await dueMedicationQueryBuilder.getRawMany();
     const totalPatientdueMedication =
       await dueMedicationQueryBuilder.getCount();
+
+      const totalDone =
+      await dueMedicationDoneQueryBuilder.getCount();
     const totalPages = Math.ceil(totalPatientdueMedication / perPage);
 
     return {
       data: dueMedicationList,
       totalPages: totalPages,
+      totalDone: totalDone,
       currentPage: page,
       totalCount: totalPatientdueMedication,
     };
