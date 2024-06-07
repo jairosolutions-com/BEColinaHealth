@@ -230,6 +230,7 @@ export class PatientsService {
     data: Patients[];
     totalMedicationDue: number
     totalMedicationDone: number
+    patientAllergies: any
   }> {
     const patientExists = await this.patientsRepository.findOne({
       where: { uuid: id },
@@ -287,18 +288,25 @@ export class PatientsService {
       .addSelect('COALESCE(vitalsign.heartRate, \'No Heart Rate\')', 'heartRate')
       .addSelect('COALESCE(vitalsign.temperature, \'No Temperature\')', 'temperature')
       .addSelect('COALESCE(vitalsign.respiratoryRate, \'No Respiratory Rate\')', 'respiratoryRate')
-      .addSelect('COALESCE(allergies.allergen, \'No Allergen\')', 'allergen')
       .where('patient.uuid = :uuid', { uuid: id })
       .orderBy('medicationlogs.createdAt', 'DESC')
       .addOrderBy('vitalsign.createdAt', 'DESC')
       .limit(1);
     
+
+      const allergensQuery = this.patientsRepository
+      .createQueryBuilder('patient')
+      .leftJoin('patient.allergies', 'allergies')
+      .select('STRING_AGG(allergies.allergen, \', \')', 'allergens')
+      .where('patient.uuid = :uuid', { uuid: id });
   
     const patientRecentInfoList = await patientRecentInfo.getRawMany();
+    const patientAllergies = await allergensQuery.getRawMany();
       const totalMedicationCount = await medicationCountSubQuery.getRawOne();
       const totalMedicationDoneCount = await medicationDoneCount.getRawOne();
     return {
       data: patientRecentInfoList,
+      patientAllergies: patientAllergies,
       totalMedicationDue: totalMedicationCount,
       totalMedicationDone: totalMedicationDoneCount
     };
