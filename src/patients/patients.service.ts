@@ -172,6 +172,8 @@ export class PatientsService {
             (LOWER(patient.lastName) LIKE :fullName)
             OR
             (LOWER(CONCAT(patient.firstName, patient.lastName)) LIKE :fullName)
+                OR
+            (LOWER(CONCAT(patient.firstName, ' ', patient.lastName)) LIKE :fullName)
           )`,
           {
             firstName: `%${firstNameTerm}%`,
