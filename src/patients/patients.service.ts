@@ -140,8 +140,8 @@ export class PatientsService {
     const skip = (page - 1) * perPage;
   
     const queryBuilder = this.patientsRepository
-      .createQueryBuilder('patient')
-      .select([
+     .createQueryBuilder('patient')
+     .select([
         'patient.uuid',
         'patient.firstName',
         'patient.lastName',
@@ -149,37 +149,37 @@ export class PatientsService {
         'patient.gender',
       ]);
   
-    const searchTerms = term.trim().toLowerCase().split(' ');
-  
-    if (searchTerms.length > 1) {
-      // Multiple words in search term
-      const firstNameTerm = searchTerms.slice(0, -1).join(' ');
-      const lastNameTerm = searchTerms[searchTerms.length - 1];
-  
-      queryBuilder.where(
-        `(
-          (LOWER(patient.firstName) LIKE :firstName AND LOWER(patient.lastName) LIKE :lastName) OR
-          (LOWER(patient.firstName) LIKE :fullName) OR
-          (LOWER(patient.lastName) LIKE :fullName)
-        )`,
-        {
-          firstName: `%${firstNameTerm}%`,
-          lastName: `%${lastNameTerm}%`,
-          fullName: `%${term.toLowerCase()}%`,
-        }
-      );
-    } else {
-      // Single word in search term
-      const searchTerm = `%${term.toLowerCase()}%`;
-      queryBuilder.where(
-        `(LOWER(patient.firstName) LIKE :searchTerm OR LOWER(patient.lastName) LIKE :searchTerm OR patient.uuid = :exactTerm)`,
-        { searchTerm, exactTerm: term }
-      );
-    }
-  
-    // Handle exact UUID search separately
+    // Check if the search term is a UUID
     if (/^[0-9a-fA-F-]{36}$/.test(term)) {
-      queryBuilder.orWhere('patient.uuid = :uuid', { uuid: term });
+      queryBuilder.where('patient.uuid = :uuid', { uuid: term });
+    } else {
+      const searchTerms = term.trim().toLowerCase().split(' ');
+  
+      if (searchTerms.length > 1) {
+        // Multiple words in search term
+        const firstNameTerm = searchTerms.slice(0, -1).join(' ');
+        const lastNameTerm = searchTerms.slice(-1).join(' '); // Update this line
+  
+        queryBuilder.where(
+          `(
+            (LOWER(patient.firstName) LIKE :firstName AND LOWER(patient.lastName) LIKE :lastName) OR
+            (LOWER(patient.firstName) LIKE :fullName) OR
+            (LOWER(patient.lastName) LIKE :fullName)
+          )`,
+          {
+            firstName: `%${firstNameTerm}%`,
+            lastName: `%${lastNameTerm}%`,
+            fullName: `%${term.toLowerCase()}%`,
+          }
+        );
+      } else {
+        // Single word in search term
+        const searchTerm = `%${term.toLowerCase()}%`;
+        queryBuilder.where(
+          `(LOWER(patient.firstName) LIKE :searchTerm OR LOWER(patient.lastName) LIKE :searchTerm)`,
+          { searchTerm }
+        );
+      }
     }
   
     // Count the total rows searched
@@ -190,10 +190,10 @@ export class PatientsService {
   
     // Find the data with pagination and sorting
     const patientList = await queryBuilder
-      .skip(skip)
-      .take(perPage)
-      .orderBy(`patient.${sortBy}`, sortOrder)
-      .getMany();
+     .skip(skip)
+     .take(perPage)
+     .orderBy(`patient.${sortBy}`, sortOrder)
+     .getMany();
   
     return {
       data: patientList,
