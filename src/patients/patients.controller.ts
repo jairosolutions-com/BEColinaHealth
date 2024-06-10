@@ -130,12 +130,18 @@ export class PatientsController {
         'Please provide patient UUIDs in the request body',
       );
     }
-
+  
     const profileImages =
       await this.profileImageService.getProfileImagesByUuids(body.patientUuids);
+  
+    // Handle the case where no profile images are found
+    if (!profileImages || profileImages.length === 0) {
+      return { message: 'No profile images found for the provided UUIDs' };
+    }
+  
     return profileImages;
   }
-
+  
   @Get(':id/profile-image')
   async getProfileImage(@Param('id') patientUuid: string) {
     return await this.profileImageService.getProfileImageByUuid(patientUuid);

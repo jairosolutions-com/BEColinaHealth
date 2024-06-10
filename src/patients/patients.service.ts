@@ -137,31 +137,11 @@ export class PatientsService {
     currentPage: number;
     totalCount: number;
   }> {
-    const searchTerm = `%${term}%`;
     const skip = (page - 1) * perPage;
-    const searchWords = term.split(' ');
-  
-    let firstNameWords = [];
-    let lastNameWords = [];
-  
-    let lastNameStarted = false;
-    for (const word of searchWords) {
-      if (word.endsWith('.') || word.includes('-')) {
-        lastNameStarted = true;
-      }
-      if (lastNameStarted) {
-        lastNameWords.push(word);
-      } else {
-        firstNameWords.push(word);
-      }
-    }
-  
-    const firstNameSearchTerm = firstNameWords.join(' ');
-    const lastNameSearchTerm = lastNameWords.join(' ');
   
     const queryBuilder = this.patientsRepository
-     .createQueryBuilder('patient')
-     .select([
+      .createQueryBuilder('patient')
+      .select([
         'patient.uuid',
         'patient.firstName',
         'patient.lastName',
@@ -169,19 +149,38 @@ export class PatientsService {
         'patient.gender',
       ]);
   
-    // Handling full name and partial full name searches
-    queryBuilder.where(
-      new Brackets((qb) => {
-        qb.where('concat(patient.firstName, patient.lastName) ILIKE :term', { term: searchTerm })
-         .orWhere('patient.firstName ILIKE :firstName', { firstName: `%${firstNameSearchTerm}%` })
-         .orWhere('patient.lastName ILIKE :lastName', { lastName: `%${lastNameSearchTerm}%` });
-        for (const word of searchWords) {
-          qb.where('patient.firstName ILIKE :word', {
-            word: `%${word}%`,
-          }).orWhere('patient.lastName ILIKE :word', { word: `%${word}%` });
+    const searchTerms = term.trim().toLowerCase().split(' ');
+  
+    if (searchTerms.length > 1) {
+      // Multiple words in search term
+      const firstNameTerm = searchTerms.slice(0, -1).join(' ');
+      const lastNameTerm = searchTerms[searchTerms.length - 1];
+  
+      queryBuilder.where(
+        `(
+          (LOWER(patient.firstName) LIKE :firstName AND LOWER(patient.lastName) LIKE :lastName) OR
+          (LOWER(patient.firstName) LIKE :fullName) OR
+          (LOWER(patient.lastName) LIKE :fullName)
+        )`,
+        {
+          firstName: `%${firstNameTerm}%`,
+          lastName: `%${lastNameTerm}%`,
+          fullName: `%${term.toLowerCase()}%`,
         }
-      }),
-    );
+      );
+    } else {
+      // Single word in search term
+      const searchTerm = `%${term.toLowerCase()}%`;
+      queryBuilder.where(
+        `(LOWER(patient.firstName) LIKE :searchTerm OR LOWER(patient.lastName) LIKE :searchTerm OR patient.uuid = :exactTerm)`,
+        { searchTerm, exactTerm: term }
+      );
+    }
+  
+    // Handle exact UUID search separately
+    if (/^[0-9a-fA-F-]{36}$/.test(term)) {
+      queryBuilder.orWhere('patient.uuid = :uuid', { uuid: term });
+    }
   
     // Count the total rows searched
     const totalPatients = await queryBuilder.getCount();
@@ -191,10 +190,10 @@ export class PatientsService {
   
     // Find the data with pagination and sorting
     const patientList = await queryBuilder
-     .skip(skip)
-     .take(perPage)
-     .orderBy(`patient.${sortBy}`, sortOrder)
-     .getMany();
+      .skip(skip)
+      .take(perPage)
+      .orderBy(`patient.${sortBy}`, sortOrder)
+      .getMany();
   
     return {
       data: patientList,
@@ -203,6 +202,7 @@ export class PatientsService {
       totalCount: totalPatients,
     };
   }
+  
 
   async getAllPatientsFullName(): Promise<{
     data: Patients[];
