@@ -232,6 +232,7 @@ export class PatientsService {
 
   async getPatientRecentInfo(id: string): Promise<{
     data: Patients[];
+    recentMedication: any;
     totalMedicationDue: number;
     totalMedicationDone: number;
     patientAllergies: any;
@@ -291,7 +292,6 @@ export class PatientsService {
     const patientRecentInfo = this.patientsRepository
       .createQueryBuilder('patient')
       .leftJoin('patient.vitalsign', 'vitalsign')
-      .leftJoin('patient.medicationlogs', 'medicationlogs')
       .leftJoin('patient.allergies', 'allergies')
       .select([
         'patient.firstName',
@@ -306,18 +306,6 @@ export class PatientsService {
         'patient.phoneNo',
       ])
       .addSelect(
-        "COALESCE(medicationlogs.medicationLogsName, 'No Medication Taken')",
-        'medicationLogsName',
-      )
-      .addSelect(
-        "COALESCE(medicationlogs.medicationLogsTime, 'No Time')",
-        'medicationLogsTime',
-      )
-      .addSelect(
-        "COALESCE(medicationlogs.medicationLogsDate, 'No Date')",
-        'medicationLogsDate',
-      )
-      .addSelect(
         "COALESCE(vitalsign.bloodPressure, 'No Blood Pressure')",
         'bloodPressure',
       )
@@ -331,9 +319,17 @@ export class PatientsService {
         'respiratoryRate',
       )
       .where('patient.uuid = :uuid', { uuid: id })
-      .orderBy('medicationlogs.createdAt', 'DESC')
       .addOrderBy('vitalsign.createdAt', 'DESC')
       .limit(1);
+
+    const recentMedicationQuery = this.patientsRepository
+      .createQueryBuilder('patient')
+      .innerJoin('patient.medicationlogs', 'medicationlogs')
+      .select(['medicationlogs.medicationLogsName', 'medicationlogs.medicationLogsTime', 'medicationlogs.medicationLogsDate'])
+      .where('patient.uuid = :uuid', { uuid: id })
+      .andWhere('medicationlogs.medicationLogStatus != :medicationLogStatus', { medicationLogStatus: 'pending' })
+      .orderBy('medicationlogs.createdAt', 'DESC')
+      .limit(1)
 
     const allergensQuery = this.patientsRepository
       .createQueryBuilder('patient')
@@ -343,10 +339,12 @@ export class PatientsService {
 
     const patientRecentInfoList = await patientRecentInfo.getRawMany();
     const patientAllergies = await allergensQuery.getRawMany();
+    const recentMedication = await recentMedicationQuery.getRawOne();
     const totalMedicationCount = await medicationCountSubQuery.getRawOne();
     const totalMedicationDoneCount = await medicationDoneCount.getRawOne();
     return {
       data: patientRecentInfoList,
+      recentMedication: recentMedication ? recentMedication : { medicationLogsName: null, medicationLogsTime: null, medicationLogsDate: null },
       patientAllergies: patientAllergies,
       totalMedicationDue: totalMedicationCount,
       totalMedicationDone: totalMedicationDoneCount,
