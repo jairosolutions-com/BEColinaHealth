@@ -26,7 +26,7 @@ export class PatientsService {
     // private prescriptionRepository: Repository<Prescriptions>,
 
     private idService: IdService, // Inject the IdService
-  ) {}
+  ) { }
 
   //CREATE PATIENT INFO
   async createPatients(input: CreatePatientsInput): Promise<Patients> {
@@ -138,40 +138,49 @@ export class PatientsService {
     totalCount: number;
   }> {
     const skip = (page - 1) * perPage;
-  
+
     const queryBuilder = this.patientsRepository
-     .createQueryBuilder('patient')
-     .select([
+      .createQueryBuilder('patient')
+      .select([
         'patient.uuid',
         'patient.firstName',
         'patient.lastName',
         'patient.age',
         'patient.gender',
       ]);
-  
+
     // Check if the search term is a UUID
-    if (/^[0-9a-fA-F-]{36}$/.test(term)) {
-      queryBuilder.where('patient.uuid = :uuid', { uuid: term });
+    if (/^PTN/.test(term.toUpperCase())) {
+      queryBuilder.where('patient.uuid LIKE :uuid', { uuid: `%${term.toUpperCase()}%` });
     } else {
-      const searchTerms = term.trim().toLowerCase().split(' ');
-  
+      const searchTerms = term.trim().toLowerCase().split(/\s+/);
+
+
       if (searchTerms.length > 1) {
         // Multiple words in search term
         const firstNameTerm = searchTerms.slice(0, -1).join(' ');
-        const lastNameTerm = searchTerms.slice(-1).join(' '); // Update this line
-  
+        const lastNameTerm = searchTerms[searchTerms.length - 1];
+        const fullNameTerm = searchTerms.slice(0, -1).join(' ') + ' ' + searchTerms[searchTerms.length - 1];
+        console.log(fullNameTerm, "fULL NAME:", "searching");
+        console.log(searchTerms, "searchTerms :", "searching");
+
+        console.log(firstNameTerm, "LAST NAME:", lastNameTerm, "searching");
         queryBuilder.where(
           `(
             (LOWER(patient.firstName) LIKE :firstName AND LOWER(patient.lastName) LIKE :lastName) OR
             (LOWER(patient.firstName) LIKE :fullName) OR
             (LOWER(patient.lastName) LIKE :fullName)
+            OR
+            (LOWER(CONCAT(patient.firstName, patient.lastName)) LIKE :fullName)
           )`,
           {
             firstName: `%${firstNameTerm}%`,
             lastName: `%${lastNameTerm}%`,
-            fullName: `%${term.toLowerCase()}%`,
+            fullName: `%${fullNameTerm}%`,
           }
         );
+
+
       } else {
         // Single word in search term
         const searchTerm = `%${term.toLowerCase()}%`;
@@ -181,20 +190,20 @@ export class PatientsService {
         );
       }
     }
-  
+
     // Count the total rows searched
     const totalPatients = await queryBuilder.getCount();
-  
+
     // Total number of pages
     const totalPages = Math.ceil(totalPatients / perPage);
-  
+
     // Find the data with pagination and sorting
     const patientList = await queryBuilder
-     .skip(skip)
-     .take(perPage)
-     .orderBy(`patient.${sortBy}`, sortOrder)
-     .getMany();
-  
+      .skip(skip)
+      .take(perPage)
+      .orderBy(`patient.${sortBy}`, sortOrder)
+      .getMany();
+
     return {
       data: patientList,
       totalPages: totalPages,
@@ -202,7 +211,7 @@ export class PatientsService {
       totalCount: totalPatients,
     };
   }
-  
+
 
   async getAllPatientsFullName(): Promise<{
     data: Patients[];
