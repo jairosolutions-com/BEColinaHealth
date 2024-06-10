@@ -137,61 +137,65 @@ export class PatientsService {
     currentPage: number;
     totalCount: number;
   }> {
-    const searchTerm = `%${term}%`; // Add wildcards to the search term
+    const searchTerm = `%${term}%`;
     const skip = (page - 1) * perPage;
-
-    // Count the total rows searched
-    const totalPatients = await this.patientsRepository.count({
-      where: [
-        { firstName: ILike(searchTerm) },
-        { lastName: ILike(searchTerm) },
-        { uuid: ILike(`${searchTerm}%`) },
-      ],
-    });
-
-    // Total number of pages
-    const totalPages = Math.ceil(totalPatients / perPage);
-
-    const searchWords = term.split(' ').map((word) => `%${word}%`);
-
-    // Find the data
-    const patientList = await this.patientsRepository
-      .createQueryBuilder('patient')
-      .select([
+    const searchWords = term.split(' ');
+  
+    let firstNameWords = [];
+    let lastNameWords = [];
+  
+    let lastNameStarted = false;
+    for (const word of searchWords) {
+      if (word.endsWith('.') || word.includes('-')) {
+        lastNameStarted = true;
+      }
+      if (lastNameStarted) {
+        lastNameWords.push(word);
+      } else {
+        firstNameWords.push(word);
+      }
+    }
+  
+    const firstNameSearchTerm = firstNameWords.join(' ');
+    const lastNameSearchTerm = lastNameWords.join(' ');
+  
+    const queryBuilder = this.patientsRepository
+     .createQueryBuilder('patient')
+     .select([
         'patient.uuid',
         'patient.firstName',
         'patient.lastName',
         'patient.age',
         'patient.gender',
-        'patient.codeStatus',
-      ])
-      .where(
-        new Brackets((qb) => {
-          qb.where('patient.firstName ILIKE :searchTerm', { searchTerm })
-            .orWhere('patient.lastName ILIKE :searchTerm', { searchTerm })
-            .orWhere('patient.uuid ILIKE :searchTerm', {
-              searchTerm: `${searchTerm}%`,
-            });
-        }),
-      )
-      .orWhere(
-        new Brackets((qb) => {
-          for (const word of searchWords) {
-            qb.andWhere(
-              new Brackets((subQb) => {
-                subQb
-                  .where('patient.firstName ILIKE :word', { word })
-                  .orWhere('patient.lastName ILIKE :word', { word });
-              }),
-            );
-          }
-        }),
-      )
-      .skip(skip)
-      .take(perPage)
-      .orderBy(`patient.${sortBy}`, sortOrder)
-      .getMany();
-
+      ]);
+  
+    // Handling full name and partial full name searches
+    queryBuilder.where(
+      new Brackets((qb) => {
+        qb.where('concat(patient.firstName, patient.lastName) ILIKE :term', { term: searchTerm })
+         .orWhere('patient.firstName ILIKE :firstName', { firstName: `%${firstNameSearchTerm}%` })
+         .orWhere('patient.lastName ILIKE :lastName', { lastName: `%${lastNameSearchTerm}%` });
+        for (const word of searchWords) {
+          qb.where('patient.firstName ILIKE :word', {
+            word: `%${word}%`,
+          }).orWhere('patient.lastName ILIKE :word', { word: `%${word}%` });
+        }
+      }),
+    );
+  
+    // Count the total rows searched
+    const totalPatients = await queryBuilder.getCount();
+  
+    // Total number of pages
+    const totalPages = Math.ceil(totalPatients / perPage);
+  
+    // Find the data with pagination and sorting
+    const patientList = await queryBuilder
+     .skip(skip)
+     .take(perPage)
+     .orderBy(`patient.${sortBy}`, sortOrder)
+     .getMany();
+  
     return {
       data: patientList,
       totalPages: totalPages,
@@ -205,7 +209,7 @@ export class PatientsService {
   }> {
     const patientList = await this.patientsRepository.find({
       select: ['uuid', 'firstName', 'lastName'],
-      order: { lastName: 'ASC' },
+      order: { firstName: 'ASC' },
     });
     return {
       data: patientList,
@@ -225,90 +229,127 @@ export class PatientsService {
       ],
     });
   }
-  
+
   async getPatientRecentInfo(id: string): Promise<{
     data: Patients[];
-    totalMedicationDue: number
-    totalMedicationDone: number
-    patientAllergies: any
+    totalMedicationDue: number;
+    totalMedicationDone: number;
+    patientAllergies: any;
   }> {
     const patientExists = await this.patientsRepository.findOne({
       where: { uuid: id },
-      select: ['id']
+      select: ['id'],
     });
     if (!patientExists) {
       throw new NotFoundException('Patient not found');
     }
-  
+
     const today = new Date();
     const formattedToday = today.toISOString().split('T')[0]; // Format date as YYYY-MM-DD
-  
+
     const medicationCountSubQuery = this.patientsRepository
       .createQueryBuilder('patient')
       .innerJoin('patient.medicationlogs', 'medicationlogs')
+      .innerJoin(
+        'patient.prescriptions',
+        'prescriptions',
+        'prescriptions.status = :status',
+        { status: 'active' },
+      )
       .select('COUNT(medicationlogs.id)', 'medicationCount')
-      .where('medicationlogs.patientId = :id',{id:patientExists.id})
+      .where(
+        'medicationlogs.patientId = :id and medicationlogs.prescriptionId = prescriptions.id',
+        { id: patientExists.id },
+      )
       .andWhere('medicationlogs.medicationType = :medicationType', {
         medicationType: 'ASCH',
       })
-      .andWhere(
-        'medicationlogs.medicationLogStatus = :medicationLogStatus',
-        {
-          medicationLogStatus: 'pending',
-        },
-      )
-      .andWhere('medicationlogs.medicationLogsDate = :today', { today: formattedToday });
-  
-      const medicationDoneCount = this.patientsRepository
+      .andWhere('medicationlogs.medicationLogStatus = :medicationLogStatus', {
+        medicationLogStatus: 'pending',
+      })
+      .andWhere('medicationlogs.medicationLogsDate = :today', {
+        today: formattedToday,
+      });
+
+    const medicationDoneCount = this.patientsRepository
       .createQueryBuilder('patient')
       .innerJoin('patient.medicationlogs', 'medicationlogs')
+      .innerJoin('patient.prescriptions', 'prescriptions')
       .select('COUNT(medicationlogs.id)', 'medicationCount')
-      .where('medicationlogs.patientId = :id',{id:patientExists.id})
+      .where('medicationlogs.patientId = :id', { id: patientExists.id })
       .andWhere('medicationlogs.medicationType = :medicationType', {
         medicationType: 'ASCH',
       })
-      .andWhere(
-        'medicationlogs.medicationLogStatus != :medicationLogStatus',
-        {
-          medicationLogStatus: 'pending',
-        },
-      )
-      .andWhere('medicationlogs.medicationLogsDate = :today', { today: formattedToday });
-  
-      const patientRecentInfo = this.patientsRepository
+      .andWhere('medicationlogs.medicationLogStatus != :medicationLogStatus', {
+        medicationLogStatus: 'pending',
+      })
+      .andWhere('medicationlogs.medicationLogsDate = :today', {
+        today: formattedToday,
+      })
+      .andWhere('prescriptions.status = :status', { status: 'active' });
+
+    const patientRecentInfo = this.patientsRepository
       .createQueryBuilder('patient')
       .leftJoin('patient.vitalsign', 'vitalsign')
       .leftJoin('patient.medicationlogs', 'medicationlogs')
       .leftJoin('patient.allergies', 'allergies')
-      .select(['patient.firstName', 'patient.lastName', 'patient.middleName','patient.age', 'patient.admissionDate' , 'patient.gender' , 'patient.age' ,'patient.dateOfBirth','patient.address1','patient.phoneNo'])
-      .addSelect('COALESCE(medicationlogs.medicationLogsName, \'No Medication Taken\')', 'medicationLogsName')
-      .addSelect('COALESCE(medicationlogs.medicationLogsTime, \'No Time\')', 'medicationLogsTime')
-      .addSelect('COALESCE(medicationlogs.medicationLogsDate, \'No Date\')', 'medicationLogsDate')
-      .addSelect('COALESCE(vitalsign.bloodPressure, \'No Blood Pressure\')', 'bloodPressure')
-      .addSelect('COALESCE(vitalsign.heartRate, \'No Heart Rate\')', 'heartRate')
-      .addSelect('COALESCE(vitalsign.temperature, \'No Temperature\')', 'temperature')
-      .addSelect('COALESCE(vitalsign.respiratoryRate, \'No Respiratory Rate\')', 'respiratoryRate')
+      .select([
+        'patient.firstName',
+        'patient.lastName',
+        'patient.middleName',
+        'patient.age',
+        'patient.admissionDate',
+        'patient.gender',
+        'patient.age',
+        'patient.dateOfBirth',
+        'patient.address1',
+        'patient.phoneNo',
+      ])
+      .addSelect(
+        "COALESCE(medicationlogs.medicationLogsName, 'No Medication Taken')",
+        'medicationLogsName',
+      )
+      .addSelect(
+        "COALESCE(medicationlogs.medicationLogsTime, 'No Time')",
+        'medicationLogsTime',
+      )
+      .addSelect(
+        "COALESCE(medicationlogs.medicationLogsDate, 'No Date')",
+        'medicationLogsDate',
+      )
+      .addSelect(
+        "COALESCE(vitalsign.bloodPressure, 'No Blood Pressure')",
+        'bloodPressure',
+      )
+      .addSelect("COALESCE(vitalsign.heartRate, 'No Heart Rate')", 'heartRate')
+      .addSelect(
+        "COALESCE(vitalsign.temperature, 'No Temperature')",
+        'temperature',
+      )
+      .addSelect(
+        "COALESCE(vitalsign.respiratoryRate, 'No Respiratory Rate')",
+        'respiratoryRate',
+      )
       .where('patient.uuid = :uuid', { uuid: id })
       .orderBy('medicationlogs.createdAt', 'DESC')
       .addOrderBy('vitalsign.createdAt', 'DESC')
       .limit(1);
-    
 
-      const allergensQuery = this.patientsRepository
+    const allergensQuery = this.patientsRepository
       .createQueryBuilder('patient')
       .leftJoin('patient.allergies', 'allergies')
-      .select('STRING_AGG(allergies.allergen, \', \')', 'allergens')
+      .select("STRING_AGG(allergies.allergen, ', ')", 'allergens')
       .where('patient.uuid = :uuid', { uuid: id });
-  
+
     const patientRecentInfoList = await patientRecentInfo.getRawMany();
     const patientAllergies = await allergensQuery.getRawMany();
-      const totalMedicationCount = await medicationCountSubQuery.getRawOne();
-      const totalMedicationDoneCount = await medicationDoneCount.getRawOne();
+    const totalMedicationCount = await medicationCountSubQuery.getRawOne();
+    const totalMedicationDoneCount = await medicationDoneCount.getRawOne();
     return {
       data: patientRecentInfoList,
       patientAllergies: patientAllergies,
       totalMedicationDue: totalMedicationCount,
-      totalMedicationDone: totalMedicationDoneCount
+      totalMedicationDone: totalMedicationDoneCount,
     };
   }
 
