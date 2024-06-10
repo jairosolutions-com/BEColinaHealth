@@ -31,6 +31,7 @@ export class PatientsController {
       page: number;
       sortBy: string;
       sortOrder: 'ASC' | 'DESC';
+      perPage: number;
     },
   ): Promise<{
     data: Patients[];
@@ -38,12 +39,13 @@ export class PatientsController {
     currentPage: number;
     totalCount;
   }> {
-    const { term = '', page, sortBy, sortOrder } = requestData;
+    const { term = '', page, sortBy, sortOrder, perPage } = requestData;
     return this.patientsService.getAllPatientsBasicInfo(
       term,
       page,
       sortBy,
       sortOrder,
+      perPage,
     );
   }
 
