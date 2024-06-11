@@ -82,7 +82,7 @@ export class PrescriptionsService {
     console.log('currentDate now', todayDate);
 
     const prescriptions = await this.prescriptionsRepository.find({
-      select: ['patientId', 'id', 'frequency', 'name', 'interval'],
+      select: ['patientId', 'id', 'frequency', 'name', 'interval','dosage'],
       where: {
         status: 'active',
         uuid: prescriptionUuid,
@@ -131,7 +131,7 @@ export class PrescriptionsService {
             const uuidPrefix = 'MDL-'; // Customize prefix as needed
             const uuid = this.idService.generateRandomUUID(uuidPrefix);
             newMedicationLogs.uuid = uuid;
-            newMedicationLogs.medicationLogsName = prescription.name;
+            newMedicationLogs.medicationLogsName = prescription.name+" "+prescription.dosage;
             newMedicationLogs.medicationLogsDate = todayDate
               .toISOString()
               .split('T')[0];
