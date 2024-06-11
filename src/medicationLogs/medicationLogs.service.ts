@@ -302,8 +302,9 @@ export class MedicationLogsService {
       
     const dueMedicationQueryBuilder = this.medicationLogsRepository
       .createQueryBuilder('medicationlogs')
-      .innerJoinAndSelect('medicationlogs.patient', 'patient')
-      .innerJoin('medicationlogs.prescription', 'prescription')
+      .innerJoin('medicationlogs.patient', 'patient')
+      .innerJoin('medicationlogs.prescription', 'prescription','prescription.status = :status',
+        { status: 'active' }, )
       .select([
         'medicationlogs.uuid',
         'medicationlogs.medicationLogsName',
@@ -320,9 +321,10 @@ export class MedicationLogsService {
       .where('medicationlogs.medicationLogStatus = :medicationLogStatus', {
         medicationLogStatus: 'pending',
       })
+      .andWhere('medicationlogs.prescriptionId = prescription.id')
       .andWhere('medicationlogs.createdAt >= :todayDate', {
         todayDate: todayDate.toISOString().split('T')[0],
-      }) // Filter by today's date
+      })
       .andWhere('prescription.status = :status', {status: 'active'})
       .orderBy(`${sortBy}`, sortOrder)
       .offset(skip)
@@ -345,7 +347,9 @@ export class MedicationLogsService {
                 {
                   medicationLogStatus: 'pending',
                 },
-              );
+              )
+              .andWhere('prescription.status = :status', {status: 'active'});
+              
           }),
         )
         .andWhere(
@@ -394,7 +398,8 @@ export class MedicationLogsService {
         }) // Filter by today's date
         .andWhere('medicationlogs.medicationLogStatus = :medicationLogStatus', {
           medicationLogStatus: 'pending',
-        });
+        })
+        .andWhere('prescription.status = :status', {status: 'active'});
     }
     const dueMedicationList = await dueMedicationQueryBuilder.getRawMany();
     const totalPatientdueMedication =
