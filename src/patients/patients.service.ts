@@ -342,9 +342,14 @@ export class PatientsService {
     const medicationDoneCount = this.patientsRepository
       .createQueryBuilder('patient')
       .innerJoin('patient.medicationlogs', 'medicationlogs')
-      .innerJoin('patient.prescriptions', 'prescriptions')
+      .innerJoin(
+        'patient.prescriptions',
+        'prescriptions',
+        'prescriptions.status = :status',
+        { status: 'active' },
+      )
       .select('COUNT(medicationlogs.id)', 'medicationCount')
-      .where('medicationlogs.patientId = :id', { id: patientExists.id })
+      .where('medicationlogs.patientId = :id and medicationlogs.prescriptionId = prescriptions.id', { id: patientExists.id })
       .andWhere('medicationlogs.medicationType = :medicationType', {
         medicationType: 'ASCH',
       })

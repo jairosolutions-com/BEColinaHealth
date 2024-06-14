@@ -23,7 +23,7 @@ export class MedicationLogsService {
     private prescriptionsRepository: Repository<Prescriptions>,
 
     private idService: IdService, // Inject the IdService
-  ) {}
+  ) { }
 
   async createMedicationLogs(
     patientUuid: string,
@@ -299,11 +299,12 @@ export class MedicationLogsService {
       .andWhere('medicationlogs.medicationType = :medicationType', {
         medicationType: 'ASCH',
       })
-      
+
     const dueMedicationQueryBuilder = this.medicationLogsRepository
       .createQueryBuilder('medicationlogs')
-      .innerJoinAndSelect('medicationlogs.patient', 'patient')
-      .innerJoin('medicationlogs.prescription', 'prescription')
+      .innerJoin('medicationlogs.patient', 'patient')
+      .innerJoin('medicationlogs.prescription', 'prescription', 'prescription.status = :status',
+        { status: 'active' },)
       .select([
         'medicationlogs.uuid',
         'medicationlogs.medicationLogsName',
@@ -320,90 +321,96 @@ export class MedicationLogsService {
       .where('medicationlogs.medicationLogStatus = :medicationLogStatus', {
         medicationLogStatus: 'pending',
       })
+      .andWhere('medicationlogs.prescriptionId = prescription.id')
       .andWhere('medicationlogs.createdAt >= :todayDate', {
         todayDate: todayDate.toISOString().split('T')[0],
-      }) // Filter by today's date
-      .andWhere('prescription.status = :status', {status: 'active'})
+      })
+      .andWhere('prescription.status = :status', { status: 'active' })
       .orderBy(`${sortBy}`, sortOrder)
       .offset(skip)
       .limit(perPage);
 
-      if (term !== '') {
-        console.log('term', term);
-        const searchTerms = term.trim().toLowerCase().split(/\s+/);
-      
-        dueMedicationQueryBuilder
-          .where(
-            new Brackets((qb) => {
-              qb.andWhere('medicationlogs.medicationType = :medicationType', {
-                medicationType: 'ASCH',
-              })
-                .andWhere('medicationlogs.createdAt >= :todayDate', {
-                  todayDate: todayDate.toISOString().split('T')[0],
-                }) // Filter by today's date
-                .andWhere('medicationlogs.medicationLogStatus = :medicationLogStatus', {
-                  medicationLogStatus: 'pending',
-                });
+    if (term !== '') {
+      console.log('term', term);
+      const searchTerms = term.trim().toLowerCase().split(/\s+/);
+
+      dueMedicationQueryBuilder
+        .where(
+          new Brackets((qb) => {
+            qb.andWhere('medicationlogs.medicationType = :medicationType', {
+              medicationType: 'ASCH',
             })
-          )
-          .andWhere(
-            new Brackets((qb) => {
-              qb.andWhere(
-                new Brackets((subQb) => {
-                  subQb
-                    .where('medicationlogs.medicationLogsName ILIKE :searchTerm', {
+              .andWhere('medicationlogs.createdAt >= :todayDate', {
+                todayDate: todayDate.toISOString().split('T')[0],
+              }) // Filter by today's date
+              .andWhere('medicationlogs.medicationLogStatus = :medicationLogStatus', {
+                medicationLogStatus: 'pending',
+              },
+              )
+              .andWhere('prescription.status = :status', { status: 'active' });
+          }),
+
+        )
+        .andWhere(
+          new Brackets((qb) => {
+            qb.andWhere(
+              new Brackets((subQb) => {
+                subQb
+                  .where(
+                    'medicationlogs.medicationLogsName ILIKE :searchTerm',
+                    {
                       searchTerm,
                     })
-                    .orWhere('medicationlogs.medicationLogStatus ILIKE :searchTerm', {
-                      searchTerm,
+                  .orWhere('medicationlogs.medicationLogStatus ILIKE :searchTerm', {
+                    searchTerm,
+                  })
+                  .orWhere('medicationlogs.uuid ILIKE :searchTerm', {
+                    searchTerm,
+                  });
+              })
+            ).orWhere(
+              new Brackets((subQb) => {
+                if (searchTerms.length > 1) {
+                  const firstNameTerm = searchTerms.slice(0, -1).join(' ');
+                  const lastNameTerm = searchTerms[searchTerms.length - 1];
+                  const fullNameTerm = searchTerms.join(' ');
+
+                  subQb.andWhere(
+                    new Brackets((subSubQb) => {
+                      subSubQb
+                        .where('LOWER(patient.firstName) LIKE :firstNameTerm', { firstNameTerm: `%${firstNameTerm}%` })
+                        .andWhere('LOWER(patient.lastName) LIKE :lastNameTerm', { lastNameTerm: `%${lastNameTerm}%` });
                     })
-                    .orWhere('medicationlogs.uuid ILIKE :searchTerm', {
-                      searchTerm,
-                    });
-                })
-              ).orWhere(
-                new Brackets((subQb) => {
-                  if (searchTerms.length > 1) {
-                    const firstNameTerm = searchTerms.slice(0, -1).join(' ');
-                    const lastNameTerm = searchTerms[searchTerms.length - 1];
-                    const fullNameTerm = searchTerms.join(' ');
-      
+                  ).orWhere(
+                    new Brackets((subSubQb) => {
+                      subSubQb
+                        .where('LOWER(patient.firstName) LIKE :fullNameTerm', { fullNameTerm: `%${fullNameTerm}%` })
+                        .orWhere('LOWER(patient.lastName) LIKE :fullNameTerm', { fullNameTerm: `%${fullNameTerm}%` });
+                    })
+                  ).orWhere(
+                    new Brackets((subSubQb) => {
+                      subSubQb
+                        .where('LOWER(CONCAT(patient.firstName, patient.lastName)) LIKE :fullNameTerm', { fullNameTerm: `%${fullNameTerm}%` })
+                        .orWhere('LOWER(CONCAT(patient.firstName, \' \', patient.lastName)) LIKE :fullNameTerm', { fullNameTerm: `%${fullNameTerm}%` });
+                    })
+                  );
+                } else {
+                  for (const word of searchTerms) {
                     subQb.andWhere(
                       new Brackets((subSubQb) => {
                         subSubQb
-                          .where('LOWER(patient.firstName) LIKE :firstNameTerm', { firstNameTerm: `%${firstNameTerm}%` })
-                          .andWhere('LOWER(patient.lastName) LIKE :lastNameTerm', { lastNameTerm: `%${lastNameTerm}%` });
-                      })
-                    ).orWhere(
-                      new Brackets((subSubQb) => {
-                        subSubQb
-                          .where('LOWER(patient.firstName) LIKE :fullNameTerm', { fullNameTerm: `%${fullNameTerm}%` })
-                          .orWhere('LOWER(patient.lastName) LIKE :fullNameTerm', { fullNameTerm: `%${fullNameTerm}%` });
-                      })
-                    ).orWhere(
-                      new Brackets((subSubQb) => {
-                        subSubQb
-                          .where('LOWER(CONCAT(patient.firstName, patient.lastName)) LIKE :fullNameTerm', { fullNameTerm: `%${fullNameTerm}%` })
-                          .orWhere('LOWER(CONCAT(patient.firstName, \' \', patient.lastName)) LIKE :fullNameTerm', { fullNameTerm: `%${fullNameTerm}%` });
+                          .where('patient.firstName ILIKE :word', { word: `%${word}%` })
+                          .orWhere('patient.lastName ILIKE :word', { word: `%${word}%` });
                       })
                     );
-                  } else {
-                    for (const word of searchTerms) {
-                      subQb.andWhere(
-                        new Brackets((subSubQb) => {
-                          subSubQb
-                            .where('patient.firstName ILIKE :word', { word: `%${word}%` })
-                            .orWhere('patient.lastName ILIKE :word', { word: `%${word}%` });
-                        })
-                      );
-                    }
                   }
-                })
-              );
-            })
-          );
-            
-   }  else {
+                }
+              })
+            );
+          })
+        );
+
+    } else {
       dueMedicationQueryBuilder
         .andWhere('medicationlogs.medicationType = :medicationType', {
           medicationType: 'ASCH',
@@ -413,13 +420,14 @@ export class MedicationLogsService {
         }) // Filter by today's date
         .andWhere('medicationlogs.medicationLogStatus = :medicationLogStatus', {
           medicationLogStatus: 'pending',
-        });
+        })
+        .andWhere('prescription.status = :status', { status: 'active' });
     }
     const dueMedicationList = await dueMedicationQueryBuilder.getRawMany();
     const totalPatientdueMedication =
       await dueMedicationQueryBuilder.getCount();
 
-      const totalDone =
+    const totalDone =
       await dueMedicationDoneQueryBuilder.getCount();
     const totalPages = Math.ceil(totalPatientdueMedication / perPage);
 
