@@ -53,16 +53,18 @@ export class AppointmentsController {
       page: number;
       sortBy: string;
       sortOrder: 'ASC' | 'DESC';
+      filterStatus: 'Scheduled' | 'Missed' | 'On-going' | 'Cancelled' | 'Patient-IN'  ;
       startDate: string;
       endDate: string;
     },
   ) {
-    const { term = '', page, sortBy, sortOrder,startDate,endDate } = body;
+    const { term = '',page, sortBy, sortOrder,filterStatus,startDate,endDate } = body;
     return this.appointmentService.getAllAppointments(
       term,
       page,
       sortBy,
       sortOrder,
+      filterStatus,
       startDate,
       endDate,
     );

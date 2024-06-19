@@ -352,7 +352,7 @@ export class MedicationLogsService {
 
         )
         .andWhere(
-          new Brackets((qb) => {
+          new Brackets((qb) => {  
             qb.andWhere(
               new Brackets((subQb) => {
                 subQb
@@ -374,7 +374,9 @@ export class MedicationLogsService {
                   const firstNameTerm = searchTerms.slice(0, -1).join(' ');
                   const lastNameTerm = searchTerms[searchTerms.length - 1];
                   const fullNameTerm = searchTerms.join(' ');
-
+                  console.log('FIRSTZZ', firstNameTerm);
+                  console.log('lastNameTerm', lastNameTerm);
+                  console.log('fullNameTerm', fullNameTerm);  
                   subQb.andWhere(
                     new Brackets((subSubQb) => {
                       subSubQb
@@ -388,10 +390,10 @@ export class MedicationLogsService {
                         .orWhere('LOWER(patient.lastName) LIKE :fullNameTerm', { fullNameTerm: `%${fullNameTerm}%` });
                     })
                   ).orWhere(
-                    new Brackets((subSubQb) => {
-                      subSubQb
-                        .where('LOWER(CONCAT(patient.firstName, patient.lastName)) LIKE :fullNameTerm', { fullNameTerm: `%${fullNameTerm}%` })
-                        .orWhere('LOWER(CONCAT(patient.firstName, \' \', patient.lastName)) LIKE :fullNameTerm', { fullNameTerm: `%${fullNameTerm}%` });
+                    new Brackets((subQb) => {
+                      subQb
+                        .where('LOWER(CONCAT(patient.firstName, patient.lastName)) = :fullNameTerm', { fullNameTerm: `${fullNameTerm}` })
+                        .orWhere('LOWER(CONCAT(patient.firstName, \' \', patient.lastName)) = :fullNameTerm', { fullNameTerm: `${fullNameTerm}` });
                     })
                   );
                 } else {
