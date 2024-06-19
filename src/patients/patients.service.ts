@@ -219,10 +219,10 @@ export class PatientsService {
                         .orWhere('LOWER(patient.lastName) LIKE :fullNameTerm', { fullNameTerm: `%${fullNameTerm}%` });
                     })
                   ).orWhere(
-                    new Brackets((subSubQb) => {
-                      subSubQb
-                        .where('LOWER(CONCAT(patient.firstName, patient.lastName)) LIKE :fullNameTerm', { fullNameTerm: `%${fullNameTerm}%` })
-                        .orWhere('LOWER(CONCAT(patient.firstName, \' \', patient.lastName)) LIKE :fullNameTerm', { fullNameTerm: `%${fullNameTerm}%` });
+                    new Brackets((subQb) => {
+                      subQb
+                        .where('LOWER(CONCAT(patient.firstName, patient.lastName)) = :fullNameTerm', { fullNameTerm: `${fullNameTerm}` })
+                        .orWhere('LOWER(CONCAT(patient.firstName, \' \', patient.lastName)) = :fullNameTerm', { fullNameTerm: `${fullNameTerm}` });
                     })
                   );
                 } else {
