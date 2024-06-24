@@ -211,7 +211,7 @@ export class AppointmentsService {
     page: number = 1,
     sortBy: string = 'appointmentStatus',
     sortOrder: 'ASC' | 'DESC' = 'ASC',
-    filterStatus?: 'Scheduled' | 'Missed' | 'On-going' | 'Cancelled' | 'Patient-IN',
+    filterStatus?: string[] | undefined,
     startDate: string = '2021-01-01',
     endDate: string = '2300-01-01',
     perPage: number = 5,
@@ -249,10 +249,15 @@ export class AppointmentsService {
       .orderBy(`appointments.${sortBy}`, sortOrder)
       .offset(skip)
       .limit(perPage);
-    if (filterStatus) {
-      appointmentsQueryBuilder.andWhere('appointments.appointmentStatus = :filterStatus', { filterStatus: filterStatus })
+    // if (filterStatus) {
+    //   appointmentsQueryBuilder.andWhere('appointments.appointmentStatus = :filterStatus', { filterStatus: filterStatus })
+    // }
+    if (filterStatus && filterStatus.length > 0) {
+      // Use `IN` clause to filter appointments based on multiple statuses
+      appointmentsQueryBuilder.andWhere('appointments.appointmentStatus IN (:...filterStatus)', {
+        filterStatus: filterStatus,
+      });
     }
-
 
     if (term !== '') {
       console.log('term', term);
