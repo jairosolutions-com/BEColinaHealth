@@ -240,6 +240,7 @@ export class AppointmentsService {
         'patient.middleName',
       ])
 
+      
       .where('appointments.appointmentDate >= :startDate', {
         startDate: startDate,
       })
