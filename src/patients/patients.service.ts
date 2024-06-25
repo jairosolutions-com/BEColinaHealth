@@ -149,49 +149,105 @@ export class PatientsService {
         'patient.gender',
       ]);
 
-    // Check if the search term is a UUID
-    if (/^PTN/.test(term.toUpperCase())) {
-      queryBuilder.where('patient.uuid LIKE :uuid', { uuid: `%${term.toUpperCase()}%` });
-    } else {
+    // // Check if the search term is a UUID
+    // if (/^PTN/.test(term.toUpperCase())) {
+    //   queryBuilder.where('patient.uuid LIKE :uuid', { uuid: `%${term.toUpperCase()}%` });
+    // } else {
+    //   const searchTerms = term.trim().toLowerCase().split(/\s+/);
+
+
+    //   if (searchTerms.length > 1) {
+    //     // Multiple words in search term
+    //     const firstNameTerm = searchTerms.slice(0, -1).join(' ');
+    //     const lastNameTerm = searchTerms[searchTerms.length - 1];
+    //     const fullNameTerm = searchTerms.slice(0, -1).join(' ') + ' ' + searchTerms[searchTerms.length - 1];
+    //     console.log(fullNameTerm, "fULL NAME:", "searching");
+    //     console.log(searchTerms, "searchTerms :", "searching");
+
+    //     console.log(firstNameTerm, "LAST NAME:", lastNameTerm, "searching");
+    //     queryBuilder.where(
+    //       `(
+    //         (LOWER(patient.firstName) LIKE :firstName AND LOWER(patient.lastName) LIKE :lastName) OR
+    //         (LOWER(patient.firstName) LIKE :fullName) OR
+    //         (LOWER(patient.lastName) LIKE :fullName)
+    //         OR
+    //         (LOWER(CONCAT(patient.firstName, patient.lastName)) LIKE :fullName)
+    //             OR
+    //         (LOWER(CONCAT(patient.firstName, ' ', patient.lastName)) LIKE :fullName)
+    //       )`,
+    //       {
+    //         firstName: `%${firstNameTerm}%`,
+    //         lastName: `%${lastNameTerm}%`,
+    //         fullName: `%${fullNameTerm}%`,
+    //       }
+    //     );
+
+
+    //   } else {
+    //     // Single word in search term
+    //     const searchTerm = `%${term.toLowerCase()}%`;
+    //     queryBuilder.where(
+    //       `(LOWER(patient.firstName) LIKE :searchTerm OR LOWER(patient.lastName) LIKE :searchTerm)`,
+    //       { searchTerm }
+    //     );
+    //   }
+    // }
+    if (term !== '') {
+      console.log('term', term);
       const searchTerms = term.trim().toLowerCase().split(/\s+/);
 
+      queryBuilder
+        .where(
+          new Brackets((qb) => {
+            qb.orWhere(
+              new Brackets((subQb) => {
+                if (searchTerms.length > 1) {
+                  const firstNameTerm = searchTerms.slice(0, -1).join(' ');
+                  const lastNameTerm = searchTerms[searchTerms.length - 1];
+                  const fullNameTerm = searchTerms.join(' ');
 
-      if (searchTerms.length > 1) {
-        // Multiple words in search term
-        const firstNameTerm = searchTerms.slice(0, -1).join(' ');
-        const lastNameTerm = searchTerms[searchTerms.length - 1];
-        const fullNameTerm = searchTerms.slice(0, -1).join(' ') + ' ' + searchTerms[searchTerms.length - 1];
-        console.log(fullNameTerm, "fULL NAME:", "searching");
-        console.log(searchTerms, "searchTerms :", "searching");
+                  subQb.andWhere(
+                    new Brackets((subSubQb) => {
+                      subSubQb
+                        .where('LOWER(patient.firstName) LIKE :firstNameTerm', { firstNameTerm: `%${firstNameTerm}%` })
+                        .andWhere('LOWER(patient.lastName) LIKE :lastNameTerm', { lastNameTerm: `%${lastNameTerm}%` });
+                    })
+                  ).orWhere(
+                    new Brackets((subSubQb) => {
+                      subSubQb
+                        .where('LOWER(patient.firstName) LIKE :fullNameTerm', { fullNameTerm: `%${fullNameTerm}%` })
+                        .orWhere('LOWER(patient.lastName) LIKE :fullNameTerm', { fullNameTerm: `%${fullNameTerm}%` });
+                    })
+                  ).orWhere(
+                    new Brackets((subQb) => {
+                      subQb
+                        .where('LOWER(CONCAT(patient.firstName, patient.lastName)) = :fullNameTerm', { fullNameTerm: `${fullNameTerm}` })
+                        .orWhere('LOWER(CONCAT(patient.firstName, \' \', patient.lastName)) = :fullNameTerm', { fullNameTerm: `${fullNameTerm}` });
+                    })
+                  );
+                } else {
+                  for (const word of searchTerms) {
+                    subQb.andWhere(
+                      new Brackets((subSubQb) => {
+                        subSubQb
+                          .where('patient.firstName ILIKE :word', { word: `%${word}%` })
+                          .orWhere('patient.lastName ILIKE :word', { word: `%${word}%` });
+                      })
+                    );
+                  }
+                }
+              })
+            );
 
-        console.log(firstNameTerm, "LAST NAME:", lastNameTerm, "searching");
-        queryBuilder.where(
-          `(
-            (LOWER(patient.firstName) LIKE :firstName AND LOWER(patient.lastName) LIKE :lastName) OR
-            (LOWER(patient.firstName) LIKE :fullName) OR
-            (LOWER(patient.lastName) LIKE :fullName)
-            OR
-            (LOWER(CONCAT(patient.firstName, patient.lastName)) LIKE :fullName)
-                OR
-            (LOWER(CONCAT(patient.firstName, ' ', patient.lastName)) LIKE :fullName)
-          )`,
-          {
-            firstName: `%${firstNameTerm}%`,
-            lastName: `%${lastNameTerm}%`,
-            fullName: `%${fullNameTerm}%`,
-          }
+            // Search for UUID directly
+            if (searchTerms.length === 1) {
+              const uuidTerm = `%${term.toUpperCase()}%`;
+              qb.orWhere('patient.uuid LIKE :uuidTerm', { uuidTerm });
+            }
+          })
         );
-
-
-      } else {
-        // Single word in search term
-        const searchTerm = `%${term.toLowerCase()}%`;
-        queryBuilder.where(
-          `(LOWER(patient.firstName) LIKE :searchTerm OR LOWER(patient.lastName) LIKE :searchTerm)`,
-          { searchTerm }
-        );
-      }
     }
+
 
     // Count the total rows searched
     const totalPatients = await queryBuilder.getCount();
@@ -341,7 +397,7 @@ export class PatientsService {
     const recentMedicationQuery = this.patientsRepository
       .createQueryBuilder('patient')
       .innerJoin('patient.medicationlogs', 'medicationlogs')
-      .select(['medicationlogs.medicationLogsName', 'medicationlogs.medicationLogsTime', 'medicationlogs.medicationLogsDate'])
+      .select(['medicationlogs.medicationLogsName', 'medicationlogs.medicationLogsTime', 'medicationlogs.medicationLogsDate','medicationlogs.medicationType'])
       .where('patient.uuid = :uuid', { uuid: id })
       .andWhere('medicationlogs.medicationLogStatus != :medicationLogStatus', { medicationLogStatus: 'pending' })
       .orderBy('medicationlogs.createdAt', 'DESC')
