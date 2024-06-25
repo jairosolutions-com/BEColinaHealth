@@ -397,7 +397,7 @@ export class PatientsService {
     const recentMedicationQuery = this.patientsRepository
       .createQueryBuilder('patient')
       .innerJoin('patient.medicationlogs', 'medicationlogs')
-      .select(['medicationlogs.medicationLogsName', 'medicationlogs.medicationLogsTime', 'medicationlogs.medicationLogsDate'])
+      .select(['medicationlogs.medicationLogsName', 'medicationlogs.medicationLogsTime', 'medicationlogs.medicationLogsDate','medicationlogs.medicationType'])
       .where('patient.uuid = :uuid', { uuid: id })
       .andWhere('medicationlogs.medicationLogStatus != :medicationLogStatus', { medicationLogStatus: 'pending' })
       .orderBy('medicationlogs.createdAt', 'DESC')

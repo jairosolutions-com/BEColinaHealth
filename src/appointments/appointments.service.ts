@@ -224,6 +224,14 @@ export class AppointmentsService {
     const todayDate = new Date();
     todayDate.setUTCHours(0, 0, 0, 0);
     const skip = (page - 1) * perPage;
+    const sortByMapping: { [key: string]: string } = {
+      'appointmentStatus': 'appointments.appointmentStatus',
+      'appointmentDate': 'appointments.appointmentDate',
+      'appointmentTime': 'appointments.appointmentTime',
+      'appointmentEndTime': 'appointments.appointmentEndTime',
+      'patient_firstName': 'patient.firstName'
+    };
+    const validSortBy = sortByMapping[sortBy] || 'appointments.appointmentStatus';
 
     const appointmentsQueryBuilder = this.appointmentsRepository
       .createQueryBuilder('appointments')
@@ -247,7 +255,7 @@ export class AppointmentsService {
       .andWhere('appointments.appointmentDate <= :endDate', {
         endDate: endDate,
       })
-      .orderBy(`appointments.${sortBy}`, sortOrder)
+      .orderBy(validSortBy, sortOrder)
       .offset(skip)
       .limit(perPage);
     // if (filterStatus) {
