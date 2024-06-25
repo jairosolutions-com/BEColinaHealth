@@ -5,6 +5,7 @@
     "labfile",
     "luxon",
     "medicationlogs",
+    "profileimage",
     "Streamable",
     "typeorm",
     "vitalsign"
