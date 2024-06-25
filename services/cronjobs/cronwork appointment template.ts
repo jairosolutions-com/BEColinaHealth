@@ -32,7 +32,7 @@ export class CronjobsService {
             const appointmentEndDateTime = this.parseDateTime(appointment.appointmentDate, appointment.appointmentEndTime);
 
             if (currentDate >= appointmentDateTime && currentDate <= appointmentEndDateTime) {
-                await this.updateAppointmentStatus(appointment, 'ongoing');
+                await this.updateAppointmentStatus(appointment, 'On-going');
                 console.log('Marked ongoing for appointment:', appointment.id);
             } else if (currentDate > appointmentEndDateTime) {
                 if (appointment.appointmentStatus !== 'successful') {
